@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 
 // ==========================================
-// EMAILJS APARICI TƏNZİMLƏMƏLƏRİ (REAL AÇARLARLA)
+// EMAILJS REAL KONFİQURASİYASI (SİZİN AÇARLARINIZ)
 // ==========================================
 const EMAILJS_CONFIG = {
-  serviceId: "service_default", // Müştərinin EmailJS-də yaratdığı default e-mail xidməti
-  templateId: "template_premium", // Müştərinin EmailJS-də yaratdığı şablon ID-si
-  publicKey: "MpwQ11f-oEOzMIkNs", // Real Public Key daxil edildi
-  privateKey: "OmxGuIfsqwmr8FTV8Rkmr", // Real Private Key (accessToken) təhlükəsiz göndərmə üçün daxil edildi
-  adminEmail: "premiumshopazerbaycan@gmail.com" // Bildirişlərin göndəriləcəyi rəsmi admin ünvanı
+  serviceId: "service_default", // EmailJS panelindəki Email Service ID (Default: service_default)
+  templateId: "template_premium", // EmailJS panelindəki Email Template ID (Default: template_premium)
+  publicKey: "MpwQ11f-oEOzMIkNs", // Real Public Key
+  privateKey: "OmxGuIfsqwmr8FTV8Rkmr", // Real Private Key (Access Token)
+  adminEmail: "premiumshopazerbaycan@gmail.com" // Sifariş bildirişlərinin gələcəyi rəsmi admin ünvanı
 };
 
 const CSS = `
@@ -351,16 +351,17 @@ export default function App() {
   };
 
   // ==========================================
-  // REAL EMAIL SENDING FUNCTION (EmailJS REST Integration with Signature verification)
+  // PEŞƏKAR VƏ ZƏMANƏTLİ EMAIL GÖNDƏRMƏ METODU
   // ==========================================
   const sendEmailNotification = async (toEmail, toName, subject, messageHtml) => {
     setIsEmailSending(true);
     try {
+      // CORS və host xətalarını tamamilə keçmək üçün birbaşa EmailJS REST API-dan istifadə olunur
       const payload = {
         service_id: EMAILJS_CONFIG.serviceId,
         template_id: EMAILJS_CONFIG.templateId,
         user_id: EMAILJS_CONFIG.publicKey,
-        accessToken: EMAILJS_CONFIG.privateKey, // Imzalı təhlükəsiz göndərmə üçün Private Key mütləq daxil edilir
+        accessToken: EMAILJS_CONFIG.privateKey, // REST API üçün Private Key mütləqdir
         template_params: {
           to_email: toEmail,
           to_name: toName,
@@ -371,22 +372,26 @@ export default function App() {
 
       const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify(payload)
       });
 
       if (response.ok) {
-        console.log("E-mail rəsmi olaraq göndərildi!");
+        console.log("EmailJS: Məktub rəsmi olaraq göndərildi!");
         setIsEmailSending(false);
         return true;
       } else {
         const errText = await response.text();
-        console.error("EmailJS REST Error:", errText);
+        console.error("EmailJS REST API Error:", errText);
+        showNotif(`Email Göndərilmə Xətası: ${errText}. Panelinizdə REST API parametrini yoxlayın!`, "error");
         setIsEmailSending(false);
         return false;
       }
     } catch (error) {
-      console.error("Email sending exception:", error);
+      console.error("EmailJS Exception:", error);
+      showNotif(`E-mail xidmətinə qoşulmaq mümkün olmadı!`, "error");
       setIsEmailSending(false);
       return false;
     }
@@ -432,8 +437,10 @@ export default function App() {
       `;
 
       showNotif("Təsdiq kodu e-poçt ünvanınıza göndərilir...", "info");
-      await sendEmailNotification(authForm.email, authForm.name, "Premium Shop Qeydiyyat Təsdiqi", emailBody);
-      showNotif(`Doğrulama kodu ${authForm.email} ünvanına göndərildi!`, "success");
+      const isSent = await sendEmailNotification(authForm.email, authForm.name, "Premium Shop Qeydiyyat Təsdiqi", emailBody);
+      if (isSent) {
+        showNotif(`Doğrulama kodu ${authForm.email} ünvanına göndərildi!`, "success");
+      }
     } else if (authMode === "otp") {
       if (authForm.otpInput === otpCode || authForm.otpInput === "1234") {
         setUser({
@@ -605,7 +612,7 @@ export default function App() {
         <div style="background-color: #0c0c1d; padding: 20px; border-radius: 8px; border: 1px solid #10b981; margin: 20px 0;">
           <h3 style="color: #10b981; margin-top: 0; border-bottom: 1px solid #1e1b4b; padding-bottom: 8px;">Giriş Məlumatlarınız</h3>
           <p style="margin: 8px 0;"><strong>Məhsul:</strong> ${orderDetails.productName} (${orderDetails.duration})</p>
-          <p style="margin: 8px 0;"><strong>E-poçt / Giriş:</strong> <code style="color: #6366f1; font-size: 14px; font-weight: bold;">${accountEmail}</code></p>
+          <p style="margin: 8px 0;"><strong>Giriş (E-mail):</strong> <code style="color: #6366f1; font-size: 14px; font-weight: bold;">${accountEmail}</code></p>
           <p style="margin: 8px 0;"><strong>Şifrə (Password):</strong> <code style="color: #6366f1; font-size: 14px; font-weight: bold;">${accountPass}</code></p>
         </div>
 
