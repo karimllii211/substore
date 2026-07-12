@@ -77,6 +77,35 @@ const CSS = `
     animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
   
+  /* Animation for entering items */
+  @keyframes cardEntrance {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-card {
+    animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes modalZoom {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .animate-modal {
+    animation: modalZoom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
   /* Input normalization to prevent default background leaks */
   input, select, textarea {
     background-color: #0c0c1d !important;
@@ -173,8 +202,49 @@ const CATEGORIES = [
   { id: "design", label: "Dizayn", icon: "🎨" }
 ];
 
+const getOfficialLogo = (name, customEmoji, color) => {
+  const lower = name.toLowerCase();
+  if (lower.includes("netflix")) {
+    return (
+      <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#E50914"}>
+        <path d="M5.6 2h3.2l6.4 15V2h3.2v20h-3.2L8.8 7v15H5.6z"/>
+      </svg>
+    );
+  }
+  if (lower.includes("spotify")) {
+    return (
+      <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#1DB954"}>
+        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.564.387-.86.207-2.377-1.454-5.37-1.783-8.894-.982-.336.076-.67-.135-.747-.472-.077-.336.135-.67.472-.747 3.856-.88 7.15-.494 9.822 1.14.296.18.387.563.207.854zm1.224-2.723c-.226.367-.707.487-1.074.26-2.72-1.672-6.868-2.154-10.077-1.182-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.667-1.112 8.243-.574 11.343 1.332.367.226.487.707.26 1.074zm.106-2.834C14.792 8.8 9.123 8.614 5.833 9.61c-.482.146-.988-.128-1.134-.61-.147-.482.128-.988.61-1.134 3.77-1.144 10.016-.928 13.893 1.373.435.258.578.82.32 1.255-.258.435-.82.578-1.255.32z"/>
+      </svg>
+    );
+  }
+  if (lower.includes("youtube")) {
+    return (
+      <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#FF0000"}>
+        <path d="M23.498 6.163a3.003 3.003 0 00-2.11-2.11C19.516 3.545 12 3.545 12 3.545s-7.516 0-9.388.508a3.003 3.003 0 00-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 002.11 2.11c1.872.508 9.388.508 9.388.508s7.516 0 9.388-.508a3.003 3.003 0 002.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+      </svg>
+    );
+  }
+  if (lower.includes("chatgpt") || lower.includes("gpt")) {
+    return (
+      <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#10A37F"}>
+        <path d="M21.74 11.23a4.2 4.2 0 00-.73-2.1 4.24 4.24 0 00-1.8-1.5 4.3 4.3 0 00-.06-1.92 4.2 4.2 0 00-1.07-1.8 4.24 4.24 0 00-2.01-1.12 4.3 4.3 0 00-1.88-.41 4.2 4.2 0 00-2.1.73 4.24 4.24 0 00-1.5 1.8 4.3 4.3 0 00-1.92.06 4.2 4.2 0 00-1.8 1.07A4.24 4.24 0 003.75 8a4.3 4.3 0 00-.41 1.88c0 .76.2 1.48.56 2.1a4.2 4.2 0 00.17 3.56 4.24 4.24 0 00-1.8-1.5c.02.66.21 1.3.56 1.86a4.2 4.2 0 001.5 1.5 4.24 4.24 0 003.88.47c.66-.2 1.25-.56 1.73-1.03a4.2 4.2 0 002.1-.73 4.24 4.24 0 001.5-1.8c.66.02 1.3-.17 1.86-.52a4.2 4.2 0 001.5-1.5 4.24 4.24 0 00.47-3.88c.2-.66.56-1.25 1.03-1.73zM12 14.5a2.5 2.5 0 112.5-2.5 2.5 2.5 0 01-2.5 2.5z"/>
+      </svg>
+    );
+  }
+  if (lower.includes("canva")) {
+    return (
+      <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#8B5CF6"}>
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.5 11.5c-.3 0-.5-.2-.5-.5v-2c0-.3.2-.5.5-.5s.5.2.5.5v2c0 .3-.2.5-.5.5zm-2.5 2c-.3 0-.5-.2-.5-.5V9c0-.3.2-.5.5-.5s.5.2.5.5v6c0 .3-.2.5-.5.5zm-2.5 1c-.3 0-.5-.2-.5-.5V8c0-.3.2-.5.5-.5s.5.2.5.5v8c0 .3-.2.5-.5.5zm-2.5-2c-.3 0-.5-.2-.5-.5V9c0-.3.2-.5.5-.5s.5.2.5.5v6c0 .3-.2.5-.5.5zm-2.5-2c-.3 0-.5-.2-.5-.5v-2c0-.3.2-.5.5-.5s.5.2.5.5v2c0 .3-.2.5-.5.5z"/>
+      </svg>
+    );
+  }
+  return (
+    <span className="text-4xl p-2 bg-indigo-950/30 rounded-xl border border-indigo-900/20">{customEmoji || '🌐'}</span>
+  );
+};
+
 export default function App() {
-  // Dinamik olaraq Tailwind CSS yükləyirik ki, Vercel-də sayt qüsursuz görünsün
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -424,7 +494,7 @@ export default function App() {
       <style>{CSS}</style>
       <Notif n={notification} />
 
-      {/* NAVIGATION BAR */}
+      {}
       <nav className="sticky top-0 z-50 bg-[#030308]/95 backdrop-blur-md border-b border-indigo-950/60 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setPage("home")}>
@@ -475,7 +545,7 @@ export default function App() {
             )}
 
             {isAdminLoggedIn && (
-              <button onClick={() => setPage("admin_dashboard")} className="px-3.5 py-2 rounded-xl bg-purple-950/40 border border-purple-800/40 text-purple-300 text-xs font-semibold">
+              <button onClick={() => setPage("admin_dashboard")} className="px-3.5 py-2 rounded-xl bg-purple-950/40 border border-purple-800/40 text-purple-300 text-xs font-semibold animate-pulse">
                 🛡️ Admin Paneli
               </button>
             )}
@@ -483,13 +553,13 @@ export default function App() {
         </div>
       </nav>
 
-      {/* DYNAMIC TRANSITION CONTAINER (key={page} handles smooth remount transitions) */}
+      {}
       <div key={page} className="page-transition">
         
         {/* HOME PAGE */}
         {page === "home" && (
           <main className="max-w-7xl mx-auto px-6 py-12 md:py-20">
-            <div className="relative rounded-3xl overflow-hidden glass-card p-8 md:p-16 mb-20">
+            <div className="relative rounded-3xl overflow-hidden glass-card p-8 md:p-16 mb-20 animate-card">
               <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
               <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" />
 
@@ -507,7 +577,7 @@ export default function App() {
                   </p>
                   <div className="flex flex-wrap gap-4">
                     <button onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: 'smooth' })} className="glow-btn px-8 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white shadow-[0_4px_20px_rgba(99,102,241,0.3)] transition">
-                      Abunəliklərə Bax
+                      Abunəlikləərə Bax
                     </button>
                     <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="flex items-center gap-2.5 px-6 py-4 rounded-xl bg-emerald-950/30 border border-emerald-900/30 text-emerald-300 font-semibold hover:bg-emerald-950/50 transition">
                       <span className="text-xl">💬</span> Dəstək Xidməti (WhatsApp)
@@ -529,7 +599,7 @@ export default function App() {
             </div>
 
             {/* CATEGORIES MENU SECTION */}
-            <div id="categories-section" className="mb-12 space-y-4">
+            <div id="categories-section" className="mb-12 space-y-4 animate-card" style={{ animationDelay: '100ms' }}>
               <h2 className="text-2xl font-bold tracking-tight text-white">Kateqoriyalar</h2>
               <div className="flex gap-2.5 overflow-x-auto pb-4 pt-1 no-scrollbar">
                 {CATEGORIES.map(cat => (
@@ -540,8 +610,8 @@ export default function App() {
               </div>
             </div>
 
-            {/* CATALOG LISTINGS SECTION (No pricing mentioned directly on card) */}
-            <div id="catalog" className="space-y-6">
+            {}
+            <div id="catalog" className="space-y-6 animate-card" style={{ animationDelay: '200ms' }}>
               <div className="flex items-center justify-between">
                 <h2 className="text-3xl font-extrabold tracking-tight text-white">Populyar Abunəliklər</h2>
                 <span className="text-indigo-400 font-semibold text-sm">Abunəlik Seçimləri</span>
@@ -550,14 +620,17 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {products
                   .filter(p => selectedCat === "all" || p.cat === selectedCat)
-                  .map(product => {
+                  .map((product, index) => {
                     return (
-                      <div key={product.id} className="glass-card rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden group">
+                      <div key={product.id} className="glass-card rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden group animate-card" style={{ animationDelay: `${index * 80}ms` }}>
                         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-2xl pointer-events-none group-hover:bg-indigo-600/10 transition" />
                         
                         <div>
                           <div className="flex items-center justify-between mb-4">
-                            <span className="text-4xl p-2 bg-indigo-950/30 rounded-xl border border-indigo-900/20">{product.emoji}</span>
+                            {/* Rendering official clean SVG Logotype */}
+                            <div className="p-2 bg-indigo-950/30 rounded-xl border border-indigo-900/20">
+                              {getOfficialLogo(product.name, product.emoji, product.color)}
+                            </div>
                             <span className="text-[10px] font-bold text-indigo-400 bg-indigo-950/60 border border-indigo-800/40 px-2.5 py-1 rounded-full uppercase tracking-widest">
                               Premium
                             </span>
@@ -580,7 +653,7 @@ export default function App() {
         )}
 
         {page === "home" && (
-          <section className="bg-indigo-950/10 border-t border-indigo-950/30 py-16 px-6" id="about-section">
+          <section className="bg-indigo-950/10 border-t border-indigo-950/30 py-16 px-6 animate-card" style={{ animationDelay: '300ms' }} id="about-section">
             <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-white">Güvənli Ödəniş Sistemi</h3>
@@ -592,16 +665,17 @@ export default function App() {
               </div>
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-white">7/24 Aktiv Dəstək</h3>
-                <p className="text-xs text-gray-400 leading-relaxed">İstənilən sualınız və ya probleminiz olduqda ekranın sağ aşağı küncündəki WhatsApp piksellərinə toxunaraq bizimlə əlaqə saxlayın.</p>
+                <p className="text-xs text-gray-400 leading-relaxed">İstənilən sualınız və ya probleminiz olduqda ekranın sol aşağı küncündəki WhatsApp piksellərinə toxunaraq bizimlə əlaqə saxlayın.</p>
               </div>
             </div>
           </section>
         )}
 
+        {}
         {page === "dashboard" && (
           <main className="max-w-6xl mx-auto px-6 py-12">
             <div className="flex flex-col md:flex-row justify-between items-start gap-10">
-              <div className="w-full md:w-1/3 space-y-6">
+              <div className="w-full md:w-1/3 space-y-6 animate-card">
                 <div className="glass-card rounded-2xl p-6 text-center">
                   <div className="w-20 h-20 rounded-full bg-indigo-600 flex items-center justify-center font-extrabold text-2xl text-white mx-auto mb-4">
                     {user ? user.name[0].toUpperCase() : "U"}
@@ -618,19 +692,19 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="w-full md:w-2/3 space-y-6">
+              <div className="w-full md:w-2/3 space-y-6 animate-card" style={{ animationDelay: '150ms' }}>
                 <h2 className="text-2xl font-black text-white">Sifarişlərim</h2>
                 {orders.filter(o => o.userEmail === user?.email).length === 0 ? (
                   <div className="glass-card rounded-2xl p-10 text-center space-y-4">
-                    <span className="text-4xl block">📦</span>
+                    <span className="text-4xl block animate-bounce">📦</span>
                     <p className="text-gray-400 text-xs">Hələ ki heç bir sifarişiniz yoxdur.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {orders
                       .filter(o => o.userEmail === user?.email)
-                      .map(order => (
-                        <div key={order.id} className="glass-card rounded-2xl p-6 border-l-4 border-l-indigo-500">
+                      .map((order, idx) => (
+                        <div key={order.id} className="glass-card rounded-2xl p-6 border-l-4 border-l-indigo-500 animate-card" style={{ animationDelay: `${idx * 100}ms` }}>
                           <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
                             <div>
                               <h4 className="font-extrabold text-lg text-white">{order.productName} ({order.duration})</h4>
@@ -681,9 +755,10 @@ export default function App() {
           </main>
         )}
 
+        {}
         {page === "admin_dashboard" && isAdminLoggedIn && (
           <main className="max-w-7xl mx-auto px-6 py-12">
-            <div className="flex items-center justify-between border-b border-indigo-950/80 pb-6 mb-8">
+            <div className="flex items-center justify-between border-b border-indigo-950/80 pb-6 mb-8 animate-card">
               <div>
                 <h2 className="text-3xl font-extrabold text-white">🛡️ Admin İdarəetmə Paneli</h2>
                 <p className="text-xs text-gray-400 mt-1">Sifarişləri və abunəlik məhsullarını tənzimləyin</p>
@@ -691,7 +766,7 @@ export default function App() {
               <button onClick={handleAdminLogout} className="px-5 py-2.5 rounded-xl bg-red-950/40 border border-red-900/40 text-red-400 font-bold text-xs">Çıxış Et</button>
             </div>
 
-            <div className="flex gap-4 mb-8">
+            <div className="flex gap-4 mb-8 animate-card" style={{ animationDelay: '100ms' }}>
               <button onClick={() => setActiveAdminTab("orders")} className={`px-6 py-3 rounded-xl font-bold text-xs transition ${activeAdminTab === "orders" ? "bg-indigo-600 text-white" : "bg-indigo-950/20 text-gray-400 hover:text-white"}`}>
                 Gələn Sifarişlər ({orders.filter(o => o.status === "pending").length})
               </button>
@@ -701,7 +776,7 @@ export default function App() {
             </div>
 
             {activeAdminTab === "orders" && (
-              <div className="space-y-6">
+              <div className="space-y-6 animate-card" style={{ animationDelay: '150ms' }}>
                 {orders.length === 0 ? (
                   <div className="glass-card p-10 rounded-2xl text-center text-gray-400 font-bold">Hələ ki, sifariş yoxdur.</div>
                 ) : (
@@ -757,7 +832,7 @@ export default function App() {
             )}
 
             {activeAdminTab === "edit_products" && (
-              <div className="space-y-6">
+              <div className="space-y-6 animate-card" style={{ animationDelay: '150ms' }}>
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-bold text-white">Bütün Abunəliklər</h3>
                   <button onClick={() => setEditingProduct({ name: "", cat: "entertainment", color: "#6366f1", emoji: "🌐", desc: "", packages: [{ id: Date.now().toString(), duration: "1 Ay", price: 10 }] })} className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition">
@@ -767,10 +842,10 @@ export default function App() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {products.map(p => (
-                    <div key={p.id} className="glass-card p-6 rounded-2xl flex justify-between items-start">
+                    <div key={p.id} className="glass-card p-6 rounded-2xl flex justify-between items-start animate-card">
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
-                          <span className="text-3xl p-1.5 bg-indigo-950/30 rounded-lg">{p.emoji}</span>
+                          {getOfficialLogo(p.name, p.emoji, p.color)}
                           <div>
                             <h4 className="font-extrabold text-lg text-white">{p.name}</h4>
                             <span className="text-[10px] text-gray-500 font-bold uppercase">{p.cat}</span>
@@ -800,13 +875,13 @@ export default function App() {
         )}
       </div>
 
-      {/* MODALS AND UTILITIES (No backdrop opacity issues) */}
+      {}
       {selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/90 flex items-center justify-center p-6">
-          <div className="glass-card rounded-3xl w-full max-w-lg p-6 sm:p-8 relative">
+        <div className="fixed inset-0 z-50 bg-[#030308]/90 flex items-center justify-center p-6 backdrop-blur-md">
+          <div className="glass-card rounded-3xl w-full max-w-lg p-6 sm:p-8 relative animate-modal">
             <button onClick={() => setSelectedProduct(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
             <div className="flex items-center gap-4 mb-6">
-              <span className="text-5xl p-3 bg-indigo-950/40 rounded-2xl border border-indigo-900/30">{selectedProduct.emoji}</span>
+              {getOfficialLogo(selectedProduct.name, selectedProduct.emoji, selectedProduct.color)}
               <div>
                 <h3 className="text-2xl font-extrabold text-white">{selectedProduct.name}</h3>
                 <p className="text-xs text-gray-400 mt-1">{selectedProduct.desc}</p>
@@ -816,8 +891,8 @@ export default function App() {
             <div className="space-y-4 mb-8">
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Müddət və Paket Seçin:</label>
               <div className="grid grid-cols-2 gap-3">
-                {selectedProduct.packages && selectedProduct.packages.map(pkg => (
-                  <div key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between ${selectedDuration?.id === pkg.id ? "bg-indigo-600/10 border-indigo-500" : "bg-indigo-950/10 border-indigo-900/20 hover:border-indigo-800/40"}`}>
+                {selectedProduct.packages && selectedProduct.packages.map((pkg, index) => (
+                  <div key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between animate-card ${selectedDuration?.id === pkg.id ? "bg-indigo-600/10 border-indigo-500" : "bg-indigo-950/10 border-indigo-900/20 hover:border-indigo-800/40"}`} style={{ animationDelay: `${index * 80}ms` }}>
                     <span className="font-bold text-sm text-white">{pkg.duration}</span>
                     <span className="text-lg font-black text-indigo-400 mt-2">{pkg.price} AZN</span>
                   </div>
@@ -833,10 +908,10 @@ export default function App() {
         </div>
       )}
 
-      {/* CARTS DRAWER - COMPLETELY BLACK SOLID OVERLAY & BACKGROUND (Opaque - non-transparent) */}
+      {/* CARTS DRAWER - COMPLETELY SOLID DEEP DARK BLACK-BLUE (Opaque) */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 bg-[#030308]/95 flex justify-end">
-          <div className="bg-[#070712] border-l border-indigo-900/50 w-full max-w-md h-full p-6 flex flex-col justify-between drawer-open shadow-[0_0_50px_rgba(0,0,0,0.9)]">
+          <div className="border-l border-indigo-900/50 w-full max-w-md h-full p-6 flex flex-col justify-between drawer-open shadow-[0_0_50px_rgba(0,0,0,0.95)]" style={{ backgroundColor: '#070712', opacity: 1 }}>
             <div>
               <div className="flex items-center justify-between pb-6 border-b border-indigo-950/80 mb-6">
                 <h3 className="text-xl font-extrabold text-white">Səbətiniz</h3>
@@ -845,16 +920,16 @@ export default function App() {
 
               {cart.length === 0 ? (
                 <div className="text-center py-20 space-y-4">
-                  <span className="text-5xl block">🛒</span>
+                  <span className="text-5xl block animate-bounce">🛒</span>
                   <p className="text-sm text-gray-400">Səbətiniz boşdur</p>
                   <button onClick={() => setIsCartOpen(false)} className="text-xs font-bold text-indigo-400 hover:underline">Alış-verişə davam et</button>
                 </div>
               ) : (
                 <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
                   {cart.map((item, idx) => (
-                    <div key={idx} className="glass-card p-4 rounded-xl flex items-center justify-between">
+                    <div key={idx} className="glass-card p-4 rounded-xl flex items-center justify-between animate-card" style={{ animationDelay: `${idx * 80}ms` }}>
                       <div className="flex items-center gap-3">
-                        <span className="text-3xl">{item.product.emoji}</span>
+                        {getOfficialLogo(item.product.name, item.product.emoji, item.product.color)}
                         <div>
                           <h4 className="font-bold text-sm text-white">{item.product.name}</h4>
                           <p className="text-xs text-gray-400 mt-0.5">{item.package.duration} - {item.package.price} AZN</p>
@@ -884,10 +959,10 @@ export default function App() {
         </div>
       )}
 
-      {/* CHECKOUT MODAL */}
+      {/* CHECKOUT MODAL WITH SOLID CONTRAST BANKING AND CARD COPIER */}
       {isCheckoutOpen && (
         <div className="fixed inset-0 z-50 bg-[#030308]/95 flex items-center justify-center p-6 overflow-y-auto">
-          <div className="glass-card rounded-3xl w-full max-w-2xl p-6 sm:p-8 relative my-8">
+          <div className="glass-card rounded-3xl w-full max-w-2xl p-6 sm:p-8 relative my-8 animate-modal">
             <button onClick={() => setIsCheckoutOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
             <h3 className="text-2xl font-extrabold text-white mb-6">Sifarişi Tamamla</h3>
 
@@ -910,8 +985,8 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Bank Transfer Credit Card Details Container */}
-              <div className={`p-6 rounded-2xl bg-gradient-to-tr ${selectedBank.color} text-white shadow-lg space-y-4 relative overflow-hidden`}>
+              {/* Precise card layout */}
+              <div className={`p-6 rounded-2xl bg-gradient-to-tr ${selectedBank.color} text-white shadow-lg space-y-4 relative overflow-hidden animate-card`}>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold tracking-widest">KART KÖÇÜRMƏSİ</span>
@@ -957,10 +1032,10 @@ export default function App() {
         </div>
       )}
 
-      {/* USER AUTH FORM (login/register) */}
+      {}
       {authMode && (
         <div className="fixed inset-0 z-50 bg-[#030308]/95 flex items-center justify-center p-6">
-          <div className="glass-card rounded-3xl w-full max-w-md p-8 relative">
+          <div className="glass-card rounded-3xl w-full max-w-md p-8 relative animate-modal">
             <button onClick={() => setAuthMode(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
             
             {authMode === "login" ? (
@@ -1028,10 +1103,10 @@ export default function App() {
         </div>
       )}
 
-      {/* APPROVING SENSITIVE CREDENTIALS OR ADMIN EDITS */}
+      {}
       {approvingOrder && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/90 flex items-center justify-center p-6">
-          <form onSubmit={approveOrderAction} className="glass-card rounded-3xl w-full max-w-md p-8 space-y-5 relative">
+        <div className="fixed inset-0 z-50 bg-[#030308]/90 flex items-center justify-center p-6 backdrop-blur-md">
+          <form onSubmit={approveOrderAction} className="glass-card rounded-3xl w-full max-w-md p-8 space-y-5 relative animate-modal">
             <button type="button" onClick={() => setApprovingOrder(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
             <div className="text-center">
               <h3 className="text-xl font-bold text-white">Hesab Məlumatlarını Təyin Et</h3>
@@ -1055,10 +1130,10 @@ export default function App() {
         </div>
       )}
 
-      {/* EDITING PRODUCT MODAL */}
+      {}
       {editingProduct && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/90 flex items-center justify-center p-6 overflow-y-auto">
-          <form onSubmit={handleSaveProduct} className="glass-card rounded-3xl w-full max-w-xl p-6 sm:p-8 space-y-5 relative my-8">
+        <div className="fixed inset-0 z-50 bg-[#030308]/90 flex items-center justify-center p-6 overflow-y-auto backdrop-blur-md">
+          <form onSubmit={handleSaveProduct} className="glass-card rounded-3xl w-full max-w-xl p-6 sm:p-8 space-y-5 relative my-8 animate-modal">
             <button type="button" onClick={() => setEditingProduct(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
             <h3 className="text-2xl font-black text-white">{editingProduct.id ? "Məhsulu Redaktə Et" : "Yeni Məhsul Əlavə Et"}</h3>
 
@@ -1105,7 +1180,7 @@ export default function App() {
 
               <div className="space-y-3 max-h-40 overflow-y-auto">
                 {editingProduct.packages && editingProduct.packages.map((pkg, idx) => (
-                  <div key={pkg.id} className="flex items-center gap-3 bg-indigo-950/20 border border-indigo-900/30 p-3 rounded-xl">
+                  <div key={pkg.id} className="flex items-center gap-3 bg-indigo-950/20 border border-indigo-900/30 p-3 rounded-xl animate-card">
                     <input type="text" required placeholder="məs: 1 Ay" value={pkg.duration} onChange={e => {
                       const updatedPacks = [...editingProduct.packages];
                       updatedPacks[idx].duration = e.target.value;
@@ -1136,10 +1211,10 @@ export default function App() {
         </div>
       )}
 
-      {/* ADMIN SIGN-IN MODAL (Unfilled placeholder) */}
+      {}
       {isAdminModalOpen && (
         <div className="fixed inset-0 z-50 bg-[#030308]/90 backdrop-blur-sm flex items-center justify-center p-6">
-          <form onSubmit={handleAdminLogin} className="glass-card rounded-3xl w-full max-w-md p-8 space-y-5 relative">
+          <form onSubmit={handleAdminLogin} className="glass-card rounded-3xl w-full max-w-md p-8 space-y-5 relative animate-modal">
             <button type="button" onClick={() => setIsAdminModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
             <div className="text-center mb-6">
               <h3 className="text-2xl font-black text-white">Admin Girişi</h3>
@@ -1148,7 +1223,7 @@ export default function App() {
 
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Admin İstifadəçi Adı:</label>
-              <input type="text" required placeholder="İstifadəçi adı daxil edin" value={adminUsername} onChange={e => setAdminUsername(e.target.value)} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
+              <input type="text" required placeholder="İstifadəçi adı" value={adminUsername} onChange={e => setAdminUsername(e.target.value)} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
             </div>
 
             <div className="space-y-1">
