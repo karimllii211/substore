@@ -356,12 +356,11 @@ export default function App() {
   const sendEmailNotification = async (toEmail, toName, subject, messageHtml) => {
     setIsEmailSending(true);
     try {
-      // CORS və host xətalarını tamamilə keçmək üçün birbaşa EmailJS REST API-dan istifadə olunur
       const payload = {
         service_id: EMAILJS_CONFIG.serviceId,
         template_id: EMAILJS_CONFIG.templateId,
         user_id: EMAILJS_CONFIG.publicKey,
-        accessToken: EMAILJS_CONFIG.privateKey, // REST API üçün Private Key mütləqdir
+        accessToken: EMAILJS_CONFIG.privateKey,
         template_params: {
           to_email: toEmail,
           to_name: toName,
@@ -419,21 +418,50 @@ export default function App() {
         return;
       }
 
-      // 6 rəqəmli Təsadüfi Doğrulama kodu (OTP) generasiya edək
       const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
       setOtpCode(generatedCode);
       setAuthMode("otp");
 
+      // PREMIUM OTP HTML TEMPLATE
       const emailBody = `
-        <div style="background-color: #030308; color: #f8fafc; padding: 40px; font-family: sans-serif; border-radius: 12px; max-width: 500px; margin: auto; border: 1px solid #1e1b4b;">
-          <h2 style="color: #6366f1; text-align: center;">Premium Shop Doğrulama Kodu</h2>
-          <p>Hörmətli <strong>${authForm.name} ${authForm.surname}</strong>,</p>
-          <p>Premium Shop platformasında qeydiyyatı tamamlamaq üçün birdəfəlik təsdiq kodunuz:</p>
-          <div style="background-color: #0c0c1d; color: #ffffff; padding: 15px; border-radius: 8px; text-align: center; font-size: 24px; font-weight: bold; tracking-spacing: 5px; border: 1px dashed #6366f1; margin: 20px 0;">
-            ${generatedCode}
-          </div>
-          <p style="font-size: 12px; color: #64748b; text-align: center;">Əgər bu qeydiyyatı siz etməmisinizsə, bu məktubu saymaya bilərsiniz.</p>
-        </div>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Doğrulama Kodu</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #030308; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+          <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #0c0c1d; border: 1px solid #1e1b4b; border-radius: 16px; margin: 40px auto; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <tr>
+              <td align="center" style="padding: 40px 0 20px 0; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);">
+                <div style="width: 50px; height: 50px; background-color: #6366f1; border-radius: 12px; line-height: 50px; text-align: center; color: #ffffff; font-size: 24px; font-weight: 800; display: inline-block;">P</div>
+                <h1 style="color: #ffffff; margin: 15px 0 0 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px;">Premium Shop</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 40px 30px; color: #f8fafc;">
+                <h2 style="color: #6366f1; font-size: 20px; font-weight: 700; margin-top: 0;">E-poçt Ünvanınızı Təsdiqləyin</h2>
+                <p style="font-size: 14px; line-height: 1.6; color: #94a3b8;">Salam, <strong>${authForm.name} ${authForm.surname}</strong>,</p>
+                <p style="font-size: 14px; line-height: 1.6; color: #94a3b8;">Premium Shop platformasında qeydiyyatınızı tamamlamaq üçün aşağıdakı birdəfəlik təhlükəsizlik kodunu daxil edin:</p>
+                <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 30px auto;">
+                  <tr>
+                    <td align="center" style="background-color: #030308; border: 1px dashed #6366f1; border-radius: 8px; padding: 15px 40px; color: #ffffff; font-size: 32px; font-weight: 800; letter-spacing: 6px;">
+                      ${generatedCode}
+                    </td>
+                  </tr>
+                </table>
+                <p style="font-size: 13px; line-height: 1.6; color: #64748b;">Bu kod 5 dəqiqə ərzində aktiv qalacaq. Əgər qeydiyyat sorğusunu siz etməmisinizsə, bu məktubu sadəcə silə bilərsiniz.</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 30px; border-top: 1px solid #1e1b4b; background-color: #080815;">
+                <p style="margin: 0; font-size: 11px; color: #475569;">Premium Shop © 2026. Bütün hüquqlar qorunur.</p>
+                <p style="margin: 5px 0 0 0; font-size: 11px; color: #475569;">Sualınız var? <a href="https://wa.me/994103136941" style="color: #6366f1; text-decoration: none; font-weight: bold;">WhatsApp Dəstək</a> xəttinə yazın.</p>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
       `;
 
       showNotif("Təsdiq kodu e-poçt ünvanınıza göndərilir...", "info");
@@ -513,35 +541,96 @@ export default function App() {
 
     // SİFARİŞİN QƏBUL EDİLMƏSİ MAİLLƏRİ
     for (const order of generatedOrders) {
-      // 1. Müştəriyə təsdiqləmə maili
+      // PREMIUM CUSTOMER ORDER RECEIVED HTML TEMPLATE
       const customerEmailBody = `
-        <div style="background-color: #030308; color: #f8fafc; padding: 40px; font-family: sans-serif; border-radius: 12px; max-width: 500px; margin: auto; border: 1px solid #1e1b4b;">
-          <h2 style="color: #6366f1; text-align: center;">Sifarişiniz Gözləmədədir</h2>
-          <p>Salam, Sayın <strong>${order.userName}</strong>,</p>
-          <p>Sizin <strong>#${order.id}</strong> nömrəli sifarişiniz uğurla sistemə yükləndi. Yüklədiyiniz çek admin tərəfindən 12 saat ərzində yoxlanılaraq təsdiqlənəcək.</p>
-          <hr style="border-color: #1e1b4b; margin: 20px 0;"/>
-          <p><strong>Məhsul:</strong> ${order.productName} (${order.duration})</p>
-          <p><strong>Ödənilən Məbləğ:</strong> ${order.price} AZN</p>
-          <p><strong>Ödəniş Metodu:</strong> ${order.bank}</p>
-          <p style="font-size: 12px; color: #64748b; margin-top: 20px;">Sifariş təsdiq edildiyi an abunəlik məlumatlarınız bu e-mail ünvanına göndəriləcək.</p>
-        </div>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Sifariş Qəbul Edildi</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #030308; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+          <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #0c0c1d; border: 1px solid #1e1b4b; border-radius: 16px; margin: 40px auto; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <tr>
+              <td align="center" style="padding: 40px 0 20px 0; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);">
+                <div style="width: 50px; height: 50px; background-color: #6366f1; border-radius: 12px; line-height: 50px; text-align: center; color: #ffffff; font-size: 24px; font-weight: 800; display: inline-block;">P</div>
+                <h1 style="color: #ffffff; margin: 15px 0 0 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px;">Premium Shop</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 40px 30px; color: #f8fafc;">
+                <h2 style="color: #eab308; font-size: 20px; font-weight: 700; margin-top: 0;">Sifarişiniz Göndərildi (Gözləmədədir)</h2>
+                <p style="font-size: 14px; line-height: 1.6; color: #94a3b8;">Hörmətli <strong>${order.userName}</strong>,</p>
+                <p style="font-size: 14px; line-height: 1.6; color: #94a3b8;">Ödəniş çekiniz uğurla sistemə yükləndi. Sifarişiniz hazırda admin yoxlanışındadır. Ödənişiniz təsdiqlənən kimi hesab məlumatları bu ünvana göndəriləcək.</p>
+                <table width="100%" border="0" cellpadding="15" cellspacing="0" style="background-color: #030308; border: 1px solid #1e1b4b; border-radius: 8px; margin: 25px 0;">
+                  <tr>
+                    <td style="color: #94a3b8; font-size: 13px; line-height: 1.8;">
+                      <strong style="color: #ffffff;">Sifariş No:</strong> #${order.id}<br>
+                      <strong style="color: #ffffff;">Məhsul:</strong> ${order.productName} (${order.duration})<br>
+                      <strong style="color: #ffffff;">Ödənilən Məbləğ:</strong> ${order.price} AZN<br>
+                      <strong style="color: #ffffff;">Metod:</strong> ${order.bank}
+                    </td>
+                  </tr>
+                </table>
+                <p style="font-size: 13px; line-height: 1.6; color: #64748b;">Yoxlama adətən 1-12 saat ərzində başa çatır. Bizimlə əməkdaşlıq etdiyiniz üçün təşəkkür edirik!</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 30px; border-top: 1px solid #1e1b4b; background-color: #080815;">
+                <p style="margin: 0; font-size: 11px; color: #475569;">Premium Shop © 2026. Bütün hüquqlar qorunur.</p>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
       `;
       await sendEmailNotification(order.userEmail, order.userName, `Sifariş Qəbul Edildi #${order.id}`, customerEmailBody);
 
-      // 2. Adminə bildiriş maili
+      // PREMIUM ADMIN NOTIFICATION HTML TEMPLATE
       const adminEmailBody = `
-        <div style="background-color: #030308; color: #f8fafc; padding: 40px; font-family: sans-serif; border-radius: 12px; max-width: 500px; margin: auto; border: 1px solid #dc2626;">
-          <h2 style="color: #dc2626; text-align: center;">YENİ SİFARİŞ ALINDI!</h2>
-          <p>Admin, yeni bir ödəniş çeki yükləndi və yoxlama gözləyir.</p>
-          <hr style="border-color: #1e1b4b; margin: 20px 0;"/>
-          <p><strong>Sifariş ID:</strong> #${order.id}</p>
-          <p><strong>Müştəri:</strong> ${order.userName} ${order.userSurname} (${order.userEmail})</p>
-          <p><strong>Telefon:</strong> ${order.userPhone}</p>
-          <p><strong>Məhsul:</strong> ${order.productName} (${order.duration})</p>
-          <p><strong>Məbləğ:</strong> ${order.price} AZN</p>
-          <p><strong>Seçilən Bank:</strong> ${order.bank}</p>
-          <p style="color: #f59e0b; font-weight: bold;">Zəhmət olmasa dərhal idarəetmə panelinə daxil olub çeki və məlumatları təsdiqləyin.</p>
-        </div>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>YENİ SİFARİŞ ALINDI!</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #030308; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+          <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #0c0c1d; border: 1px solid #3b0712; border-radius: 16px; margin: 40px auto; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.7);">
+            <tr>
+              <td align="center" style="padding: 30px 0; background: linear-gradient(135deg, #800020, #b22222);">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px;">🚨 SİFARİŞ ALINDI</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 40px 30px; color: #f8fafc;">
+                <h2 style="color: #ef4444; font-size: 18px; font-weight: 800; margin-top: 0;">Hörmətli Admin (Karimli),</h2>
+                <p style="font-size: 14px; line-height: 1.6; color: #cbd5e1;">Müştəri tərəfindən yeni bir ödəniş çeki daxil edildi və hazırda təsdiqlənməyinizi gözləyir.</p>
+                <table width="100%" border="0" cellpadding="15" cellspacing="0" style="background-color: #030308; border: 1px solid #3b0712; border-radius: 8px; margin: 25px 0;">
+                  <tr>
+                    <td style="color: #cbd5e1; font-size: 13px; line-height: 1.8;">
+                      <strong style="color: #fca5a5;">Sifariş ID:</strong> #${order.id}<br>
+                      <strong style="color: #fca5a5;">Müştəri:</strong> ${order.userName} ${order.userSurname}<br>
+                      <strong style="color: #fca5a5;">E-poçt:</strong> ${order.userEmail}<br>
+                      <strong style="color: #fca5a5;">Telefon:</strong> ${order.userPhone}<br>
+                      <strong style="color: #fca5a5;">Məhsul:</strong> ${order.productName} (${order.duration})<br>
+                      <strong style="color: #fca5a5;">Məbləğ:</strong> ${order.price} AZN<br>
+                      <strong style="color: #fca5a5;">Bank:</strong> ${order.bank}
+                    </td>
+                  </tr>
+                </table>
+                <p style="font-size: 13px; line-height: 1.6; color: #e2e8f0; font-weight: bold; text-align: center;">Zəhmət olmasa dərhal idarəetmə panelinə daxil olub çeki yoxlayın və təsdiq edin.</p>
+                <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 20px auto;">
+                  <tr>
+                    <td align="center">
+                      <a href="https://premiumshop.az" target="_blank" style="background-color: #ef4444; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-block;">Admin Panelinə Daxil Ol 🛡️</a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
       `;
       await sendEmailNotification(EMAILJS_CONFIG.adminEmail, "Admin", `Yeni Sifariş Bildirişi #${order.id}`, adminEmailBody);
     }
@@ -601,26 +690,56 @@ export default function App() {
     setOrders(updatedOrders);
     showNotif(`Sifariş təsdiqləndi! Müştəriyə e-poçt bildirişi göndərilir...`, "info");
 
-    // SİFARİŞİN TƏSDİQLƏNMƏSİ VƏ HESABIN GÖNDƏRİLMƏSİ MAİLİ
     const orderDetails = approvingOrder;
+    // PREMIUM CUSTOMER ORDER APPROVED HTML TEMPLATE (DELIVERING CREDENTIALS)
     const approvalEmailBody = `
-      <div style="background-color: #030308; color: #f8fafc; padding: 40px; font-family: sans-serif; border-radius: 12px; max-width: 500px; margin: auto; border: 1px solid #10b981;">
-        <h2 style="color: #10b981; text-align: center;">Sifarişiniz Təsdiqləndi! 🎉</h2>
-        <p>Salam, <strong>${orderDetails.userName}</strong>,</p>
-        <p>Gözəl xəbər! Sizin ödənişiniz təsdiqləndi və rəqəmsal abunəliyiniz aktiv edildi.</p>
-        
-        <div style="background-color: #0c0c1d; padding: 20px; border-radius: 8px; border: 1px solid #10b981; margin: 20px 0;">
-          <h3 style="color: #10b981; margin-top: 0; border-bottom: 1px solid #1e1b4b; padding-bottom: 8px;">Giriş Məlumatlarınız</h3>
-          <p style="margin: 8px 0;"><strong>Məhsul:</strong> ${orderDetails.productName} (${orderDetails.duration})</p>
-          <p style="margin: 8px 0;"><strong>Giriş (E-mail):</strong> <code style="color: #6366f1; font-size: 14px; font-weight: bold;">${accountEmail}</code></p>
-          <p style="margin: 8px 0;"><strong>Şifrə (Password):</strong> <code style="color: #6366f1; font-size: 14px; font-weight: bold;">${accountPass}</code></p>
-        </div>
-
-        <p style="font-size: 12px; color: #64748b;">Hər hansı bir çətinlik və ya sual yaranarsa, bizimlə dərhal WhatsApp üzərindən əlaqə saxlaya bilərsiniz.</p>
-        <div style="text-align: center; margin-top: 20px;">
-          <a href="https://premiumshop.az" style="background-color: #6366f1; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">Sayta Keçid Et</a>
-        </div>
-      </div>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Sifarişiniz Təsdiqləndi!</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #030308; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #0c0c1d; border: 1px solid #1e1b4b; border-radius: 16px; margin: 40px auto; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <tr>
+            <td align="center" style="padding: 40px 0 20px 0; background: linear-gradient(135deg, #11998e, #38ef7d);">
+              <div style="width: 50px; height: 50px; background-color: #ffffff; border-radius: 12px; line-height: 50px; text-align: center; color: #11998e; font-size: 24px; font-weight: 800; display: inline-block;">P</div>
+              <h1 style="color: #ffffff; margin: 15px 0 0 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px;">Sifarişiniz Hazırdır!</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px 30px; color: #f8fafc;">
+              <h2 style="color: #10b981; font-size: 20px; font-weight: 700; margin-top: 0;">Abunəliyiniz Aktiv Edildi! 🎉</h2>
+              <p style="font-size: 14px; line-height: 1.6; color: #94a3b8;">Salam, <strong>${orderDetails.userName}</strong>,</p>
+              <p style="font-size: 14px; line-height: 1.6; color: #94a3b8;">Gözəl xəbər! Sizin <strong>#${orderDetails.id}</strong> nömrəli sifarişinizin ödənişi təsdiqləndi və rəqəmsal abunəliyiniz aktiv edildi. Giriş məlumatlarınız aşağıda qeyd olunmuşdur:</p>
+              <table width="100%" border="0" cellpadding="15" cellspacing="0" style="background-color: #030308; border: 1px solid #10b981; border-radius: 12px; margin: 25px 0;">
+                <tr>
+                  <td style="color: #94a3b8; font-size: 14px; line-height: 1.8;">
+                    <div style="font-size: 16px; font-weight: bold; color: #10b981; border-bottom: 1px solid #1e1b4b; padding-bottom: 8px; margin-bottom: 8px;">Hesab Giriş Detalları</div>
+                    <strong style="color: #ffffff;">Məhsul:</strong> ${orderDetails.productName} (${orderDetails.duration})<br>
+                    <strong style="color: #ffffff;">Giriş (E-mail):</strong> <code style="color: #6366f1; font-weight: bold; font-size: 14px; background-color: #0c0c1d; padding: 2px 6px; border-radius: 4px;">${accountEmail}</code><br>
+                    <strong style="color: #ffffff;">Şifrə (Password):</strong> <code style="color: #6366f1; font-weight: bold; font-size: 14px; background-color: #0c0c1d; padding: 2px 6px; border-radius: 4px;">${accountPass}</code>
+                  </td>
+                </tr>
+              </table>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 30px auto;">
+                <tr>
+                  <td align="center">
+                    <a href="https://premiumshop.az" target="_blank" style="background-color: #6366f1; color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 4px 15px rgba(99,102,241,0.4);">Sayta Keçid Et</a>
+                  </td>
+                </tr>
+              </table>
+              <p style="font-size: 12px; line-height: 1.6; color: #64748b;">* Hesab şifrəsini və daxili profil adlarını dəyişməməyiniz xahiş olunur (əks təqdirdə zəmanət qüvvədən düşür). İstənilən problemdə birbaşa WhatsApp dəstəyə yaza bilərsiniz.</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 30px; border-top: 1px solid #1e1b4b; background-color: #080815;">
+              <p style="margin: 0; font-size: 11px; color: #475569;">Premium Shop © 2026. Bütün hüquqlar qorunur.</p>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `;
 
     await sendEmailNotification(orderDetails.userEmail, orderDetails.userName, `Abunəliyiniz Hazırdır! #${orderDetails.id}`, approvalEmailBody);
@@ -636,16 +755,55 @@ export default function App() {
     setOrders(updatedOrders);
     showNotif("Sifariş rədd edildi. Müştəriyə məlumat maili göndərilir...", "error");
 
+    // PREMIUM CUSTOMER ORDER REJECTED HTML TEMPLATE
     const rejectionEmailBody = `
-      <div style="background-color: #030308; color: #f8fafc; padding: 40px; font-family: sans-serif; border-radius: 12px; max-width: 500px; margin: auto; border: 1px solid #ef4444;">
-        <h2 style="color: #ef4444; text-align: center;">Sifarişiniz Təsdiqlənmədi</h2>
-        <p>Salam, <strong>${order.userName}</strong>,</p>
-        <p>Təəssüf ki, göndərdiyiniz ödəniş çeki admin tərəfindən təsdiqlənmədi.</p>
-        <p><strong>Sifariş ID:</strong> #${order.id}</p>
-        <p><strong>Məhsul:</strong> ${order.productName} (${order.duration})</p>
-        <p>Mümkün səbəblər: Çekin köhnə olması, məbləğin yanlışlığı və ya köçürmənin baş tutmaması.</p>
-        <p style="color: #ef4444; font-weight: bold;">Yenidən düzgün çek yükləyərək sifariş edə bilər və ya rəsmi dəstək xəttimizə yaza bilərsiniz.</p>
-      </div>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Sifariş Təsdiqlənmədi</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #030308; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #0c0c1d; border: 1px solid #1e1b4b; border-radius: 16px; margin: 40px auto; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <tr>
+            <td align="center" style="padding: 40px 0 20px 0; background: linear-gradient(135deg, #cb2d3e, #ef473a);">
+              <div style="width: 50px; height: 50px; background-color: #ffffff; border-radius: 12px; line-height: 50px; text-align: center; color: #cb2d3e; font-size: 24px; font-weight: 800; display: inline-block;">P</div>
+              <h1 style="color: #ffffff; margin: 15px 0 0 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px;">Sifariş Problemi</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px 30px; color: #f8fafc;">
+              <h2 style="color: #ef4444; font-size: 20px; font-weight: 700; margin-top: 0;">Sifariş Təsdiqlənmədi ❌</h2>
+              <p style="font-size: 14px; line-height: 1.6; color: #94a3b8;">Salam, <strong>${order.userName}</strong>,</p>
+              <p style="font-size: 14px; line-height: 1.6; color: #94a3b8;">Təəssüf ki, <strong>#${order.id}</strong> nömrəli sifarişiniz üçün yüklədiyiniz ödəniş çeki admin tərəfindən təsdiqlənmədi.</p>
+              <table width="100%" border="0" cellpadding="15" cellspacing="0" style="background-color: #1a0b0e; border: 1px solid #5c1d24; border-radius: 8px; margin: 25px 0;">
+                <tr>
+                  <td style="color: #fca5a5; font-size: 13px; line-height: 1.8;">
+                    <strong>Mümkün səbəblər:</strong><br>
+                    • Göndərilən şəkil/çek tam oxunmur və ya qeyri-dəqiqdir.<br>
+                    • Ödəniş məbləği sifariş məbləği ilə üst-üstə düşmür.<br>
+                    • Tranzaksiya hələ bank tərəfindən tam icra olunmayıb.
+                  </td>
+                </tr>
+              </table>
+              <p style="font-size: 14px; line-height: 1.6; color: #94a3b8;">Zəhmət olmasa düzgün çeki şəxsi kabinetinizdən yenidən yükləyin və ya sualınız yaranarsa dərhal aşağıdakı link vasitəsilə bizimlə əlaqə saxlayın.</p>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 30px auto;">
+                <tr>
+                  <td align="center">
+                    <a href="https://wa.me/994103136941" target="_blank" style="background-color: #dc2626; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-block;">WhatsApp Dəstək Xətti</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 30px; border-top: 1px solid #1e1b4b; background-color: #080815;">
+              <p style="margin: 0; font-size: 11px; color: #475569;">Premium Shop © 2026. Bütün hüquqlar qorunur.</p>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `;
     await sendEmailNotification(order.userEmail, order.userName, `Sifariş Təsdiqlənmədi #${order.id}`, rejectionEmailBody);
   };
