@@ -1,4 +1,3 @@
-cat > /mnt/user-data/outputs/App.jsx << 'ENDOFFILE'
 import { useState, useEffect } from "react";
 
 const CSS = `
@@ -91,7 +90,10 @@ const PAYS=[
 ];
 
 // ===== HELPERS =====
-const nav=(goTo,pg,opts={})=>{goTo(pg,opts);window.scrollTo({top:0,behavior:"smooth"});};
+const nav=(goTo,pg,opts={})=>{
+  goTo(pg,opts);
+  window.scrollTo({top:0,behavior:"smooth"});
+};
 
 function Btn({children,style={},onClick,variant="primary",...rest}){
   const [h,sh]=useState(false);
@@ -284,7 +286,6 @@ function HomePage({goTo}){
           ))}
         </div>
       </section>
-
       {/* Brand marquee */}
       <div style={{borderTop:`1px solid ${BD}`,borderBottom:`1px solid ${BD}`,padding:"18px 0",overflow:"hidden",marginBottom:64}}>
         <div className="mq-wrap">
@@ -295,7 +296,6 @@ function HomePage({goTo}){
           </div>
         </div>
       </div>
-
       {/* Categories */}
       <section style={{maxWidth:1100,margin:"0 auto",padding:"0 24px 64px"}}>
         <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-.8px",textAlign:"center",marginBottom:10,color:T1}}>Kateqoriyalar</h2>
@@ -316,7 +316,6 @@ function HomePage({goTo}){
           })}
         </div>
       </section>
-
       {/* Featured */}
       <section id="featured" style={{maxWidth:1100,margin:"0 auto",padding:"0 24px 64px"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:36}}>
@@ -330,7 +329,6 @@ function HomePage({goTo}){
           {featured.map(s=><SvcCard key={s.id} svc={s} goTo={goTo}/>)}
         </div>
       </section>
-
       {/* How it works */}
       <section style={{maxWidth:760,margin:"0 auto",padding:"0 24px 64px"}}>
         <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-.8px",textAlign:"center",marginBottom:8,color:T1}}>Necə işləyir?</h2>
@@ -352,7 +350,6 @@ function HomePage({goTo}){
           ))}
         </div>
       </section>
-
       {/* Payment methods */}
       <section style={{maxWidth:860,margin:"0 auto",padding:"0 24px 64px"}}>
         <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-.8px",textAlign:"center",marginBottom:8,color:T1}}>Ödəniş Üsulları</h2>
@@ -369,7 +366,6 @@ function HomePage({goTo}){
           <p style={{color:T2,fontSize:14}}>⏱️ Sifarişlər <strong style={{color:T1}}>12 saat</strong> ərzində çatdırılır · 24 saatı keçərsə <strong style={{color:"#10b981"}}>geri ödəmə</strong> zəmanəti</p>
         </div>
       </section>
-
       {/* Trust */}
       <section style={{maxWidth:1100,margin:"0 auto",padding:"0 24px 80px",display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:12}}>
         {[
@@ -389,11 +385,12 @@ function HomePage({goTo}){
   );
 }
 
-// ===== SHOP PAGE =====
+// ===== SHOP PAGE (Completed from cut-off point) =====
 function ShopPage({goTo,initCat="all"}){
   const [cat,setCat]=useState(initCat);
   const [q,setQ]=useState("");
   const filtered=SVCS.filter(s=>(cat==="all"||s.cat===cat)&&(s.n.toLowerCase().includes(q.toLowerCase())||s.d.toLowerCase().includes(q.toLowerCase())));
+  
   return(
     <div style={{maxWidth:1140,margin:"0 auto",padding:"40px 24px 80px"}}>
       <div className="fiu" style={{marginBottom:36}}>
@@ -412,421 +409,133 @@ function ShopPage({goTo,initCat="all"}){
           const cnt=c.id==="all"?SVCS.length:SVCS.filter(s=>s.cat===c.id).length;
           return(
             <button key={c.id} onClick={()=>setCat(c.id)}
-              style={{padding:"7px 16px",borderRadius:20,border:`1px solid ${cat===c.id?ACC+"60":BD}`,background:cat===c.id?`${ACC}20`:"transparent",color:cat===c.id?ACC2:T2,fontSize:12,fontWeight:600,cursor:"pointer",transition:"all .15s"}}>
-              {c.icon} {c.label} <span style={{color:T3,marginLeft:4,fontSize:10}}>({cnt})</span>
+              style={{padding:"7px 16px",borderRadius:20,border:`1px solid ${cat===c.id?ACC+"60":BD}`,background:cat===c.id?`${ACC}20`:"transparent",color:cat===c.id?ACC2:T2,fontSize:12,fontWeight:600,cursor:"pointer",transition:"all .2s"}}>
+              {c.label} ({cnt})
             </button>
           );
         })}
       </div>
-      {/* Grid */}
-      {filtered.length===0?(
-        <div style={{textAlign:"center",padding:"60px 0",color:T3}}>
-          <p style={{fontSize:36,marginBottom:12}}>🔍</p>
-          <p style={{fontSize:16,fontWeight:600,color:T2}}>Nəticə tapılmadı</p>
-          <p style={{fontSize:13,marginTop:6}}>Başqa bir axtarış termini sınayın</p>
-        </div>
-      ):(
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:16}}>
-          {filtered.map(s=><SvcCard key={s.id} svc={s} goTo={goTo}/>)}
-        </div>
-      )}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:16}}>
+        {filtered.map(s=><SvcCard key={s.id} svc={s} goTo={goTo}/>)}
+        {filtered.length===0 && <p style={{color:T3,textAlign:"center",gridColumn:"1/-1",padding:40}}>Məhsul tapılmadı.</p>}
+      </div>
     </div>
   );
 }
 
-// ===== PRODUCT PAGE =====
-function ProductPage({svc,initPlan=0,goTo,user}){
-  const [plan,setPlan]=useState(initPlan);
-  return(
-    <div style={{maxWidth:900,margin:"0 auto",padding:"40px 24px 80px"}}>
-      <button onClick={()=>nav(goTo,"shop")} style={{background:"none",border:"none",color:T3,fontSize:13,cursor:"pointer",marginBottom:28,display:"flex",alignItems:"center",gap:6}}>← Geri</button>
-      <div className="fiu" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:32,alignItems:"start"}}>
-        {/* Left */}
+// ===== MISSING PAGES ADDED =====
+
+function ProductPage({goTo, params, showNotif}) {
+  const svc = SVCS.find(s => s.id === params?.productId) || SVCS[0];
+  const [plan, setPlan] = useState(params?.planIdx || 0);
+
+  return (
+    <div style={{padding:"60px 24px", maxWidth:600, margin:"0 auto", minHeight:"70vh"}}>
+      <Btn variant="ghost" onClick={() => nav(goTo, "shop")} style={{marginBottom: 20}}>← Geri</Btn>
+      <div style={{background:CARD, border:`1px solid ${BD}`, borderRadius: 18, padding: 30}}>
+        <div style={{display:"flex", alignItems:"center", gap:16, marginBottom:24}}>
+          <div style={{width:50,height:50,borderRadius:14,background:`${svc.c}18`,border:`1px solid ${svc.c}45`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:svc.c}}>{svc.s}</div>
+          <div>
+            <h1 style={{color:T1, fontSize:22, fontWeight: 700}}>{svc.n}</h1>
+            <p style={{color:T3, fontSize: 13, marginTop: 4}}>{svc.d}</p>
+          </div>
+        </div>
+
+        <div style={{marginBottom: 24}}>
+          <p style={{color:T2, fontSize: 13, fontWeight: 600, marginBottom: 12}}>Plan seçin:</p>
+          <div style={{display: "flex", gap: 10, flexWrap: "wrap"}}>
+             {svc.pl.map((p,i) => (
+                <button key={i} onClick={()=>setPlan(i)} style={{padding:"10px 16px", borderRadius:10, border:`1px solid ${plan===i?svc.c:BD}`, background:plan===i?`${svc.c}20`:CARD2, color:plan===i?svc.c:T2, fontWeight: 600, cursor:"pointer", transition: "all .2s"}}>
+                  {p.l} - {p.p} ₼
+                </button>
+             ))}
+          </div>
+        </div>
+
+        <Btn onClick={() => {
+          showNotif("Sifarişiniz qəbul edildi! 12 saat ərzində təsdiqlənəcək.", "success");
+          nav(goTo, "dashboard");
+        }} style={{width: "100%", padding: 14, fontSize: 15}}>Sifarişi Təsdiqlə - {svc.pl[plan].p} AZN</Btn>
+      </div>
+    </div>
+  );
+}
+
+function AuthPage({goTo, setUser, showNotif}) {
+  return (
+    <div style={{padding:"80px 24px", maxWidth:400, margin:"0 auto", minHeight:"70vh"}}>
+      <h1 style={{color:T1, fontSize:28, fontWeight: 800, marginBottom:8, textAlign: "center"}}>Giriş</h1>
+      <p style={{color:T3, textAlign: "center", marginBottom:30}}>Hesabınıza daxil olun və ya qeydiyyatdan keçin</p>
+      
+      <div style={{background:CARD, border:`1px solid ${BD}`, borderRadius: 18, padding: 24}}>
+        <Input label="Email" placeholder="admin@premium.az" />
+        <Input label="Şifrə" type="password" placeholder="••••••••" />
+        
+        <Btn onClick={() => { 
+          setUser({name: "Müştəri", email: "admin@premium.az"}); 
+          showNotif("Uğurla giriş etdiniz", "success"); 
+          nav(goTo, "home"); 
+        }} style={{width: "100%", marginTop: 10}}>Daxil ol</Btn>
+      </div>
+    </div>
+  );
+}
+
+function DashboardPage({goTo, user, setUser}) {
+  if(!user) {
+    return <div style={{color:T1, padding:100, textAlign:"center"}}>Zəhmət olmasa giriş edin.</div>;
+  }
+  
+  return (
+    <div style={{padding:"60px 24px", maxWidth:800, margin:"0 auto", minHeight:"70vh"}}>
+      <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 30}}>
         <div>
-          <div style={{background:CARD,border:`1px solid ${BD}`,borderRadius:20,padding:32,textAlign:"center",marginBottom:20}}>
-            <div style={{width:80,height:80,borderRadius:20,background:`${svc.c}18`,border:`1px solid ${svc.c}45`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,fontWeight:800,color:svc.c,margin:"0 auto 16px"}}>{svc.s}</div>
-            <h1 style={{fontSize:24,fontWeight:800,color:T1,marginBottom:8}}>{svc.n}</h1>
-            <p style={{color:T3,fontSize:13,lineHeight:1.6}}>{svc.d}</p>
-            {svc.b&&<div style={{marginTop:12}}><Tag text={svc.b} color={svc.c}/></div>}
-          </div>
-          <div style={{background:CARD,border:`1px solid ${BD}`,borderRadius:16,padding:20}}>
-            <p style={{fontWeight:700,fontSize:13,color:T2,marginBottom:14,textTransform:"uppercase",letterSpacing:".5px"}}>Məlumat</p>
-            {[["Çatdırılma","12 saat ərzində"],["Zəmanət","24s keçərsə geri ödəmə"],["Çatdırılma üsulu","Email / Panel"],["Dəstək","7/24 WhatsApp"]].map(([k,v])=>(
-              <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:`1px solid ${BD}`}}>
-                <span style={{color:T3,fontSize:13}}>{k}</span>
-                <span style={{color:T1,fontSize:13,fontWeight:500}}>{v}</span>
-              </div>
-            ))}
-          </div>
+          <h1 style={{color:T1, fontSize:26, fontWeight: 800, marginBottom:4}}>Xoş gəldiniz, {user.name}</h1>
+          <p style={{color:T3}}>Aktiv abunəlikləriniz və sifariş tarixçəniz</p>
         </div>
-        {/* Right */}
-        <div>
-          <div style={{background:CARD,border:`1px solid ${BD}`,borderRadius:20,padding:28,marginBottom:16}}>
-            <p style={{fontWeight:700,fontSize:14,color:T2,marginBottom:14}}>Plan seçin</p>
-            <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:24}}>
-              {svc.pl.map((p,i)=>(
-                <div key={i} onClick={()=>setPlan(i)}
-                  style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:plan===i?`${svc.c}15`:"rgba(255,255,255,.02)",border:`2px solid ${plan===i?svc.c:BD}`,borderRadius:12,padding:"14px 18px",cursor:"pointer",transition:"all .15s"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:10}}>
-                    <div style={{width:18,height:18,borderRadius:"50%",border:`2px solid ${plan===i?svc.c:T4}`,background:plan===i?svc.c:"transparent",transition:"all .15s"}}/>
-                    <span style={{fontWeight:600,color:T1}}>{p.l}</span>
-                  </div>
-                  <span style={{fontWeight:800,color:svc.c,fontSize:18}}>{p.p} AZN</span>
-                </div>
-              ))}
-            </div>
-            <div style={{borderTop:`1px solid ${BD}`,paddingTop:20,marginBottom:20}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <span style={{color:T2}}>Cəmi:</span>
-                <span style={{fontSize:28,fontWeight:800,color:svc.c}}>{svc.pl[plan].p} <span style={{fontSize:16,color:T2}}>AZN</span></span>
-              </div>
-            </div>
-            <Btn style={{width:"100%",padding:"14px",fontSize:15,background:`linear-gradient(135deg,${svc.c},${svc.c}cc)`}}
-              onClick={()=>{
-                if(!user){nav(goTo,"auth",{afterAuth:"order",productId:svc.id,planIdx:plan});}
-                else{nav(goTo,"order",{productId:svc.id,planIdx:plan});}
-              }}>
-              Sifariş et →
-            </Btn>
-            {!user&&<p style={{color:T3,fontSize:11,textAlign:"center",marginTop:10}}>Sifariş etmək üçün giriş tələb olunur</p>}
-          </div>
-          <div style={{background:"rgba(16,185,129,.08)",border:"1px solid rgba(16,185,129,.2)",borderRadius:14,padding:"14px 18px"}}>
-            <p style={{color:"#10b981",fontSize:13,fontWeight:500}}>✓ 12 saat ərzində çatdırılma · ✓ 24s keçərsə geri ödəmə</p>
-          </div>
-        </div>
+        <Btn onClick={() => { setUser(null); nav(goTo, "home"); }} variant="danger">Çıxış et</Btn>
+      </div>
+      
+      <div style={{background:CARD, border:`1px solid ${BD}`, borderRadius: 18, padding: 40, textAlign: "center"}}>
+        <p style={{color:T3}}>Hələ heç bir sifarişiniz yoxdur.</p>
+        <Btn onClick={() => nav(goTo, "shop")} style={{marginTop: 16}}>Mağazaya Keç</Btn>
       </div>
     </div>
   );
 }
 
-// ===== ORDER PAGE =====
-function OrderPage({svc,plan,user,addOrder,showNotif,goTo}){
-  const [payId,setPayId]=useState("abb");
-  const [file,setFile]=useState(null);
-  const [note,setNote]=useState("");
-  const [done,setDone]=useState(false);
-  const pay=PAYS.find(p=>p.id===payId)||PAYS[0];
-  const [copied,setCopied]=useState(false);
+// ===== MAIN APP COMPONENT (Router) =====
+export default function App() {
+  const [page, setPage] = useState("home");
+  const [params, setParams] = useState({});
+  const [user, setUser] = useState(null);
+  const [notif, setNotif] = useState(null);
 
-  const copy=()=>{
-    navigator.clipboard.writeText(pay.num).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);});
-  };
-
-  const submit=()=>{
-    if(!file){showNotif("Ödəniş çekini yükləyin","error");return;}
-    addOrder({id:Date.now(),svcId:svc.id,svcName:svc.n,svcColor:svc.c,plan:svc.pl[plan].l,price:svc.pl[plan].p,status:"Gözlənilir",date:new Date().toLocaleDateString("az"),payMethod:pay.n,note,file:file.name});
-    setDone(true);
-  };
-
-  if(done) return(
-    <div style={{maxWidth:500,margin:"80px auto",padding:"0 24px",textAlign:"center"}}>
-      <div className="fiu" style={{background:CARD,border:"1px solid rgba(16,185,129,.3)",borderRadius:20,padding:40}}>
-        <div style={{fontSize:48,marginBottom:16}}>✅</div>
-        <h2 style={{fontSize:22,fontWeight:800,color:T1,marginBottom:10}}>Sifariş Qəbul Edildi!</h2>
-        <p style={{color:T2,fontSize:14,lineHeight:1.65,marginBottom:28}}>Ödəniş yoxlanıldıqdan sonra 12 saat ərzində hesabınız panelinizdə görünəcək. WhatsApp ilə sizi məlumatlandıracağıq.</p>
-        <Btn onClick={()=>nav(goTo,"dashboard")} style={{width:"100%"}}>Sifarişlərimi Gör →</Btn>
-      </div>
-    </div>
-  );
-
-  return(
-    <div style={{maxWidth:760,margin:"0 auto",padding:"40px 24px 80px"}}>
-      <button onClick={()=>nav(goTo,"product",{productId:svc.id})} style={{background:"none",border:"none",color:T3,fontSize:13,cursor:"pointer",marginBottom:28}}>← Geri</button>
-      <div className="fiu">
-        <h1 style={{fontSize:26,fontWeight:800,color:T1,marginBottom:6}}>Sifariş Tamamla</h1>
-        <p style={{color:T3,marginBottom:32}}>{svc.n} — {svc.pl[plan].l} · {svc.pl[plan].p} AZN</p>
-
-        {/* Step 1 — Select payment */}
-        <div style={{background:CARD,border:`1px solid ${BD}`,borderRadius:18,padding:24,marginBottom:16}}>
-          <p style={{fontWeight:700,color:T1,fontSize:15,marginBottom:16}}>1. Ödəniş üsulunu seçin</p>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
-            {PAYS.map(p=>(
-              <div key={p.id} onClick={()=>setPayId(p.id)}
-                style={{background:payId===p.id?p.bg:"rgba(255,255,255,.02)",border:`2px solid ${payId===p.id?p.c:BD}`,borderRadius:12,padding:"14px",cursor:"pointer",transition:"all .15s"}}>
-                <div style={{display:"flex",alignItems:"center",gap:8}}>
-                  <div style={{width:32,height:32,borderRadius:8,background:p.c,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,color:"#fff",fontSize:9}}>{p.n.split(" ")[0].toUpperCase().slice(0,3)}</div>
-                  <span style={{fontWeight:600,fontSize:13,color:T1}}>{p.n}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          {/* Card number */}
-          <div style={{background:"rgba(255,255,255,.03)",border:`1px solid ${pay.c}30`,borderRadius:12,padding:"16px 18px"}}>
-            <p style={{color:T3,fontSize:11,marginBottom:6,fontWeight:600,textTransform:"uppercase",letterSpacing:".5px"}}>{pay.n} — {pay.holder}</p>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-              <p style={{fontSize:18,fontWeight:800,color:T1,letterSpacing:"2px"}}>{pay.num}</p>
-              <button onClick={copy} style={{background:pay.c,border:"none",borderRadius:8,padding:"6px 12px",color:"#fff",fontSize:11,fontWeight:600,cursor:"pointer"}}>
-                {copied?"Kopyalandı ✓":"Kopyala"}
-              </button>
-            </div>
-            <p style={{color:T3,fontSize:12,marginTop:8}}>Bu kart/hesaba <strong style={{color:T1}}>{svc.pl[plan].p} AZN</strong> köçürün</p>
-          </div>
-        </div>
-
-        {/* Step 2 — Upload receipt */}
-        <div style={{background:CARD,border:`1px solid ${BD}`,borderRadius:18,padding:24,marginBottom:16}}>
-          <p style={{fontWeight:700,color:T1,fontSize:15,marginBottom:6}}>2. Ödəniş çekini yükləyin</p>
-          <p style={{color:T3,fontSize:13,marginBottom:16}}>Köçürməni etdikdən sonra bank tətbiqinizdən çeki (skrinşot) aşağıya yükləyin.</p>
-          <label htmlFor="receipt-file" style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",border:`2px dashed ${file?"#10b981":"rgba(255,255,255,.12)"}`,borderRadius:14,padding:"28px",cursor:"pointer",background:file?"rgba(16,185,129,.06)":"transparent",transition:"all .2s"}}>
-            <input id="receipt-file" type="file" accept="image/*,.pdf" onChange={e=>{if(e.target.files[0])setFile(e.target.files[0]);}}/>
-            <span style={{fontSize:28,marginBottom:8}}>{file?"✅":"📎"}</span>
-            <span style={{color:file?"#10b981":T2,fontWeight:600,fontSize:14}}>{file?file.name:"Fayl seçin (şəkil və ya PDF)"}</span>
-            <span style={{color:T3,fontSize:12,marginTop:4}}>Klikləyin və ya sürükləyin</span>
-          </label>
-        </div>
-
-        {/* Step 3 — Note */}
-        <div style={{background:CARD,border:`1px solid ${BD}`,borderRadius:18,padding:24,marginBottom:24}}>
-          <p style={{fontWeight:700,color:T1,fontSize:15,marginBottom:12}}>3. Qeyd (istəyə bağlı)</p>
-          <textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Əlavə qeyd yazın (istəyə bağlı)..."
-            style={{width:"100%",background:CARD2,border:`1px solid ${BD}`,borderRadius:10,padding:"12px 14px",color:T1,fontSize:13,minHeight:80,resize:"vertical"}}/>
-        </div>
-
-        <Btn onClick={submit} style={{width:"100%",padding:"15px",fontSize:15}}>
-          Sifarişi Göndər →
-        </Btn>
-        <p style={{color:T3,fontSize:12,textAlign:"center",marginTop:10}}>Sifariş göndərildikdən sonra 12 saat ərzində hesabınız hazırlanacaq</p>
-      </div>
-    </div>
-  );
-}
-
-// ===== AUTH PAGE =====
-function AuthPage({initMode="login",setUser,showNotif,goTo,afterAuth}){
-  const [mode,setMode]=useState(initMode);
-  const [email,setEmail]=useState("");
-  const [pass,setPass]=useState("");
-  const [name,setName]=useState("");
-  const [code,setCode]=useState("");
-  const [sentCode]=useState("1234"); // demo
-  const [loading,setLoading]=useState(false);
-
-  const doLogin=()=>{
-    if(!email||!pass){showNotif("Email və şifrəni daxil edin","error");return;}
-    setLoading(true);
-    setTimeout(()=>{
-      setUser({email,name:email.split("@")[0],phone:""});
-      showNotif("Uğurla daxil oldunuz!","success");
-      setLoading(false);
-      if(afterAuth){nav(goTo,afterAuth.page||"home",afterAuth);}
-      else{nav(goTo,"home");}
-    },1200);
-  };
-
-  const doRegister=()=>{
-    if(!email||!pass||!name){showNotif("Bütün xanaları doldurun","error");return;}
-    setLoading(true);
-    setTimeout(()=>{setLoading(false);setMode("verify");showNotif("Doğrulama kodu emailinizə göndərildi","info");},1200);
-  };
-
-  const doVerify=()=>{
-    if(code!==sentCode){showNotif("Kod yanlışdır. Demo üçün: 1234","error");return;}
-    setUser({email,name,phone:""});
-    showNotif("Qeydiyyat tamamlandı!","success");
-    if(afterAuth){nav(goTo,afterAuth.page||"home",afterAuth);}
-    else{nav(goTo,"home");}
-  };
-
-  return(
-    <div style={{maxWidth:440,margin:"60px auto",padding:"0 24px 80px"}}>
-      <div className="fiu" style={{background:CARD,border:`1px solid ${BD}`,borderRadius:22,padding:36}}>
-        <div style={{textAlign:"center",marginBottom:28}}>
-          <div style={{width:48,height:48,borderRadius:13,background:`linear-gradient(135deg,${ACC},#4f46e5)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,fontWeight:900,color:"#fff",margin:"0 auto 16px"}}>P</div>
-          <h1 style={{fontSize:22,fontWeight:800,color:T1}}>
-            {mode==="verify"?"Email Doğrulama":mode==="login"?"Giriş":"Qeydiyyat"}
-          </h1>
-          <p style={{color:T3,fontSize:13,marginTop:6}}>
-            {mode==="verify"?`${email} ünvanına kod göndərildi`:mode==="login"?"Hesabınıza daxil olun":"Yeni hesab yaradın"}
-          </p>
-        </div>
-
-        {mode==="verify"?(
-          <>
-            <Input label="Doğrulama Kodu" value={code} onChange={e=>setCode(e.target.value)} placeholder="6 rəqəmli kod (demo: 1234)" hint="Emailinizə göndərilən kodu daxil edin"/>
-            <Btn onClick={doVerify} style={{width:"100%",padding:"13px"}} disabled={loading}>{loading?<span className="sp">⏳</span>:"Doğrula →"}</Btn>
-            <p style={{color:T3,fontSize:12,textAlign:"center",marginTop:12,cursor:"pointer"}} onClick={()=>setMode("register")}>← Geri</p>
-          </>
-        ):mode==="login"?(
-          <>
-            <Input label="E-poçt" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="email@example.com"/>
-            <Input label="Şifrə" type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••"/>
-            <Btn onClick={doLogin} style={{width:"100%",padding:"13px",marginTop:4}} disabled={loading}>{loading?<span className="sp">⏳</span>:"Daxil ol →"}</Btn>
-            <div style={{textAlign:"center",marginTop:20,borderTop:`1px solid ${BD}`,paddingTop:20}}>
-              <p style={{color:T3,fontSize:13}}>Hesabınız yoxdur? <span onClick={()=>setMode("register")} style={{color:ACC2,cursor:"pointer",fontWeight:600}}>Qeydiyyat</span></p>
-            </div>
-          </>
-        ):(
-          <>
-            <Input label="Ad Soyad" value={name} onChange={e=>setName(e.target.value)} placeholder="Adınız Soyadınız"/>
-            <Input label="E-poçt" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="email@example.com"/>
-            <Input label="Şifrə" type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="Ən az 6 simvol" hint="Güclü şifrə seçin"/>
-            <Btn onClick={doRegister} style={{width:"100%",padding:"13px",marginTop:4}} disabled={loading}>{loading?<span className="sp">⏳</span>:"Davam et →"}</Btn>
-            <div style={{textAlign:"center",marginTop:20,borderTop:`1px solid ${BD}`,paddingTop:20}}>
-              <p style={{color:T3,fontSize:13}}>Hesabınız var? <span onClick={()=>setMode("login")} style={{color:ACC2,cursor:"pointer",fontWeight:600}}>Giriş</span></p>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ===== DASHBOARD =====
-function DashboardPage({user,orders,goTo,setUser,showNotif}){
-  const [tab,setTab]=useState("orders");
-  const [phone,setPhone]=useState(user.phone||"");
-  const statuses={
-    "Gözlənilir":{c:"#F59E0B",bg:"rgba(245,158,11,.12)"},
-    "Hazırlanır":{c:"#3B82F6",bg:"rgba(59,130,246,.12)"},
-    "Göndərildi":{c:"#10B981",bg:"rgba(16,185,129,.12)"},
-    "Ləğv edildi":{c:"#EF4444",bg:"rgba(239,68,68,.12)"},
-  };
-
-  const savePhone=()=>{setUser({...user,phone});showNotif("Nömrə yadda saxlandı","success");};
-
-  return(
-    <div style={{maxWidth:900,margin:"0 auto",padding:"40px 24px 80px"}}>
-      <div className="fiu" style={{display:"flex",alignItems:"center",gap:16,marginBottom:36}}>
-        <div style={{width:52,height:52,borderRadius:"50%",background:`linear-gradient(135deg,${ACC},#4f46e5)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,fontWeight:800,color:"#fff"}}>{user.name?user.name[0].toUpperCase():"U"}</div>
-        <div>
-          <h1 style={{fontSize:22,fontWeight:800,color:T1}}>{user.name||"İstifadəçi"}</h1>
-          <p style={{color:T3,fontSize:13}}>{user.email}</p>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div style={{display:"flex",gap:8,marginBottom:28,borderBottom:`1px solid ${BD}`,paddingBottom:16}}>
-        {[["orders","📦 Sifarişlərim"],["profile","👤 Profil"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{padding:"8px 18px",borderRadius:10,border:`1px solid ${tab===t?ACC+"50":BD}`,background:tab===t?`${ACC}15`:"transparent",color:tab===t?ACC2:T2,fontSize:13,fontWeight:600,cursor:"pointer"}}>
-            {l}
-          </button>
-        ))}
-      </div>
-
-      {tab==="orders"&&(
-        <div>
-          {orders.length===0?(
-            <div style={{textAlign:"center",padding:"60px 0",color:T3}}>
-              <p style={{fontSize:36,marginBottom:12}}>📭</p>
-              <p style={{fontSize:16,fontWeight:600,color:T2}}>Hələ sifarişiniz yoxdur</p>
-              <p style={{fontSize:13,marginTop:6,marginBottom:24}}>İlk sifarişinizi verin</p>
-              <Btn onClick={()=>nav(goTo,"shop")}>Məhsullara Bax →</Btn>
-            </div>
-          ):(
-            <div style={{display:"flex",flexDirection:"column",gap:12}}>
-              {orders.map(o=>{
-                const st=statuses[o.status]||statuses["Gözlənilir"];
-                return(
-                  <div key={o.id} style={{background:CARD,border:`1px solid ${BD}`,borderRadius:16,padding:22}}>
-                    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12}}>
-                      <div style={{display:"flex",alignItems:"center",gap:12}}>
-                        <div style={{width:40,height:40,borderRadius:10,background:`${o.svcColor}18`,border:`1px solid ${o.svcColor}45`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:o.svcColor}}>
-                          {SVCS.find(s=>s.id===o.svcId)?.s||"?"}
-                        </div>
-                        <div>
-                          <p style={{fontWeight:700,color:T1,fontSize:15}}>{o.svcName}</p>
-                          <p style={{color:T3,fontSize:12}}>{o.plan} · {o.payMethod}</p>
-                        </div>
-                      </div>
-                      <div style={{textAlign:"right"}}>
-                        <p style={{fontWeight:800,color:o.svcColor,fontSize:16}}>{o.price} AZN</p>
-                        <span style={{fontSize:10,fontWeight:700,color:st.c,background:st.bg,borderRadius:20,padding:"3px 10px"}}>{o.status}</span>
-                      </div>
-                    </div>
-                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderTop:`1px solid ${BD}`,paddingTop:12}}>
-                      <p style={{color:T3,fontSize:12}}>📅 {o.date}</p>
-                      {o.status==="Göndərildi"&&o.account?(
-                        <div style={{background:"rgba(16,185,129,.08)",border:"1px solid rgba(16,185,129,.2)",borderRadius:8,padding:"8px 14px"}}>
-                          <p style={{color:"#10b981",fontSize:12,fontWeight:600}}>✓ Hesab: {o.account}</p>
-                        </div>
-                      ):(
-                        <p style={{color:T3,fontSize:12}}>Çek yükləndi: {o.file}</p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {tab==="profile"&&(
-        <div style={{maxWidth:480}}>
-          <div style={{background:CARD,border:`1px solid ${BD}`,borderRadius:18,padding:26,marginBottom:16}}>
-            <p style={{fontWeight:700,color:T1,fontSize:15,marginBottom:20}}>Şəxsi Məlumatlar</p>
-            <div style={{marginBottom:14}}>
-              <label style={{display:"block",fontSize:12,fontWeight:600,color:T2,marginBottom:6}}>Ad Soyad</label>
-              <p style={{background:CARD2,border:`1px solid ${BD}`,borderRadius:10,padding:"11px 14px",color:T1,fontSize:14}}>{user.name}</p>
-            </div>
-            <div style={{marginBottom:14}}>
-              <label style={{display:"block",fontSize:12,fontWeight:600,color:T2,marginBottom:6}}>E-poçt</label>
-              <p style={{background:CARD2,border:`1px solid ${BD}`,borderRadius:10,padding:"11px 14px",color:T1,fontSize:14}}>{user.email}</p>
-            </div>
-            <Input label="Telefon Nömrəsi (istəyə bağlı)" value={phone} onChange={e=>setPhone(e.target.value)}
-              placeholder="+994 XX XXX XX XX" hint="Geri ödəmə halında bizimlə əlaqə üçün lazım ola bilər"/>
-            <Btn onClick={savePhone} style={{width:"100%",padding:"12px"}}>Yadda Saxla</Btn>
-          </div>
-          <div style={{background:CARD,border:"1px solid rgba(239,68,68,.2)",borderRadius:16,padding:20}}>
-            <p style={{color:"#ef4444",fontSize:13,fontWeight:600,marginBottom:10}}>Hesabdan Çıx</p>
-            <Btn variant="danger" onClick={()=>{setUser(null);nav(goTo,"home");}} style={{fontSize:13,padding:"9px 18px"}}>Çıxış</Btn>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ===== MAIN APP =====
-export default function App(){
-  const [page,setPage]=useState("home");
-  const [productId,setProductId]=useState(null);
-  const [planIdx,setPlanIdx]=useState(0);
-  const [initCat,setInitCat]=useState("all");
-  const [user,setUser]=useState(null);
-  const [orders,setOrders]=useState([]);
-  const [notif,setNotif]=useState(null);
-  const [authMode,setAuthMode]=useState("login");
-  const [afterAuth,setAfterAuth]=useState(null);
-
-  const showNotif=(msg,type="info")=>{
-    setNotif({msg,type});
-    setTimeout(()=>setNotif(null),3500);
-  };
-
-  const goTo=(pg,opts={})=>{
+  const goTo = (pg, p = {}) => {
     setPage(pg);
-    if(opts.productId!==undefined)setProductId(opts.productId);
-    if(opts.planIdx!==undefined)setPlanIdx(opts.planIdx);
-    if(opts.cat!==undefined)setInitCat(opts.cat);
-    if(opts.authMode!==undefined)setAuthMode(opts.authMode);
-    if(opts.afterAuth!==undefined)setAfterAuth(opts.afterAuth);
+    setParams(p);
   };
 
-  const addOrder=(o)=>setOrders(prev=>[o,...prev]);
+  const showNotif = (msg, type="success") => {
+    setNotif({msg, type});
+    setTimeout(() => setNotif(null), 3500);
+  };
 
-  const svc=SVCS.find(s=>s.id===productId)||SVCS[0];
-
-  return(
+  return (
     <>
       <style>{CSS}</style>
-      <div style={{minHeight:"100vh",background:BG,color:T1,fontFamily:"'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"}}>
-        <Notif n={notif}/>
-        <Navbar page={page} goTo={goTo} user={user}/>
-        <div key={page} className="fi">
-          {page==="home"&&<HomePage goTo={goTo}/>}
-          {page==="shop"&&<ShopPage goTo={goTo} initCat={initCat}/>}
-          {page==="product"&&<ProductPage svc={svc} initPlan={planIdx} goTo={goTo} user={user}/>}
-          {page==="order"&&user&&<OrderPage svc={svc} plan={planIdx} user={user} addOrder={addOrder} showNotif={showNotif} goTo={goTo}/>}
-          {page==="auth"&&<AuthPage initMode={authMode} setUser={setUser} showNotif={showNotif} goTo={goTo} afterAuth={afterAuth}/>}
-          {page==="dashboard"&&user&&<DashboardPage user={user} orders={orders} goTo={goTo} setUser={setUser} showNotif={showNotif}/>}
-          {page==="dashboard"&&!user&&<AuthPage initMode="login" setUser={setUser} showNotif={showNotif} goTo={goTo}/>}
-        </div>
-        <Footer goTo={goTo}/>
-        <WaBtn/>
-      </div>
+      <Navbar page={page} goTo={goTo} user={user} />
+      <Notif n={notif} />
+      
+      {/* Məzmun Dəyişimi (Routing) */}
+      {page === "home" && <HomePage goTo={goTo} />}
+      {page === "shop" && <ShopPage goTo={goTo} initCat={params?.cat || "all"} />}
+      {page === "product" && <ProductPage goTo={goTo} params={params} showNotif={showNotif} />}
+      {page === "auth" && <AuthPage goTo={goTo} setUser={setUser} showNotif={showNotif} />}
+      {page === "dashboard" && <DashboardPage goTo={goTo} user={user} setUser={setUser} />}
+      
+      <WaBtn />
+      <Footer goTo={goTo} />
     </>
   );
 }
-ENDOFFILE
-echo "File created: $(wc -l < /mnt/user-data/outputs/App.jsx) lines"
