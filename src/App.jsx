@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
 // =========================================================================
-// ⚠️ KRİTİK AYAR: BURADAKİ serviceId HİSSƏSİNƏ EMAILJS-DƏN KOPYALADIĞINIZ 
-// REAL "SERVICE ID"-Nİ YAZIN (MƏSƏLƏN: "service_a1b2c3d")
+// ⚠️ SON AYAR: Sizin real "serviceId" artıq sistemə yazıldı!
+// İndi sadəcə "templateId" hissəsini öz real şablon ID-nizlə əvəzləyin.
 // =========================================================================
 const EMAILJS_CONFIG = {
-  serviceId: "premiumshopazerbaycan", // <-- Bura Email Services bölməsindəki real ID-ni yazın!
-  templateId: "template_premium", // EmailJS şablon ID-niz (template_premium)
+  serviceId: "service_ehwga57", // <-- Real Service ID-niz bura uğurla yazıldı!
+  templateId: "template_04cpqac", // <-- EmailJS panelindəki "Template ID"-ni bura yazın!
   publicKey: "MpwQ11f-oEOzMIkNs", // Real Public Key daxil edilib
   privateKey: "OmxGuIfsqwmr8FTV8Rkmr", // Real Private Key (Access Token) daxil edilib
   adminEmail: "premiumshopazerbaycan@gmail.com" // Sifarişlərin göndəriləcəyi rəsmi admin e-maili
@@ -386,9 +386,9 @@ export default function App() {
         const errText = await response.text();
         console.error("EmailJS REST API Error:", errText);
         
-        // İstifadəçiyə anlaşılan diaqnostik xəta bildirişi
-        if (errText.includes("The service ID not found")) {
-          showNotif("EmailJS Xətası: 'Service ID' tapılmadı. Koddakı service_default ünvanını öz real EmailJS Service ID-niz ilə əvəzləyin!", "error");
+        // Şablon tapılmayanda anlaşılan xəta mesajı
+        if (errText.includes("The template ID not found")) {
+          showNotif(`EmailJS Xətası: Şablon tapılmadı. EmailJS panelində "Email Templates" bölməsindən real ID-ni kopyalayıb koda yazın!`, "error");
         } else {
           showNotif(`E-mail Göndərilmə Xətası: ${errText}`, "error");
         }
@@ -892,7 +892,7 @@ export default function App() {
                         </div>
 
                         <div className="flex flex-col md:items-end gap-3 w-full md:w-auto">
-                          <span className="text-lg font-bold text-white">{order.price} AZN</span>
+                          <span className="text-lg font-bold text-white">{order.price}</span>
                           {order.status === "pending" && (
                             <span className="px-3 py-1 rounded-full bg-yellow-950/40 border border-yellow-800/40 text-yellow-400 text-xs font-bold">
                               ⌛ Gözləmədə (Çek Yoxlanılır)
