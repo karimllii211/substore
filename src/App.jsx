@@ -689,4 +689,8 @@ export default function App() {
       <Footer goTo={goTo} />
     </>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> f147dd0 (Saytda dizayn və funksionallıq yeniləmələri)
