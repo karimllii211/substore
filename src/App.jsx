@@ -1,1310 +1,1193 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from "react";
+import { CATEGORIES, PRODUCTS, PAYMENT_METHODS, BRANDS } from "./data/products.js";
 
-const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-  
-  * { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-    font-family: 'Plus Jakarta Sans', sans-serif; 
-  }
-  
-  html, body { 
-    background: #030308; 
-    color: #f8fafc; 
-    scroll-behavior: smooth; 
-    overflow-x: hidden; 
-  }
-  
-  /* Custom scrollbars with premium dark look */
-  ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-track { background: #030308; }
-  ::-webkit-scrollbar-thumb { background: #1e1b4b; border-radius: 8px; border: 2px solid #030308; }
-  ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
-  
-  /* Smooth scale hover dynamics */
-  .glow-btn {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
-  }
-  .glow-btn:hover {
-    box-shadow: 0 0 25px rgba(99, 102, 241, 0.45);
-    transform: translateY(-2px);
-  }
-  
-  /* Neon and Glass Card components */
-  .glass-card {
-    background: rgba(10, 10, 22, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(99, 102, 241, 0.15);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .glass-card:hover {
-    border-color: rgba(99, 102, 241, 0.35);
-    box-shadow: 0 16px 45px rgba(99, 102, 241, 0.2);
-  }
-  
-  .neon-text {
-    text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
-  }
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+const WA_LINK = "https://wa.me/994103136941";
+const ADMIN_PASS = "admin2025";
 
-  /* Page transition animation */
-  .page-transition {
-    animation: slideUpFade 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  
-  @keyframes slideUpFade {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes slideIn {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
-  }
-  .drawer-open {
-    animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  
-  /* Animation for entering items */
-  @keyframes cardEntrance {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  .animate-card {
-    animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  @keyframes modalZoom {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  .animate-modal {
-    animation: modalZoom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  
-  /* Input normalization to prevent default background leaks */
-  input, select, textarea {
-    background-color: #0c0c1d !important;
-    color: #ffffff !important;
-  }
-  input::placeholder {
-    color: #64748b !important;
-  }
-`;
-
-const DEFAULT_PRODUCTS = [
-  { 
-    id: 1, 
-    name: "Netflix Premium", 
-    cat: "entertainment", 
-    color: "#E50914", 
-    emoji: "🎬", 
-    desc: "4K Ultra HD · 4 Ekran · Eyni anda rəsmi izləmə", 
-    packages: [
-      { id: "p1", duration: "1 Ay", price: 8 },
-      { id: "p2", duration: "3 Ay", price: 22 },
-      { id: "p3", duration: "1 İl", price: 80 }
-    ], 
-    popular: true 
-  },
-  { 
-    id: 2, 
-    name: "Spotify Premium", 
-    cat: "entertainment", 
-    color: "#1DB954", 
-    emoji: "🎵", 
-    desc: "Reklamsız musiqi · Çevrimdışı yükləmə · Ultra səs keyfiyyəti", 
-    packages: [
-      { id: "p4", duration: "1 Ay", price: 5 },
-      { id: "p5", duration: "3 Ay", price: 13 },
-      { id: "p6", duration: "1 İl", price: 48 }
-    ], 
-    popular: true 
-  },
-  { 
-    id: 3, 
-    name: "YouTube Premium", 
-    cat: "entertainment", 
-    color: "#FF0000", 
-    emoji: "📺", 
-    desc: "Reklamsız video çarxlar · Arxa fonda işləmə · Premium Music", 
-    packages: [
-      { id: "p7", duration: "1 Ay", price: 6 },
-      { id: "p8", duration: "3 Ay", price: 16 },
-      { id: "p9", duration: "1 İl", price: 55 }
-    ], 
-    popular: true 
-  },
-  { 
-    id: 4, 
-    name: "ChatGPT Plus", 
-    cat: "ai", 
-    color: "#10A37F", 
-    emoji: "🤖", 
-    desc: "Rəsmi GPT-4o girişi · DALL-E 3 şəkilyaratma · Sürətli analiz", 
-    packages: [
-      { id: "p10", duration: "1 Ay", price: 25 },
-      { id: "p11", duration: "3 Ay", price: 68 }
-    ], 
-    popular: true 
-  },
-  { 
-    id: 5, 
-    name: "Canva Pro", 
-    cat: "design", 
-    color: "#8B5CF6", 
-    emoji: "🎨", 
-    desc: "Milyonlarla premium şablon · AI dizayn köməkçisi", 
-    packages: [
-      { id: "p12", duration: "1 Ay", price: 9 },
-      { id: "p13", duration: "3 Ay", price: 24 },
-      { id: "p14", duration: "1 İl", price: 85 }
-    ], 
-    popular: true 
-  }
-];
-
-const CARD_ACCOUNTS = [
-  { id: "abb", bank: "ABB Bank", num: "5522 0093 7234 8144", holder: "Kart Köçürməsi", color: "from-blue-600 to-indigo-700" },
-  { id: "kapital", bank: "Kapital Bank", num: "4169 7388 1861 3451", holder: "Kart Köçürməsi", color: "from-red-600 to-rose-700" },
-  { id: "leo", bank: "LEO Bank", num: "4098 5844 6496 5191", holder: "Kart Köçürməsi", color: "from-orange-500 to-yellow-600" },
-  { id: "m10", bank: "M10 Hesabı", num: "+994103136941", holder: "M10 Balans Köçürməsi", color: "from-cyan-500 to-teal-600" }
-];
-
-const CATEGORIES = [
-  { id: "all", label: "Hamısı", icon: "🌐" },
-  { id: "entertainment", label: "Əyləncə", icon: "🎬" },
-  { id: "ai", label: "Süni İntellekt", icon: "🤖" },
-  { id: "design", label: "Dizayn", icon: "🎨" }
-];
-
-const getOfficialLogo = (name, customEmoji, color) => {
-  const lower = name.toLowerCase();
-  if (lower.includes("netflix")) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#E50914"}>
-        <path d="M5.6 2h3.2l6.4 15V2h3.2v20h-3.2L8.8 7v15H5.6z"/>
-      </svg>
-    );
-  }
-  if (lower.includes("spotify")) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#1DB954"}>
-        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.564.387-.86.207-2.377-1.454-5.37-1.783-8.894-.982-.336.076-.67-.135-.747-.472-.077-.336.135-.67.472-.747 3.856-.88 7.15-.494 9.822 1.14.296.18.387.563.207.854zm1.224-2.723c-.226.367-.707.487-1.074.26-2.72-1.672-6.868-2.154-10.077-1.182-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.667-1.112 8.243-.574 11.343 1.332.367.226.487.707.26 1.074zm.106-2.834C14.792 8.8 9.123 8.614 5.833 9.61c-.482.146-.988-.128-1.134-.61-.147-.482.128-.988.61-1.134 3.77-1.144 10.016-.928 13.893 1.373.435.258.578.82.32 1.255-.258.435-.82.578-1.255.32z"/>
-      </svg>
-    );
-  }
-  if (lower.includes("youtube")) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#FF0000"}>
-        <path d="M23.498 6.163a3.003 3.003 0 00-2.11-2.11C19.516 3.545 12 3.545 12 3.545s-7.516 0-9.388.508a3.003 3.003 0 00-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 002.11 2.11c1.872.508 9.388.508 9.388.508s7.516 0 9.388-.508a3.003 3.003 0 002.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-      </svg>
-    );
-  }
-  if (lower.includes("chatgpt") || lower.includes("gpt")) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#10A37F"}>
-        <path d="M22.2819 9.8211 20.3374 8.7001c.2185-.562.3336-1.168.3336-1.7831 0-2.4578-2.0001-4.458-4.4578-4.458-.6151 0-1.2211.1151-1.7831.3336L14.1799.3499C13.5658.1189 12.8988 0 12.2318 0c-2.4578 0-4.458 2.0001-4.458 4.4578 0 .6151.1151 1.2211.3336 1.7831L6.1558 7.3789C5.5938 7.1604 4.9878 7.0453 4.3727 7.0453c-2.4578 0-4.458 2.0001-4.458 4.4578 0 .6151.1151 1.2211.3336 1.7831L1.1009 14.8291c-.2185.562-.3336 1.168-.3336 1.7831 0 2.4578 2.0001 4.458 4.4578 4.458.6151 0 1.2211-.1151 1.7831-.3336l1.9445 1.121c.562.2185 1.168.3336 1.7831.3336 2.4578 0 4.458-2.0001 4.458-4.4578 0-.6151-.1151-1.2211-.3336-1.7831l1.9445-1.121c.562-.2185 1.168-.3336 1.7831-.3336 2.4578 0 4.458-2.0001 4.458-4.4578 0-.6151-.1151-1.2211-.3336-1.7831zM12 16.5c-2.4853 0-4.5-2.0147-4.5-4.5S9.5147 7.5 12 7.5s4.5 2.0147 4.5 4.5-2.0147 4.5-4.5 4.5z"/>
-      </svg>
-    );
-  }
-  if (lower.includes("canva")) {
-    return (
-      <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#8B5CF6"}>
-        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm6.652 14.28c-.19.34-.43.64-.72.9-.62.59-1.47.82-2.31.82H6.96l5.77-9.98h4.69c.84 0 1.69.23 2.31.82.29.26.53.56.72.9.23.4.35.83.35 1.28 0 .45-.12.89-.35 1.28z"/>
-      </svg>
-    );
-  }
-  return (
-    <span className="text-4xl p-2 bg-indigo-950/30 rounded-xl border border-indigo-900/20">{customEmoji || '🌐'}</span>
-  );
+const ls = {
+  get: (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
 };
 
-export default function App() {
-  useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css";
-    document.head.appendChild(link);
-    return () => {
-      document.head.removeChild(link);
-    };
-  }, []);
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
-  const [products, setProducts] = useState(() => {
-    const local = localStorage.getItem("premium_shop_products");
-    return local ? JSON.parse(local) : DEFAULT_PRODUCTS;
-  });
-
-  const [orders, setOrders] = useState(() => {
-    const local = localStorage.getItem("premium_shop_orders");
-    return local ? JSON.parse(local) : [
-      {
-        id: "ORD-12845",
-        userEmail: "faiq@example.com",
-        userName: "Faiq",
-        userSurname: "Kərimli",
-        userPhone: "+994503136941",
-        productName: "Netflix Premium",
-        duration: "1 Ay",
-        price: 8,
-        bank: "ABB Bank",
-        receipt: "proof_receipt_12845.png",
-        status: "approved",
-        credentials: { email: "netflix-vip@substore.az", pass: "Faiq2026!" },
-        date: "12 İyul 2026"
-      }
-    ];
-  });
-
-  const [page, setPage] = useState("home"); 
-  const [selectedCat, setSelectedCat] = useState("all");
-  const [cart, setCart] = useState([]);
-  const [user, setUser] = useState(() => {
-    const local = localStorage.getItem("premium_shop_current_user");
-    return local ? JSON.parse(local) : null;
-  });
-
-  // UI state managers
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedDuration, setSelectedDuration] = useState(null);
-  const [authMode, setAuthMode] = useState(null); 
-  const [authForm, setAuthForm] = useState({ name: "", surname: "", phone: "", email: "", pass: "", otpInput: "", profileImg: "" });
-  const [otpCode, setOtpCode] = useState(null);
-  const [selectedBank, setSelectedBank] = useState(CARD_ACCOUNTS[0]);
-  const [uploadedReceipt, setUploadedReceipt] = useState(null);
-  const [notification, setNotification] = useState(null);
-
-  // Administrative panel credentials
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
-    return localStorage.getItem("premium_shop_admin_active") === "true";
-  });
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
-  const [adminUsername, setAdminUsername] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [activeAdminTab, setActiveAdminTab] = useState("orders"); 
-
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [approvingOrder, setApprovingOrder] = useState(null);
-  const [accountEmail, setAccountEmail] = useState("");
-  const [accountPass, setAccountPass] = useState("");
-
-  useEffect(() => {
-    localStorage.setItem("premium_shop_products", JSON.stringify(products));
-  }, [products]);
-
-  useEffect(() => {
-    localStorage.setItem("premium_shop_orders", JSON.stringify(orders));
-  }, [orders]);
-
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("premium_shop_current_user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("premium_shop_current_user");
-    }
-  }, [user]);
-
-  const showNotif = (msg, type = "success") => {
-    setNotification({ msg, type });
-    setTimeout(() => setNotification(null), 4500);
-  };
-
-  const handleUserAuth = (e) => {
-    e.preventDefault();
-    if (authMode === "login") {
-      if (!authForm.email || !authForm.pass) {
-        showNotif("Zəhmət olmasa bütün sahələri doldurun", "error");
-        return;
-      }
-      setUser({
-        name: authForm.name || "Hörmətli",
-        surname: authForm.surname || "Müştəri",
-        email: authForm.email,
-        phone: authForm.phone || "",
-        profileImg: authForm.profileImg || ""
-      });
-      showNotif("Uğurlu Giriş! Xoş gəldiniz.", "success");
-      setAuthMode(null);
-    } else if (authMode === "register") {
-      if (!authForm.name || !authForm.surname || !authForm.email || !authForm.pass) {
-        showNotif("Ad, Soyad, E-poçt və Şifrə mütləq doldurulmalıdır!", "error");
-        return;
-      }
-      const code = "1234";
-      setOtpCode(code);
-      setAuthMode("otp");
-      showNotif(`Doğrulama kodu ${authForm.email} ünvanına göndərildi (Simulyasiya: 1234)`, "info");
-    } else if (authMode === "otp") {
-      if (authForm.otpInput === "1234") {
-        setUser({
-          name: authForm.name,
-          surname: authForm.surname,
-          email: authForm.email,
-          phone: authForm.phone,
-          profileImg: authForm.profileImg
-        });
-        showNotif("Qeydiyyat tamamlandı! E-poçt təsdiqləndi.", "success");
-        setAuthMode(null);
-      } else {
-        showNotif("Yanlış təsdiq kodu daxil edilib!", "error");
-      }
-    }
-  };
-
-  const addToCart = (product, packageItem) => {
-    const existing = cart.find(item => item.product.id === product.id && item.package.id === packageItem.id);
-    if (existing) {
-      showNotif("Bu paket artıq səbətdədir!", "info");
-      return;
-    }
-    setCart([...cart, { product, package: packageItem }]);
-    showNotif(`${product.name} (${packageItem.duration}) səbətə əlavə edildi!`, "success");
-    setIsCartOpen(true);
-  };
-
-  const removeFromCart = (index) => {
-    const updated = [...cart];
-    updated.splice(index, 1);
-    setCart(updated);
-    showNotif("Məhsul səbətdən silindi", "info");
-  };
-
-  const handleCheckoutSubmit = (e) => {
-    e.preventDefault();
-    if (!user) {
-      showNotif("Sifariş tamamlamaq üçün əvvəlcə qeydiyyatdan keçməli yaxud giriş etməlisiniz!", "error");
-      setAuthMode("login");
-      setIsCheckoutOpen(false);
-      return;
-    }
-    if (!uploadedReceipt) {
-      showNotif("Zəhmət olmasa ödəniş çekini yükləyin!", "error");
-      return;
-    }
-
-    const newOrders = cart.map(item => ({
-      id: "ORD-" + Math.floor(10000 + Math.random() * 90000),
-      userEmail: user.email,
-      userName: user.name,
-      userSurname: user.surname,
-      userPhone: user.phone || "Qeyd edilməyib",
-      productName: item.product.name,
-      duration: item.package.duration,
-      price: item.package.price,
-      bank: selectedBank.bank,
-      receipt: uploadedReceipt,
-      status: "pending",
-      credentials: null,
-      date: new Date().toLocaleDateString("az-AZ")
-    }));
-
-    // CRITICAL FIX: Merge into orders top-level state to ensure it immediately reflects in the admin panel
-    setOrders(prev => [...prev, ...newOrders]);
-    setCart([]);
-    setIsCheckoutOpen(false);
-    showNotif("Sifarişiniz qəbul edildi! Admin təsdiqindən sonra hesabınız göndəriləcək.", "success");
-    setPage("dashboard");
-  };
-
-  const handleAdminLogin = (e) => {
-    e.preventDefault();
-    if (adminUsername === "karimllii" && adminPassword === "Karimli.777") {
-      setIsAdminLoggedIn(true);
-      localStorage.setItem("premium_shop_admin_active", "true");
-      setIsAdminModalOpen(false);
-      showNotif("Hörmətli Admin, Xoş gəldiniz!", "success");
-      setPage("admin_dashboard");
-    } else {
-      showNotif("Yanlış İstifadəçi adı və ya Şifrə!", "error");
-    }
-  };
-
-  const handleAdminLogout = () => {
-    setIsAdminLoggedIn(false);
-    localStorage.removeItem("premium_shop_admin_active");
-    showNotif("Admin panelindən çıxış edildi.", "info");
-    setPage("home");
-  };
-
-  const handleSaveProduct = (e) => {
-    e.preventDefault();
-    if (editingProduct.id) {
-      setProducts(prev => prev.map(p => p.id === editingProduct.id ? editingProduct : p));
-      showNotif("Məhsul uğurla yeniləndi!", "success");
-    } else {
-      const newP = { ...editingProduct, id: Date.now() };
-      setProducts(prev => [...prev, newP]);
-      showNotif("Yeni məhsul uğurla əlavə edildi!", "success");
-    }
-    setEditingProduct(null);
-  };
-
-  const handleDeleteProduct = (id) => {
-    setProducts(prev => prev.filter(p => p.id !== id));
-    showNotif("Məhsul silindi", "info");
-  };
-
-  const approveOrderAction = (e) => {
-    e.preventDefault();
-    if (!accountEmail || !accountPass) {
-      showNotif("Zəhmət olmasa Hesab məlumatlarını tam daxil edin!", "error");
-      return;
-    }
-    setOrders(prev => prev.map(o => o.id === approvingOrder.id ? {
-      ...o,
-      status: "approved",
-      credentials: { email: accountEmail, pass: accountPass }
-    } : o));
-
-    showNotif(`Sifariş təsdiqləndi! Müştəriyə təsdiq və e-poçt bildirişi göndərildi.`, "success");
-    setApprovingOrder(null);
-    setAccountEmail("");
-    setAccountPass("");
-  };
-
-  const rejectOrderAction = (orderId) => {
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: "rejected" } : o));
-    showNotif("Sifariş rədd edildi", "error");
-  };
-
+// ─── WHATSAPP BUTTON ──────────────────────────────────────────────────────────
+function WhatsAppBtn() {
+  const [h, setH] = useState(false);
   return (
-    <>
-      <style>{CSS}</style>
-      <Notif n={notification} />
-
-      {}
-      <nav className="sticky top-0 z-50 bg-[#030308]/95 backdrop-blur-md border-b border-indigo-950/60 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setPage("home")}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-extrabold text-white text-xl shadow-[0_0_15px_rgba(99,102,241,0.4)]">
-              P
-            </div>
-            <span className="font-extrabold text-2xl tracking-tight text-white">
-              Premium <span className="text-indigo-400">Shop</span>
-            </span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-8">
-            <button onClick={() => setPage("home")} className={`font-semibold text-sm transition ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>
-              Ana Səhifə
-            </button>
-            <button onClick={() => { setPage("home"); setTimeout(() => document.getElementById("catalog")?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="font-semibold text-sm text-gray-400 hover:text-white transition">
-              Məhsullar
-            </button>
-            <button onClick={() => { setPage("home"); setTimeout(() => document.getElementById("categories-section")?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="font-semibold text-sm text-gray-400 hover:text-white transition">
-              Kateqoriyalar
-            </button>
-            <button onClick={() => { setPage("home"); setTimeout(() => document.getElementById("footer")?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="font-semibold text-sm text-gray-400 hover:text-white transition">
-              Əlaqə
-            </button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button onClick={() => setIsCartOpen(true)} className="relative p-2.5 rounded-lg bg-indigo-950/30 border border-indigo-900/30 text-gray-300 hover:text-white transition">
-              <span className="text-xl">🛒</span>
-              {cart.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-indigo-600 text-white font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(99,102,241,0.5)]">
-                  {cart.length}
-                </span>
-              )}
-            </button>
-
-            {user ? (
-              <button onClick={() => setPage("dashboard")} className="glass-card flex items-center gap-2.5 px-4 py-2 rounded-xl border border-indigo-500/20">
-                <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-sm text-white overflow-hidden">
-                  {user.profileImg ? (
-                    <img src={user.profileImg} alt="User" className="w-full h-full object-cover" />
-                  ) : (
-                    user.name[0].toUpperCase()
-                  )}
-                </div>
-                <span className="font-semibold text-xs text-indigo-200 hidden sm:inline">{user.name}</span>
-              </button>
-            ) : (
-              <button onClick={() => setAuthMode("login")} className="glow-btn px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold tracking-wide">
-                Giriş / Qeydiyyat
-              </button>
-            )}
-
-            {isAdminLoggedIn && (
-              <button onClick={() => setPage("admin_dashboard")} className="px-3.5 py-2 rounded-xl bg-purple-950/40 border border-purple-800/40 text-purple-300 text-xs font-semibold animate-pulse">
-                🛡️ Admin Paneli
-              </button>
-            )}
-          </div>
-        </div>
-      </nav>
-
-      {}
-      <div key={page} className="page-transition">
-        
-        {/* HOME PAGE */}
-        {page === "home" && (
-          <main className="max-w-7xl mx-auto px-6 py-12 md:py-20">
-            <div className="relative rounded-3xl overflow-hidden glass-card p-8 md:p-16 mb-20 animate-card">
-              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
-              <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" />
-
-              <div className="relative z-10 grid md:grid-cols-12 gap-10 items-center">
-                <div className="md:col-span-7 space-y-6">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-950/40 border border-indigo-900/40 text-indigo-300 text-xs font-bold">
-                    <span>⚡</span> Sifarişlər 12 saat ərzində təsdiqlənir
-                  </div>
-                  <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-[1.1] neon-text">
-                    Rəqəmsal Dünyanızı <br />
-                    <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 text-transparent bg-clip-text">Premium Edin!</span>
-                  </h1>
-                  <p className="text-gray-400 text-base sm:text-lg max-w-xl leading-relaxed">
-                    Azərbaycanın rəqəmsal abunəlik bazarında ən etibarlı platforma. Bütün Premium xidmətləri asan ödəniş, təhlükəsiz zəmanət və sürətli çatdırılma ilə əldə edin.
-                  </p>
-                  <div className="flex flex-wrap gap-4">
-                    <button onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: 'smooth' })} className="glow-btn px-8 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white shadow-[0_4px_20px_rgba(99,102,241,0.3)] transition">
-                      Abunəlikləərə Bax
-                    </button>
-                    <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="flex items-center gap-2.5 px-6 py-4 rounded-xl bg-emerald-950/30 border border-emerald-900/30 text-emerald-300 font-semibold hover:bg-emerald-950/50 transition">
-                      <span className="text-xl">💬</span> Dəstək Xidməti (WhatsApp)
-                    </a>
-                  </div>
-                </div>
-
-                <div className="md:col-span-5 relative hidden md:block">
-                  <div className="w-full h-80 rounded-2xl bg-gradient-to-tr from-indigo-900/20 to-purple-900/20 border border-indigo-500/10 flex items-center justify-center p-6 relative">
-                    <div className="absolute inset-0 bg-[#030308]/40 backdrop-blur-sm rounded-2xl" />
-                    <div className="relative z-10 text-center space-y-4">
-                      <span className="text-6xl animate-bounce">🎬</span>
-                      <h3 className="font-extrabold text-xl text-white">Premium Shop VIP</h3>
-                      <p className="text-xs text-gray-500 max-w-xs">Canva, Spotify, Netflix, Adobe və onlarla premium xidmət artıq bir klik uzaqlığında.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* CATEGORIES MENU SECTION */}
-            <div id="categories-section" className="mb-12 space-y-4 animate-card" style={{ animationDelay: '100ms' }}>
-              <h2 className="text-2xl font-bold tracking-tight text-white">Kateqoriyalar</h2>
-              <div className="flex gap-2.5 overflow-x-auto pb-4 pt-1 no-scrollbar">
-                {CATEGORIES.map(cat => (
-                  <button key={cat.id} onClick={() => setSelectedCat(cat.id)} className={`px-5 py-3 rounded-xl font-bold text-xs whitespace-nowrap transition-all duration-300 flex items-center gap-2 ${selectedCat === cat.id ? "bg-indigo-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]" : "bg-indigo-950/20 border border-indigo-900/20 text-gray-400 hover:text-white"}`}>
-                    <span>{cat.icon}</span> {cat.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* CATALOG LIST (Absolutely no pre-written static prices on cards) */}
-            <div id="catalog" className="space-y-6 animate-card" style={{ animationDelay: '200ms' }}>
-              <div className="flex items-center justify-between">
-                <h2 className="text-3xl font-extrabold tracking-tight text-white">Populyar Abunəliklər</h2>
-                <span className="text-indigo-400 font-semibold text-sm">Abunəlik Seçimləri</span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {products
-                  .filter(p => selectedCat === "all" || p.cat === selectedCat)
-                  .map((product, index) => {
-                    return (
-                      <div key={product.id} className="glass-card rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden group animate-card" style={{ animationDelay: `${index * 80}ms` }}>
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-2xl pointer-events-none group-hover:bg-indigo-600/10 transition" />
-                        
-                        <div>
-                          <div className="flex items-center justify-between mb-4">
-                            {/* Rendering official clean SVG Logotype */}
-                            <div className="p-2 bg-indigo-950/30 rounded-xl border border-indigo-900/20">
-                              {getOfficialLogo(product.name, product.emoji, product.color)}
-                            </div>
-                            <span className="text-[10px] font-bold text-indigo-400 bg-indigo-950/60 border border-indigo-800/40 px-2.5 py-1 rounded-full uppercase tracking-widest">
-                              Premium
-                            </span>
-                          </div>
-                          <h3 className="text-xl font-extrabold text-white mb-2">{product.name}</h3>
-                          <p className="text-xs text-gray-400 leading-relaxed mb-6">{product.desc}</p>
-                        </div>
-
-                        <div className="space-y-4">
-                          <button onClick={() => { setSelectedProduct(product); setSelectedDuration(product.packages[0]); }} className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all duration-300 shadow-md">
-                            Seçimlərə Bax & Sifariş Et
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-          </main>
-        )}
-
-        {page === "home" && (
-          <section className="bg-indigo-950/10 border-t border-indigo-950/30 py-16 px-6 animate-card" style={{ animationDelay: '300ms' }} id="about-section">
-            <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-white">Güvənli Ödəniş Sistemi</h3>
-                <p className="text-xs text-gray-400 leading-relaxed">ABB, Kapital Bank, LEO və ya M10 vasitəsilə rahatlıqla ödəniş edib, çeki sistemə yükləyin. Ödənişlər təhlükəsiz şəkildə yoxlanılır.</p>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-white">Yüksək Keyfiyyət və Zəmanət</h3>
-                <p className="text-xs text-gray-400 leading-relaxed">Bizdən aldığınız bütün rəsmi hesablar zəmanətlidir. Problem yarandıqda dəstək xidməti sizə dərhal yeni giriş təmin edir.</p>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-white">7/24 Aktiv Dəstək</h3>
-                <p className="text-xs text-gray-400 leading-relaxed">İstənilən sualınız və ya probleminiz olduqda ekranın sol aşağı küncündəki WhatsApp piksellərinə toxunaraq bizimlə əlaqə saxlayın.</p>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* CUSTOMER DASHBOARD SCREEN */}
-        {page === "dashboard" && (
-          <main className="max-w-6xl mx-auto px-6 py-12">
-            <div className="flex flex-col md:flex-row justify-between items-start gap-10">
-              <div className="w-full md:w-1/3 space-y-6 animate-card">
-                <div className="glass-card rounded-2xl p-6 text-center">
-                  <div className="w-20 h-20 rounded-full bg-indigo-600 flex items-center justify-center font-extrabold text-2xl text-white mx-auto mb-4 overflow-hidden">
-                    {user?.profileImg ? (
-                      <img src={user.profileImg} alt="User" className="w-full h-full object-cover" />
-                    ) : (
-                      user ? user.name[0].toUpperCase() : "U"
-                    )}
-                  </div>
-                  <h3 className="text-lg font-bold text-white">{user?.name} {user?.surname}</h3>
-                  <p className="text-xs text-gray-400 mt-1">{user?.email}</p>
-                  <div className="mt-6 pt-6 border-t border-indigo-950/50 text-left space-y-3">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-gray-400">Telefon:</span>
-                      <span className="text-white font-bold">{user?.phone || "Qeyd edilməyib"}</span>
-                    </div>
-                  </div>
-                  <button onClick={() => { setUser(null); setPage("home"); }} className="w-full mt-6 py-3 rounded-xl bg-red-950/30 border border-red-900/40 text-red-400 font-bold text-xs transition">Çıxış Et</button>
-                </div>
-              </div>
-
-              <div className="w-full md:w-2/3 space-y-6 animate-card" style={{ animationDelay: '150ms' }}>
-                <h2 className="text-2xl font-black text-white">Sifarişlərim</h2>
-                {orders.filter(o => o.userEmail === user?.email).length === 0 ? (
-                  <div className="glass-card rounded-2xl p-10 text-center space-y-4">
-                    <span className="text-4xl block animate-bounce">📦</span>
-                    <p className="text-gray-400 text-xs">Hələ ki heç bir sifarişiniz yoxdur.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {orders
-                      .filter(o => o.userEmail === user?.email)
-                      .map((order, idx) => (
-                        <div key={order.id} className="glass-card rounded-2xl p-6 border-l-4 border-l-indigo-500 animate-card" style={{ animationDelay: `${idx * 100}ms` }}>
-                          <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
-                            <div>
-                              <h4 className="font-extrabold text-lg text-white">{order.productName} ({order.duration})</h4>
-                              <p className="text-xs text-gray-500 mt-0.5">Sifariş kodu: #{order.id} · {order.date}</p>
-                            </div>
-                            <div className="text-right">
-                              <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${order.status === "approved" ? "bg-emerald-950 text-emerald-300 border border-emerald-800" : order.status === "rejected" ? "bg-red-950 text-red-300 border border-red-900" : "bg-yellow-950 text-yellow-300 border border-yellow-900"}`}>
-                                {order.status === "approved" ? "Təsdiqləndi" : order.status === "rejected" ? "Rədd Edildi" : "Admin Onayı Gözləyir"}
-                              </span>
-                              <p className="font-extrabold text-sm text-indigo-400 mt-2">{order.price} AZN</p>
-                            </div>
-                          </div>
-
-                          {order.status === "approved" && order.credentials && (
-                            <div className="mt-4 p-4 rounded-xl bg-indigo-950/30 border border-indigo-900/30 space-y-3">
-                              <div className="flex items-center justify-between text-xs border-b border-indigo-950/40 pb-2">
-                                <span className="text-emerald-400 font-bold">🔒 Hesab Məlumatlarınız:</span>
-                                <span className="text-[10px] text-gray-500">Məlumatları kimsəyə ötürməyin</span>
-                              </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div className="p-3 rounded-lg bg-indigo-950/60 border border-indigo-900/40 flex justify-between items-center">
-                                  <div className="space-y-0.5">
-                                    <span className="text-[10px] text-gray-400 block">E-Poçt / Giriş:</span>
-                                    <span className="text-xs font-bold text-white select-all">{order.credentials.email}</span>
-                                  </div>
-                                  <button onClick={() => { navigator.clipboard.writeText(order.credentials.email); showNotif("E-Poçt kopyalandı!", "success"); }} className="text-[10px] bg-indigo-800/40 px-2 py-0.5 rounded text-white">Kopyala</button>
-                                </div>
-                                <div className="p-3 rounded-lg bg-indigo-950/60 border border-indigo-900/40 flex justify-between items-center">
-                                  <div className="space-y-0.5">
-                                    <span className="text-[10px] text-gray-400 block">Şifrə:</span>
-                                    <span className="text-xs font-bold text-white select-all">{order.credentials.pass}</span>
-                                  </div>
-                                  <button onClick={() => { navigator.clipboard.writeText(order.credentials.pass); showNotif("Şifrə kopyalandı!", "success"); }} className="text-[10px] bg-indigo-800/40 px-2 py-0.5 rounded text-white">Kopyala</button>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {order.status === "pending" && (
-                            <p className="text-xs text-gray-500 mt-2">⏱️ Ödəniş çekiniz admin tərəfindən yoxlanılır. Təsdiqlənəndə hesab məlumatları bura daxil ediləcək.</p>
-                          )}
-                        </div>
-                      ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </main>
-        )}
-
-        {/* ADMIN DASHBOARD (Perfect buyer attributes view, guaranteed sync) */}
-        {page === "admin_dashboard" && isAdminLoggedIn && (
-          <main className="max-w-7xl mx-auto px-6 py-12">
-            <div className="flex items-center justify-between border-b border-indigo-950/80 pb-6 mb-8 animate-card">
-              <div>
-                <h2 className="text-3xl font-extrabold text-white">🛡️ Admin İdarəetmə Paneli</h2>
-                <p className="text-xs text-gray-400 mt-1">Sifarişləri və abunəlik məhsullarını tənzimləyin</p>
-              </div>
-              <button onClick={handleAdminLogout} className="px-5 py-2.5 rounded-xl bg-red-950/40 border border-red-900/40 text-red-400 font-bold text-xs">Çıxış Et</button>
-            </div>
-
-            <div className="flex gap-4 mb-8 animate-card" style={{ animationDelay: '100ms' }}>
-              <button onClick={() => setActiveAdminTab("orders")} className={`px-6 py-3 rounded-xl font-bold text-xs transition ${activeAdminTab === "orders" ? "bg-indigo-600 text-white" : "bg-indigo-950/20 text-gray-400 hover:text-white"}`}>
-                Gələn Sifarişlər ({orders.filter(o => o.status === "pending").length})
-              </button>
-              <button onClick={() => setActiveAdminTab("edit_products")} className={`px-6 py-3 rounded-xl font-bold text-xs transition ${activeAdminTab === "edit_products" ? "bg-indigo-600 text-white" : "bg-indigo-950/20 text-gray-400 hover:text-white"}`}>
-                Məhsulları Redaktə Et ({products.length})
-              </button>
-            </div>
-
-            {activeAdminTab === "orders" && (
-              <div className="space-y-6 animate-card" style={{ animationDelay: '150ms' }}>
-                {orders.length === 0 ? (
-                  <div className="glass-card p-10 rounded-2xl text-center text-gray-400 font-bold">Hələ ki, sifariş yoxdur.</div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="border-b border-indigo-950/80 text-gray-400 text-xs uppercase tracking-wider">
-                          <th className="py-4 px-4">Sifarişçi (Məlumatlar)</th>
-                          <th className="py-4 px-4">Məhsul / Müddət</th>
-                          <th className="py-4 px-4">Kart / Ödəniş</th>
-                          <th className="py-4 px-4">Yüklənən Çek</th>
-                          <th className="py-4 px-4">Status</th>
-                          <th className="py-4 px-4">Əməliyyat</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-indigo-950/40 text-sm">
-                        {orders.slice().reverse().map(order => (
-                          <tr key={order.id} className="hover:bg-indigo-950/5">
-                            <td className="py-4 px-4">
-                              <p className="font-bold text-white">{order.userName} {order.userSurname}</p>
-                              <p className="text-[10px] text-indigo-300">{order.userEmail}</p>
-                              <p className="text-[10px] text-gray-400">Telefon: {order.userPhone}</p>
-                            </td>
-                            <td className="py-4 px-4">
-                              <p className="font-semibold text-white">{order.productName}</p>
-                              <p className="text-xs text-indigo-400 font-bold">{order.duration} ({order.price} AZN)</p>
-                            </td>
-                            <td className="py-4 px-4 text-xs font-bold text-gray-400">{order.bank}</td>
-                            <td className="py-4 px-4">
-                              <span className="text-xs text-indigo-400 underline cursor-pointer select-all font-semibold">📁 {order.receipt}</span>
-                            </td>
-                            <td className="py-4 px-4">
-                              <span className={`px-2.5 py-1 rounded text-[10px] font-bold ${order.status === "approved" ? "bg-emerald-950/60 text-emerald-300" : order.status === "rejected" ? "bg-red-950/60 text-red-300" : "bg-yellow-950/60 text-yellow-300"}`}>
-                                {order.status === "approved" ? "Təsdiqləndi" : order.status === "rejected" ? "Rədd Edildi" : "Gözləyir"}
-                              </span>
-                            </td>
-                            <td className="py-4 px-4">
-                              {order.status === "pending" ? (
-                                <div className="flex gap-2">
-                                  <button onClick={() => setApprovingOrder(order)} className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">Onayla</button>
-                                  <button onClick={() => rejectOrderAction(order.id)} className="px-3 py-1.5 rounded-lg bg-red-950 text-red-400 hover:text-red-300 text-xs font-bold border border-red-900/40">Rədd et</button>
-                                </div>
-                              ) : (
-                                <span className="text-xs text-gray-500 font-bold">Tamamlanıb</span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeAdminTab === "edit_products" && (
-              <div className="space-y-6 animate-card" style={{ animationDelay: '150ms' }}>
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-bold text-white">Bütün Abunəliklər</h3>
-                  <button onClick={() => setEditingProduct({ name: "", cat: "entertainment", color: "#6366f1", emoji: "🌐", desc: "", packages: [{ id: Date.now().toString(), duration: "1 Ay", price: 10 }] })} className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition">
-                    ➕ Yeni Məhsul Əlavə Et
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {products.map(p => (
-                    <div key={p.id} className="glass-card p-6 rounded-2xl flex justify-between items-start animate-card">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          {getOfficialLogo(p.name, p.emoji, p.color)}
-                          <div>
-                            <h4 className="font-extrabold text-lg text-white">{p.name}</h4>
-                            <span className="text-[10px] text-gray-500 font-bold uppercase">{p.cat}</span>
-                          </div>
-                        </div>
-                        <p className="text-xs text-gray-400">{p.desc}</p>
-                        
-                        <div className="flex flex-wrap gap-2 pt-2">
-                          {p.packages && p.packages.map((pkg, idx) => (
-                            <span key={idx} className="bg-indigo-950/50 border border-indigo-900/40 px-2.5 py-1 rounded text-xs text-indigo-300">
-                              {pkg.duration}: <b>{pkg.price} AZN</b>
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <button onClick={() => setEditingProduct(p)} className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition">Düzəliş et</button>
-                        <button onClick={() => handleDeleteProduct(p.id)} className="px-4 py-2 rounded-xl bg-red-950/40 hover:bg-red-950 text-red-400 text-xs font-bold transition">Sil</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </main>
-        )}
-      </div>
-
-      {}
-      {selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/90 flex items-center justify-center p-6 backdrop-blur-md">
-          <div className="glass-card rounded-3xl w-full max-w-lg p-6 sm:p-8 relative animate-modal">
-            <button onClick={() => setSelectedProduct(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
-            <div className="flex items-center gap-4 mb-6">
-              {getOfficialLogo(selectedProduct.name, selectedProduct.emoji, selectedProduct.color)}
-              <div>
-                <h3 className="text-2xl font-extrabold text-white">{selectedProduct.name}</h3>
-                <p className="text-xs text-gray-400 mt-1">{selectedProduct.desc}</p>
-              </div>
-            </div>
-
-            <div className="space-y-4 mb-8">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Müddət və Paket Seçin:</label>
-              <div className="grid grid-cols-2 gap-3">
-                {selectedProduct.packages && selectedProduct.packages.map((pkg, index) => (
-                  <div key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between animate-card ${selectedDuration?.id === pkg.id ? "bg-indigo-600/10 border-indigo-500" : "bg-indigo-950/10 border-indigo-900/20"}`} style={{ animationDelay: `${index * 80}ms` }}>
-                    <span className="font-bold text-sm text-white">{pkg.duration}</span>
-                    <span className="text-lg font-black text-indigo-400 mt-2">{pkg.price} AZN</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <button onClick={() => setSelectedProduct(null)} className="flex-1 py-3.5 rounded-xl bg-indigo-950/40 text-gray-300 font-bold text-xs hover:text-white transition">Geri Qayıt</button>
-              <button onClick={() => { addToCart(selectedProduct, selectedDuration); setSelectedProduct(null); }} className="flex-1 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs glow-btn transition">Səbətə Əlavə Et</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* CARTS DRAWER - COMPLETELY SOLID DEEP DARK BLACK-BLUE (Opaque) */}
-      {isCartOpen && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/95 flex justify-end">
-          <div className="border-l border-indigo-900/50 w-full max-w-md h-full p-6 flex flex-col justify-between drawer-open shadow-[0_0_50px_rgba(0,0,0,0.95)]" style={{ backgroundColor: '#070712', opacity: 1 }}>
-            <div>
-              <div className="flex items-center justify-between pb-6 border-b border-indigo-950/80 mb-6">
-                <h3 className="text-xl font-extrabold text-white">Səbətiniz</h3>
-                <button onClick={() => setIsCartOpen(false)} className="text-gray-400 hover:text-white text-lg">✕</button>
-              </div>
-
-              {cart.length === 0 ? (
-                <div className="text-center py-20 space-y-4">
-                  <span className="text-5xl block animate-bounce">🛒</span>
-                  <p className="text-sm text-gray-400">Səbətiniz boşdur</p>
-                  <button onClick={() => setIsCartOpen(false)} className="text-xs font-bold text-indigo-400 hover:underline">Alış-verişə davam et</button>
-                </div>
-              ) : (
-                <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
-                  {cart.map((item, idx) => (
-                    <div key={idx} className="glass-card p-4 rounded-xl flex items-center justify-between animate-card" style={{ animationDelay: `${idx * 80}ms` }}>
-                      <div className="flex items-center gap-3">
-                        {getOfficialLogo(item.product.name, item.product.emoji, item.product.color)}
-                        <div>
-                          <h4 className="font-bold text-sm text-white">{item.product.name}</h4>
-                          <p className="text-xs text-gray-400 mt-0.5">{item.package.duration} - {item.package.price} AZN</p>
-                        </div>
-                      </div>
-                      <button onClick={() => removeFromCart(idx)} className="text-red-400 hover:text-red-300 text-xs p-2">Sil</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {cart.length > 0 && (
-              <div className="space-y-4 border-t border-indigo-950/80 pt-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-400">Toplam Məbləğ:</span>
-                  <span className="text-2xl font-black text-indigo-400">
-                    {cart.reduce((sum, item) => sum + item.package.price, 0)} AZN
-                  </span>
-                </div>
-                <button onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} className="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm glow-btn transition">
-                  Ödəniş Mərhələsinə Keç
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {}
-      {isCheckoutOpen && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/95 flex items-center justify-center p-6 overflow-y-auto">
-          <div className="glass-card rounded-3xl w-full max-w-2xl p-6 sm:p-8 relative my-8 animate-modal">
-            <button onClick={() => setIsCheckoutOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
-            <h3 className="text-2xl font-extrabold text-white mb-6">Sifarişi Tamamla</h3>
-
-            <form onSubmit={handleCheckoutSubmit} className="space-y-6">
-              <div className="bg-indigo-950/20 border border-indigo-900/30 rounded-xl p-4 flex justify-between items-center text-sm">
-                <span className="text-gray-400">Ödəniləcək məbləğ:</span>
-                <span className="text-xl font-black text-indigo-400">
-                  {cart.reduce((sum, item) => sum + item.package.price, 0)} AZN
-                </span>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ödəniş Üsulu Seçin:</label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {CARD_ACCOUNTS.map(acc => (
-                    <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`p-4 rounded-xl border-2 cursor-pointer text-center transition ${selectedBank.id === acc.id ? "bg-indigo-600/10 border-indigo-500" : "bg-indigo-950/10 border-indigo-900/20"}`}>
-                      <h4 className="font-extrabold text-sm text-white">{acc.bank}</h4>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Precise card layout */}
-              <div className={`p-6 rounded-2xl bg-gradient-to-tr ${selectedBank.color} text-white shadow-lg space-y-4 relative overflow-hidden animate-card`}>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold tracking-widest">KART KÖÇÜRMƏSİ</span>
-                  <span className="text-xs bg-white/20 px-2 py-0.5 rounded uppercase">{selectedBank.bank}</span>
-                </div>
-                <div>
-                  <p className="text-xs text-white/80 mb-1">Hesab / Kart Nömrəsi:</p>
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg sm:text-xl font-black tracking-wider">{selectedBank.num}</span>
-                    <button type="button" onClick={() => { navigator.clipboard.writeText(selectedBank.num); showNotif("Nömrə kopyalandı!", "success"); }} className="bg-white/25 hover:bg-white/40 px-2.5 py-1 rounded text-xs font-bold transition">Kopyala</button>
-                  </div>
-                </div>
-                <div className="flex justify-between items-end">
-                  <div>
-                    <p className="text-[10px] text-white/70 uppercase">İstiqamət</p>
-                    <p className="font-bold text-sm">{selectedBank.holder}</p>
-                  </div>
-                  <span className="text-lg">💳</span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ödəniş Çeki (Şəkil / PDF):</label>
-                <div className="p-6 rounded-xl border border-dashed border-indigo-900/40 bg-[#0c0c1d] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-indigo-950/10 transition relative">
-                  <input type="file" required onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      setUploadedReceipt(e.target.files[0].name);
-                      showNotif("Çek uğurla əlavə edildi!", "success");
-                    }
-                  }} className="absolute inset-0 opacity-0 cursor-pointer" />
-                  <span className="text-4xl mb-2">📥</span>
-                  <p className="text-xs font-semibold text-indigo-400">Ödəniş qəbzini yükləmək üçün klikləyin</p>
-                  {uploadedReceipt && <p className="text-[10px] text-emerald-400 font-bold mt-2">Yükləndi: {uploadedReceipt}</p>}
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <button type="button" onClick={() => setIsCheckoutOpen(false)} className="flex-1 py-3.5 rounded-xl bg-indigo-950/40 text-gray-300 font-bold text-xs hover:text-white transition">Ləğv Et</button>
-                <button type="submit" className="flex-1 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm glow-btn transition">Təsdiqlə və Çeki Göndər</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {}
-      {authMode && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/95 flex items-center justify-center p-6">
-          <div className="glass-card rounded-3xl w-full max-w-md p-8 relative animate-modal">
-            <button onClick={() => setAuthMode(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
-            
-            {authMode === "login" ? (
-              <form onSubmit={handleUserAuth} className="space-y-5">
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-black text-white">Xoş Gəldiniz</h3>
-                  <p className="text-xs text-gray-400 mt-1">Premium abunəlik dünyasına qoşulun</p>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">E-Poçt:</label>
-                  <input type="email" required placeholder="example@mail.com" value={authForm.email} onChange={e => setAuthForm({ ...authForm, email: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Şifrə:</label>
-                  <input type="password" required placeholder="••••••••" value={authForm.pass} onChange={e => setAuthForm({ ...authForm, pass: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-                </div>
-                <button type="submit" className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs glow-btn transition">Giriş Et</button>
-                <p className="text-xs text-gray-500 text-center">Hesabınız yoxdur? <span onClick={() => setAuthMode("register")} className="text-indigo-400 hover:underline cursor-pointer font-bold">Qeydiyyatdan keçin</span></p>
-              </form>
-            ) : authMode === "register" ? (
-              <form onSubmit={handleUserAuth} className="space-y-4">
-                <div className="text-center mb-4">
-                  <h3 className="text-2xl font-black text-white">Yeni Hesab</h3>
-                  <p className="text-xs text-gray-400 mt-1">Məlumatlarınızı daxil edərək qeydiyyatdan keçin</p>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase block">Ad <span className="text-red-500">*</span>:</label>
-                    <input type="text" required placeholder="Adınız" value={authForm.name} onChange={e => setAuthForm({ ...authForm, name: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase block">Soyad <span className="text-red-500">*</span>:</label>
-                    <input type="text" required placeholder="Soyadınız" value={authForm.surname} onChange={e => setAuthForm({ ...authForm, surname: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase block">Mobil Nömrə (İstəyə bağlı):</label>
-                  <input type="tel" placeholder="+994503136941" value={authForm.phone} onChange={e => setAuthForm({ ...authForm, phone: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase block">Profil Şəkli Linki (İstəyə bağlı):</label>
-                  <input type="url" placeholder="https://..." value={authForm.profileImg} onChange={e => setAuthForm({ ...authForm, profileImg: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase block">E-Poçt <span className="text-red-500">*</span>:</label>
-                  <input type="email" required placeholder="faiq@example.com" value={authForm.email} onChange={e => setAuthForm({ ...authForm, email: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase block">Şifrə yaradın <span className="text-red-500">*</span>:</label>
-                  <input type="password" required placeholder="••••••••" value={authForm.pass} onChange={e => setAuthForm({ ...authForm, pass: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-                </div>
-                <button type="submit" className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs glow-btn transition">Davam Et</button>
-                <p className="text-xs text-gray-500 text-center">Hesabınız var? <span onClick={() => setAuthMode("login")} className="text-indigo-400 hover:underline cursor-pointer font-bold">Daxil olun</span></p>
-              </form>
-            ) : (
-              <form onSubmit={handleUserAuth} className="space-y-5">
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-black text-white">E-Poçt Təsdiqlənməsi</h3>
-                  <p className="text-xs text-gray-400 mt-1">E-poçtunuza kod göndərildi. Simulyasiya Kodu: <b>1234</b></p>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Təsdiq Kodu:</label>
-                  <input type="text" required maxLength="4" placeholder="••••" value={authForm.otpInput} onChange={e => setAuthForm({ ...authForm, otpInput: e.target.value })} className="w-full text-center bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-lg tracking-widest focus:outline-none focus:border-indigo-500" />
-                </div>
-                <button type="submit" className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs glow-btn transition">Təsdiqlə və Giriş Et</button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
-      {}
-      {approvingOrder && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/90 flex items-center justify-center p-6 backdrop-blur-md">
-          <form onSubmit={approveOrderAction} className="glass-card rounded-3xl w-full max-w-md p-8 space-y-5 relative animate-modal">
-            <button type="button" onClick={() => setApprovingOrder(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
-            <div className="text-center">
-              <h3 className="text-xl font-bold text-white">Hesab Məlumatlarını Təyin Et</h3>
-              <p className="text-xs text-indigo-300 font-semibold mt-1">Sifariş: {approvingOrder.productName} ({approvingOrder.duration})</p>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Loqin / E-Poçt / Parametr:</label>
-              <input type="text" required placeholder="premium-netflix@substore.az" value={accountEmail} onChange={e => setAccountEmail(e.target.value)} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Şifrə / Açılış Şifrəsi:</label>
-              <input type="text" required placeholder="PremiumXYZ123!" value={accountPass} onChange={e => setAccountPass(e.target.value)} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-            </div>
-
-            <button type="submit" className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
-              Hesabı Göndər və Sifarişi Tamamla
-            </button>
-          </form>
-        </div>
-      )}
-
-      {}
-      {editingProduct && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/90 flex items-center justify-center p-6 overflow-y-auto backdrop-blur-md">
-          <form onSubmit={handleSaveProduct} className="glass-card rounded-3xl w-full max-w-xl p-6 sm:p-8 space-y-5 relative my-8 animate-modal">
-            <button type="button" onClick={() => setEditingProduct(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
-            <h3 className="text-2xl font-black text-white">{editingProduct.id ? "Məhsulu Redaktə Et" : "Yeni Məhsul Əlavə Et"}</h3>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase">Məhsul Adı:</label>
-                <input type="text" required value={editingProduct.name} onChange={e => setEditingProduct({ ...editingProduct, name: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase">Kateqoriya:</label>
-                <select value={editingProduct.cat} onChange={e => setEditingProduct({ ...editingProduct, cat: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none">
-                  <option value="entertainment">Əyləncə</option>
-                  <option value="ai">Süni İntellekt</option>
-                  <option value="design">Dizayn</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase">Emoji (Logo üçün):</label>
-                <input type="text" required value={editingProduct.emoji} onChange={e => setEditingProduct({ ...editingProduct, emoji: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase">Mövzu Rəngi (HEX):</label>
-                <input type="text" required value={editingProduct.color} onChange={e => setEditingProduct({ ...editingProduct, color: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none" />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase">Qısa Təsvir:</label>
-              <textarea required value={editingProduct.desc} onChange={e => setEditingProduct({ ...editingProduct, desc: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm h-20 focus:outline-none" />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-gray-400 uppercase">Müddət və Qiymətlər:</label>
-                <button type="button" onClick={() => {
-                  const updatedPacks = [...(editingProduct.packages || [])];
-                  updatedPacks.push({ id: Date.now().toString(), duration: "1 Ay", price: 10 });
-                  setEditingProduct({ ...editingProduct, packages: updatedPacks });
-                }} className="text-xs text-indigo-400 hover:underline font-bold">➕ Yeni Müddət Əlavə Et</button>
-              </div>
-
-              <div className="space-y-3 max-h-40 overflow-y-auto">
-                {editingProduct.packages && editingProduct.packages.map((pkg, idx) => (
-                  <div key={pkg.id} className="flex items-center gap-3 bg-indigo-950/20 border border-indigo-900/30 p-3 rounded-xl animate-card">
-                    <input type="text" required placeholder="məs: 1 Ay" value={pkg.duration} onChange={e => {
-                      const updatedPacks = [...editingProduct.packages];
-                      updatedPacks[idx].duration = e.target.value;
-                      setEditingProduct({ ...editingProduct, packages: updatedPacks });
-                    }} className="flex-2 bg-[#0c0c1d] border border-indigo-900/50 rounded-lg px-3 py-2 text-xs text-white focus:outline-none" />
-                    
-                    <input type="number" required placeholder="məs: 10" value={pkg.price} onChange={e => {
-                      const updatedPacks = [...editingProduct.packages];
-                      updatedPacks[idx].price = parseFloat(e.target.value);
-                      setEditingProduct({ ...editingProduct, packages: updatedPacks });
-                    }} className="flex-1 bg-[#0c0c1d] border border-indigo-900/50 rounded-lg px-3 py-2 text-xs text-white focus:outline-none" />
-                    
-                    <span className="text-xs text-gray-400 font-bold">AZN</span>
-                    <button type="button" onClick={() => {
-                      const updatedPacks = editingProduct.packages.filter((_, pidx) => pidx !== idx);
-                      setEditingProduct({ ...editingProduct, packages: updatedPacks });
-                    }} className="text-red-400 hover:text-red-300 text-xs p-1.5">Sil</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <button type="button" onClick={() => setEditingProduct(null)} className="flex-1 py-3.5 rounded-xl bg-indigo-950/40 text-gray-300 font-bold text-xs hover:text-white transition">Ləğv Et</button>
-              <button type="submit" className="flex-1 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition">Yadda Saxla</button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {}
-      {isAdminModalOpen && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/90 backdrop-blur-sm flex items-center justify-center p-6">
-          <form onSubmit={handleAdminLogin} className="glass-card rounded-3xl w-full max-w-md p-8 space-y-5 relative animate-modal">
-            <button type="button" onClick={() => setIsAdminModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-2">✕</button>
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-black text-white">Admin Girişi</h3>
-              <p className="text-xs text-gray-400 mt-1">Sistem nizamlanması üçün giriş edin</p>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Admin İstifadəçi Adı:</label>
-              <input type="text" required placeholder="İstifadəçi adı" value={adminUsername} onChange={e => setAdminUsername(e.target.value)} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Admin Şifrəsi:</label>
-              <input type="password" required placeholder="••••••••" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
-            </div>
-
-            <button type="submit" className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition">Giriş Et</button>
-          </form>
-        </div>
-      )}
-
-      {/* FOOTER */}
-      <footer id="footer" className="bg-[#030308] border-t border-indigo-950/40 py-12 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-sm">P</div>
-              <span className="font-extrabold text-white text-base">Premium Shop</span>
-            </div>
-            <p className="text-[11px] text-gray-500">© 2026 premiumshopaz.com - Bütün hüquqlar qorunur.</p>
-          </div>
-
-          <div className="flex gap-6 text-xs text-gray-400">
-            <span onClick={() => { setPage("home"); setTimeout(() => document.getElementById("catalog")?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-white cursor-pointer transition">Məhsullar</span>
-            <span onClick={() => { setPage("home"); setTimeout(() => document.getElementById("categories-section")?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-white cursor-pointer transition">Kateqoriyalar</span>
-            <span onClick={() => { setPage("home"); setTimeout(() => document.getElementById("about-section")?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-white cursor-pointer transition">Zəmanət və Əlaqə</span>
-          </div>
-
-          <div>
-            {isAdminLoggedIn ? (
-              <button onClick={() => setPage("admin_dashboard")} className="text-xs text-indigo-400 font-bold hover:underline">🛡️ Admin Paneli</button>
-            ) : (
-              <button onClick={() => setIsAdminModalOpen(true)} className="text-[11px] text-gray-600 hover:text-gray-400 hover:underline">🔐 Admin Girişi</button>
-            )}
-          </div>
-        </div>
-      </footer>
-
-      {/* NEW UPDATED WHATSAPP BUTTON */}
-      <a href="https://wa.me/994103136941" target="_blank" rel="noopener noreferrer" 
-         className="fixed bottom-6 left-6 z-50 flex items-center gap-3 bg-[#25D366] text-white px-4 py-3 rounded-xl shadow-[0_8px_20px_rgba(37,211,102,0.3)] transition-transform hover:scale-105"
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-        <span className="font-bold text-sm">WhatsApp</span>
-      </a>
-    </>
+    <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
+      style={{
+        position:"fixed", bottom:24, right:24, zIndex:999,
+        width:58, height:58, borderRadius:"50%", backgroundColor:"#25D366",
+        display:"flex", alignItems:"center", justifyContent:"center",
+        boxShadow: h ? "0 8px 32px rgba(37,211,102,.65)" : "0 4px 20px rgba(37,211,102,.4)",
+        transform: h ? "scale(1.1)" : "scale(1)", transition:"all .22s ease",
+        textDecoration:"none",
+      }}
+      onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)}>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+    </a>
   );
 }
 
-// Notification Component Helper
-function Notif({ n }) {
-  if (!n) return null;
-  const isError = n.type === "error";
-  const isInfo = n.type === "info";
+// ─── NAVBAR ───────────────────────────────────────────────────────────────────
+function Navbar({ page, navigate, user, onLogout, onAuthOpen }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  const links = [
+    { label: "Ana Səhifə", key: "home" },
+    { label: "Bütün Məhsullar", key: "products" },
+    { label: "Dəstək Xidməti", href: WA_LINK },
+  ];
+
   return (
-    <div className="fixed top-24 right-6 z-50 glass-card rounded-2xl p-4 max-w-sm flex items-start gap-3 border-l-4 border-l-indigo-500 shadow-2xl animate-[fadeIn_0.3s_ease]">
-      <span className="text-xl">{isError ? "❌" : isInfo ? "ℹ️" : "✅"}</span>
-      <div>
-        <p className="text-xs font-bold text-white">{isError ? "Xəta" : isInfo ? "Məlumat" : "Uğurlu"}</p>
-        <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">{n.msg}</p>
+    <nav style={{
+      position:"sticky", top:0, zIndex:200,
+      backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)",
+      backgroundColor: scrolled ? "rgba(7,7,15,0.95)" : "rgba(7,7,15,0.8)",
+      borderBottom: scrolled ? "1px solid rgba(255,255,255,0.07)" : "1px solid rgba(255,255,255,0.04)",
+      transition:"all .3s ease",
+    }}>
+      <div style={{ maxWidth:1200, margin:"0 auto", padding:"0 24px", height:66, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        {/* Logo */}
+        <div onClick={()=>navigate("home")} style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }}>
+          <div style={{
+            width:38, height:38, borderRadius:11,
+            background:"linear-gradient(135deg,#7c3aed,#4f46e5)",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            fontSize:17, fontWeight:900, color:"white", flexShrink:0,
+          }}>P</div>
+          <div>
+            <div style={{ fontWeight:800, fontSize:16, letterSpacing:"-0.4px", lineHeight:1.1 }}>Premium Shop</div>
+            <div style={{ fontSize:9, color:"#a78bfa", letterSpacing:"1px", textTransform:"uppercase", fontWeight:700 }}>premiumshopaz.com</div>
+          </div>
+        </div>
+
+        {/* Desktop links */}
+        <div style={{ display:"flex", alignItems:"center", gap:4 }}>
+          {links.map(l => l.href
+            ? <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer"
+                style={{ color:"#94a3b8", textDecoration:"none", fontSize:13, padding:"8px 14px", borderRadius:8, transition:"color .2s" }}
+                onMouseEnter={e=>e.target.style.color="#f1f5f9"} onMouseLeave={e=>e.target.style.color="#94a3b8"}>
+                {l.label}
+              </a>
+            : <button key={l.label} onClick={()=>navigate(l.key)}
+                style={{
+                  color: page===l.key ? "#a78bfa" : "#94a3b8",
+                  background:"transparent", border:"none", fontSize:13,
+                  padding:"8px 14px", borderRadius:8, cursor:"pointer", transition:"color .2s",
+                  fontWeight: page===l.key ? 600 : 400,
+                }}>
+                {l.label}
+              </button>
+          )}
+
+          {user
+            ? <div style={{ display:"flex", alignItems:"center", gap:8, marginLeft:8 }}>
+                <button onClick={()=>navigate("profile")} style={{
+                  display:"flex", alignItems:"center", gap:7,
+                  backgroundColor:"rgba(124,58,237,0.12)", border:"1px solid rgba(124,58,237,0.3)",
+                  color:"#c4b5fd", borderRadius:10, padding:"7px 14px", fontSize:13, fontWeight:600, cursor:"pointer",
+                }}>
+                  <span>👤</span> {user.email.split("@")[0]}
+                </button>
+                <button onClick={onLogout} style={{
+                  backgroundColor:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)",
+                  color:"#64748b", borderRadius:10, padding:"7px 12px", fontSize:12, cursor:"pointer",
+                }}>Çıxış</button>
+              </div>
+            : <button onClick={onAuthOpen} style={{
+                background:"linear-gradient(135deg,#7c3aed,#6d28d9)", color:"white",
+                border:"none", borderRadius:10, padding:"9px 20px", fontSize:13,
+                fontWeight:700, cursor:"pointer", marginLeft:8,
+                boxShadow:"0 0 20px rgba(124,58,237,0.3)",
+              }}>Giriş / Qeydiyyat</button>
+          }
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// ─── FOOTER ───────────────────────────────────────────────────────────────────
+function Footer({ navigate }) {
+  return (
+    <footer style={{ borderTop:"1px solid rgba(255,255,255,0.05)", padding:"48px 24px 32px", position:"relative", zIndex:1 }}>
+      <div style={{ maxWidth:1100, margin:"0 auto" }}>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(200px,1fr))", gap:40, marginBottom:40 }}>
+          <div>
+            <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:14 }}>
+              <div style={{
+                width:34, height:34, borderRadius:9, background:"linear-gradient(135deg,#7c3aed,#4f46e5)",
+                display:"flex", alignItems:"center", justifyContent:"center", fontSize:15, fontWeight:900, color:"white",
+              }}>P</div>
+              <span style={{ fontWeight:800, fontSize:15 }}>Premium Shop</span>
+            </div>
+            <p style={{ color:"#64748b", fontSize:13, lineHeight:1.7 }}>
+              Azərbaycanda rəqəmsal abunəliklərin ən etibarlı və sərfəli ünvanı.
+            </p>
+            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" style={{
+              display:"inline-flex", alignItems:"center", gap:6, marginTop:14,
+              color:"#25D366", textDecoration:"none", fontSize:13, fontWeight:600,
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              +994 10 313 69 41
+            </a>
+          </div>
+          <div>
+            <div style={{ fontWeight:700, fontSize:14, marginBottom:14, color:"#c4b5fd" }}>Məhsullar</div>
+            {["Streaming & Musiqi","AI Alətləri","Dizayn","VPN & Güvənlik","Geliştirici"].map(c=>(
+              <div key={c} onClick={()=>navigate("products")} style={{
+                color:"#64748b", fontSize:13, marginBottom:8, cursor:"pointer",
+                transition:"color .2s",
+              }} onMouseEnter={e=>e.target.style.color="#a78bfa"}
+                 onMouseLeave={e=>e.target.style.color="#64748b"}>{c}</div>
+            ))}
+          </div>
+          <div>
+            <div style={{ fontWeight:700, fontSize:14, marginBottom:14, color:"#c4b5fd" }}>Əlaqə & Dəstək</div>
+            <div style={{ color:"#64748b", fontSize:13, lineHeight:2 }}>
+              <div>WhatsApp: +994 10 313 69 41</div>
+              <div>Çatdırılma: 12 saat ərzində</div>
+              <div>Dəstək: 7/24 aktiv</div>
+            </div>
+          </div>
+          <div>
+            <div style={{ fontWeight:700, fontSize:14, marginBottom:14, color:"#c4b5fd" }}>Qaydalar</div>
+            <div style={{ color:"#64748b", fontSize:13, lineHeight:2 }}>
+              <div>Ödəniş: Card-to-Card</div>
+              <div>Geri ödəmə: 24s keçərsə</div>
+              <div>Zəmanət: Hər sifarişdə</div>
+            </div>
+          </div>
+        </div>
+        <div style={{ borderTop:"1px solid rgba(255,255,255,0.05)", paddingTop:24, display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+          <p style={{ color:"#334155", fontSize:12 }}>© 2025 Premium Shop · premiumshopaz.com · Bütün hüquqlar qorunur</p>
+          <p style={{ color:"#334155", fontSize:12 }}>Azərbaycan · Rəqəmsal Abunəliklər</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── PRODUCT CARD ─────────────────────────────────────────────────────────────
+function ProductCard({ product, onOrder, delay = 0 }) {
+  const [plan, setPlan] = useState(0);
+  const [hovered, setHovered] = useState(false);
+  const [btnH, setBtnH] = useState(false);
+  return (
+    <div
+      className={`anim-fadeup delay-${Math.min(delay,6)}`}
+      onMouseEnter={()=>setHovered(true)} onMouseLeave={()=>setHovered(false)}
+      style={{
+        backgroundColor:"#0f0f1a",
+        border:`1px solid ${hovered ? product.color+"45" : "rgba(255,255,255,0.06)"}`,
+        borderRadius:20, padding:24, position:"relative", overflow:"hidden",
+        transition:"transform .28s ease, box-shadow .28s ease, border-color .28s ease",
+        transform: hovered ? "translateY(-7px) scale(1.01)" : "translateY(0) scale(1)",
+        boxShadow: hovered ? `0 28px 64px rgba(0,0,0,0.4), 0 0 0 1px ${product.color}20, 0 16px 40px ${product.color}20` : "0 2px 12px rgba(0,0,0,0.3)",
+      }}>
+      {/* Glow */}
+      <div style={{
+        position:"absolute", top:-50, right:-40, width:160, height:160, borderRadius:"50%",
+        background:`radial-gradient(circle, ${product.color}30 0%, transparent 70%)`,
+        pointerEvents:"none", opacity: hovered ? 1 : 0.35, transition:"opacity .28s",
+      }}/>
+      {/* Header */}
+      <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:18 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:11 }}>
+          <div style={{
+            width:46, height:46, borderRadius:13,
+            backgroundColor:`${product.color}1a`, border:`1px solid ${product.color}45`,
+            display:"flex", alignItems:"center", justifyContent:"center",
+            fontSize:10, fontWeight:900, color:product.color, letterSpacing:"-0.2px", flexShrink:0,
+          }}>{product.short}</div>
+          <div>
+            <div style={{ fontWeight:700, fontSize:14, color:"#f1f5f9", lineHeight:1.2 }}>{product.name}</div>
+            <div style={{ color:"#64748b", fontSize:11, marginTop:3, lineHeight:1.4 }}>{product.desc}</div>
+          </div>
+        </div>
+        {product.badge && (
+          <span style={{
+            fontSize:9, fontWeight:700, color:product.color,
+            backgroundColor:`${product.color}15`, border:`1px solid ${product.color}30`,
+            borderRadius:20, padding:"3px 8px", textTransform:"uppercase",
+            letterSpacing:"0.6px", whiteSpace:"nowrap", flexShrink:0,
+          }}>{product.badge}</span>
+        )}
+      </div>
+      {/* Plan tabs */}
+      <div style={{ display:"flex", gap:3, marginBottom:18, backgroundColor:"rgba(255,255,255,0.03)", borderRadius:10, padding:3 }}>
+        {product.plans.map((p,i)=>(
+          <button key={i} onClick={()=>setPlan(i)} style={{
+            flex:1, padding:"6px 0", borderRadius:8, border:"none",
+            fontSize:10, fontWeight:600, cursor:"pointer", transition:"all .15s",
+            backgroundColor: plan===i ? product.color : "transparent",
+            color: plan===i ? "white" : "#64748b",
+          }}>{p.l}</button>
+        ))}
+      </div>
+      {/* Price */}
+      <div style={{ marginBottom:18 }}>
+        <div style={{ display:"flex", alignItems:"baseline", gap:4 }}>
+          <span style={{ fontSize:36, fontWeight:900, color:product.color, lineHeight:1 }}>{product.plans[plan].p}</span>
+          <span style={{ color:"#94a3b8", fontSize:16 }}>₼</span>
+        </div>
+        <div style={{ color:"#475569", fontSize:11, marginTop:3 }}>/ {product.plans[plan].l.toLowerCase()} · 12 saat ərzində çatdırılır</div>
+      </div>
+      {/* CTA */}
+      <button
+        onMouseEnter={()=>setBtnH(true)} onMouseLeave={()=>setBtnH(false)}
+        onClick={()=>onOrder(product, plan)}
+        style={{
+          width:"100%", padding:"12px", borderRadius:12, fontSize:13, fontWeight:700, cursor:"pointer",
+          border:`1px solid ${btnH ? product.color : product.color+"50"}`,
+          backgroundColor: btnH ? product.color : `${product.color}15`,
+          color: btnH ? "white" : product.color, transition:"all .18s",
+        }}>
+        Sifariş et →
+      </button>
+    </div>
+  );
+}
+
+// ─── ORDER MODAL ──────────────────────────────────────────────────────────────
+function OrderModal({ product, planIdx, user, onClose, onAuthOpen }) {
+  const [step, setStep] = useState(user ? "payment" : "login");
+  const [file, setFile] = useState(null);
+  const [note, setNote] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const plan = product.plans[planIdx];
+
+  const handleSubmit = () => {
+    if (!file) { alert("Zəhmət olmasa ödəniş çekini yükləyin."); return; }
+    const orders = ls.get("ps_orders") || [];
+    const newOrder = {
+      id: Date.now(),
+      productName: product.name,
+      plan: plan.l,
+      price: plan.p,
+      color: product.color,
+      short: product.short,
+      status: "pending",
+      note,
+      date: new Date().toLocaleDateString("az-AZ"),
+      userEmail: user.email,
+    };
+    ls.set("ps_orders", [...orders, newOrder]);
+    setSubmitted(true);
+  };
+
+  if (step === "login") return (
+    <ModalWrap onClose={onClose}>
+      <div style={{ textAlign:"center", padding:"8px 0 16px" }}>
+        <div style={{ fontSize:36, marginBottom:12 }}>🔐</div>
+        <h3 style={{ fontSize:20, fontWeight:800, marginBottom:8 }}>Sifariş üçün giriş lazımdır</h3>
+        <p style={{ color:"#64748b", fontSize:14, marginBottom:24 }}>Sifarişinizi izləmək üçün hesabınıza giriş edin</p>
+        <button onClick={()=>{ onClose(); onAuthOpen(); }} style={{
+          width:"100%", padding:"13px", borderRadius:12,
+          background:"linear-gradient(135deg,#7c3aed,#6d28d9)", color:"white",
+          border:"none", fontSize:14, fontWeight:700, cursor:"pointer",
+        }}>Giriş / Qeydiyyat</button>
+      </div>
+    </ModalWrap>
+  );
+
+  return (
+    <ModalWrap onClose={onClose} wide>
+      {submitted ? (
+        <div style={{ textAlign:"center", padding:"24px 0" }}>
+          <div className="anim-scalein" style={{ fontSize:60, marginBottom:16 }}>✅</div>
+          <h3 className="anim-fadeup delay-1" style={{ fontSize:22, fontWeight:800, marginBottom:10 }}>Sifarişiniz qəbul edildi!</h3>
+          <p className="anim-fadeup delay-2" style={{ color:"#94a3b8", fontSize:14, lineHeight:1.7, marginBottom:20 }}>
+            Ödənişiniz yoxlanılır. 12 saat ərzində hesab məlumatları<br/>email və WhatsApp vasitəsilə göndəriləcək.
+          </p>
+          <div className="anim-fadeup delay-3" style={{
+            backgroundColor:"rgba(124,58,237,0.1)", border:"1px solid rgba(124,58,237,0.2)",
+            borderRadius:14, padding:16, marginBottom:20,
+          }}>
+            <div style={{ fontSize:13, color:"#a78bfa", fontWeight:600 }}>📦 {product.name} · {plan.l} · {plan.p}₼</div>
+            <div style={{ fontSize:12, color:"#64748b", marginTop:4 }}>Sifariş nömrəsi: #{Date.now().toString().slice(-6)}</div>
+          </div>
+          <button onClick={onClose} style={{
+            padding:"11px 28px", borderRadius:12, background:"linear-gradient(135deg,#7c3aed,#6d28d9)",
+            color:"white", border:"none", fontSize:14, fontWeight:700, cursor:"pointer",
+          }}>Bağla</button>
+        </div>
+      ) : (
+        <>
+          <h3 style={{ fontSize:19, fontWeight:800, marginBottom:4 }}>Sifariş et</h3>
+          <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:24 }}>
+            <div style={{
+              width:38, height:38, borderRadius:10, backgroundColor:`${product.color}1a`,
+              border:`1px solid ${product.color}45`, display:"flex", alignItems:"center",
+              justifyContent:"center", fontSize:10, fontWeight:800, color:product.color,
+            }}>{product.short}</div>
+            <div>
+              <div style={{ fontWeight:700, fontSize:14 }}>{product.name}</div>
+              <div style={{ fontSize:12, color:product.color }}>{plan.l} — {plan.p}₼</div>
+            </div>
+          </div>
+
+          {/* Payment methods */}
+          <div style={{ marginBottom:20 }}>
+            <div style={{ fontSize:12, color:"#64748b", fontWeight:600, marginBottom:10, textTransform:"uppercase", letterSpacing:"0.6px" }}>
+              Ödəniş Üsulları — istənilənini seçin
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+              {PAYMENT_METHODS.map((pm,i)=>(
+                <div key={i} style={{
+                  backgroundColor: pm.bg, border:`1px solid ${pm.color}30`,
+                  borderRadius:12, padding:"12px 14px",
+                }}>
+                  <div style={{ fontWeight:700, fontSize:13, color:pm.color, marginBottom:4 }}>{pm.name}</div>
+                  <div style={{ fontSize:11, color:"#94a3b8", fontFamily:"monospace" }}>{pm.info}</div>
+                  {pm.owner && <div style={{ fontSize:10, color:"#64748b", marginTop:2 }}>Ad: {pm.owner}</div>}
+                </div>
+              ))}
+            </div>
+            <div style={{
+              marginTop:10, backgroundColor:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.2)",
+              borderRadius:10, padding:"10px 14px", fontSize:12, color:"#4ade80",
+            }}>
+              ⏱ Ödəniş məbləği: <strong>{plan.p}₼</strong> · Köçürmə edib çeki aşağıya yükləyin
+            </div>
+          </div>
+
+          {/* Receipt upload */}
+          <div style={{ marginBottom:16 }}>
+            <div style={{ fontSize:12, color:"#64748b", fontWeight:600, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.6px" }}>
+              Ödəniş Çeki (skrinşot)
+            </div>
+            <label style={{
+              display:"block", border:`2px dashed ${file ? "#7c3aed" : "rgba(255,255,255,0.1)"}`,
+              borderRadius:12, padding:"20px", textAlign:"center", cursor:"pointer",
+              backgroundColor: file ? "rgba(124,58,237,0.08)" : "rgba(255,255,255,0.02)",
+              transition:"all .2s",
+            }}>
+              <input type="file" accept="image/*,.pdf" style={{ display:"none" }} onChange={e=>setFile(e.target.files[0])}/>
+              {file
+                ? <div style={{ color:"#a78bfa", fontSize:13, fontWeight:600 }}>✅ {file.name}</div>
+                : <div>
+                    <div style={{ fontSize:24, marginBottom:6 }}>📎</div>
+                    <div style={{ color:"#64748b", fontSize:13 }}>Çeki yükləmək üçün klik edin</div>
+                    <div style={{ color:"#475569", fontSize:11, marginTop:3 }}>JPG, PNG, PDF</div>
+                  </div>
+              }
+            </label>
+          </div>
+
+          {/* Note */}
+          <div style={{ marginBottom:20 }}>
+            <textarea value={note} onChange={e=>setNote(e.target.value)}
+              placeholder="Əlavə qeyd (istəyə bağlı)"
+              style={{ resize:"none", height:64 }}/>
+          </div>
+
+          <div style={{ display:"flex", gap:10 }}>
+            <button onClick={onClose} style={{
+              flex:1, padding:"12px", borderRadius:12, border:"1px solid rgba(255,255,255,0.1)",
+              backgroundColor:"rgba(255,255,255,0.04)", color:"#94a3b8", fontSize:14, cursor:"pointer",
+            }}>Ləğv et</button>
+            <button onClick={handleSubmit} style={{
+              flex:2, padding:"12px", borderRadius:12,
+              background:"linear-gradient(135deg,#7c3aed,#6d28d9)", color:"white",
+              border:"none", fontSize:14, fontWeight:700, cursor:"pointer",
+              boxShadow:"0 0 24px rgba(124,58,237,0.35)",
+            }}>Sifarişi Göndər →</button>
+          </div>
+          <div style={{ textAlign:"center", marginTop:12, fontSize:11, color:"#475569" }}>
+            12 saat ərzində çatdırılır · 24 saatı keçərsə geri ödəmə üçün <a href={WA_LINK} style={{ color:"#a78bfa" }}>əlaqə saxlayın</a>
+          </div>
+        </>
+      )}
+    </ModalWrap>
+  );
+}
+
+// ─── AUTH MODAL ───────────────────────────────────────────────────────────────
+function AuthModal({ onClose, onSuccess }) {
+  const [mode, setMode] = useState("register"); // register | login
+  const [step, setStep] = useState("email");    // email | otp | phone | done
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [generatedOtp, setGeneratedOtp] = useState("");
+  const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSendOtp = () => {
+    if (!email.includes("@")) { setError("Düzgün email daxil edin"); return; }
+    setError("");
+    if (mode === "login") {
+      const users = ls.get("ps_users") || [];
+      const found = users.find(u => u.email === email);
+      if (!found) { setError("Bu email ilə hesab tapılmadı"); return; }
+    }
+    setLoading(true);
+    const code = generateOTP();
+    setGeneratedOtp(code);
+    setTimeout(() => {
+      setLoading(false);
+      setStep("otp");
+      // DEV: console.log for testing until real email is set up
+      console.log("OTP kodu:", code);
+      alert(`Test üçün OTP kodunuz: ${code}\n(Real saytda email-ə göndəriləcək)`);
+    }, 1200);
+  };
+
+  const handleVerifyOtp = () => {
+    if (otp !== generatedOtp) { setError("OTP kodu yanlışdır"); return; }
+    setError("");
+    if (mode === "login") {
+      const users = ls.get("ps_users") || [];
+      const found = users.find(u => u.email === email);
+      onSuccess(found);
+      onClose();
+    } else {
+      setStep("phone");
+    }
+  };
+
+  const handleFinish = () => {
+    const newUser = { email, phone, name: email.split("@")[0], createdAt: new Date().toISOString() };
+    const users = ls.get("ps_users") || [];
+    ls.set("ps_users", [...users, newUser]);
+    onSuccess(newUser);
+    setStep("done");
+    setTimeout(onClose, 2000);
+  };
+
+  return (
+    <ModalWrap onClose={onClose}>
+      {step === "done" ? (
+        <div style={{ textAlign:"center", padding:"20px 0" }}>
+          <div style={{ fontSize:52, marginBottom:12 }}>🎉</div>
+          <h3 style={{ fontSize:20, fontWeight:800 }}>Xoş gəldiniz!</h3>
+          <p style={{ color:"#64748b", marginTop:8 }}>Hesabınız uğurla yaradıldı.</p>
+        </div>
+      ) : (
+        <>
+          {/* Mode switch */}
+          <div style={{ display:"flex", gap:4, marginBottom:24, backgroundColor:"rgba(255,255,255,0.04)", borderRadius:12, padding:4 }}>
+            {["register","login"].map(m=>(
+              <button key={m} onClick={()=>{ setMode(m); setStep("email"); setError(""); }}
+                style={{
+                  flex:1, padding:"9px", borderRadius:9, border:"none", fontSize:13, fontWeight:600, cursor:"pointer", transition:"all .15s",
+                  backgroundColor: mode===m ? "#7c3aed" : "transparent",
+                  color: mode===m ? "white" : "#64748b",
+                }}>
+                {m==="register" ? "Qeydiyyat" : "Giriş"}
+              </button>
+            ))}
+          </div>
+
+          {step === "email" && <>
+            <h3 style={{ fontSize:18, fontWeight:800, marginBottom:6 }}>
+              {mode==="register" ? "Hesab yarat" : "Hesabına gir"}
+            </h3>
+            <p style={{ color:"#64748b", fontSize:13, marginBottom:20 }}>
+              {mode==="register" ? "Email ünvanınıza doğrulama kodu göndərəcəyik" : "Email ünvanınızı daxil edin"}
+            </p>
+            <div style={{ marginBottom:16 }}>
+              <input value={email} onChange={e=>setEmail(e.target.value)}
+                onKeyDown={e=>e.key==="Enter"&&handleSendOtp()}
+                placeholder="email@example.com" type="email"/>
+            </div>
+            {error && <p style={{ color:"#f87171", fontSize:12, marginBottom:12 }}>{error}</p>}
+            <button onClick={handleSendOtp} disabled={loading} style={{
+              width:"100%", padding:"13px", borderRadius:12,
+              background:"linear-gradient(135deg,#7c3aed,#6d28d9)", color:"white",
+              border:"none", fontSize:14, fontWeight:700, cursor:"pointer",
+              opacity: loading ? 0.7 : 1,
+            }}>
+              {loading ? "Göndərilir..." : "Kodu Göndər →"}
+            </button>
+          </>}
+
+          {step === "otp" && <>
+            <h3 style={{ fontSize:18, fontWeight:800, marginBottom:6 }}>Kodu daxil edin</h3>
+            <p style={{ color:"#64748b", fontSize:13, marginBottom:20 }}>
+              <strong style={{ color:"#a78bfa" }}>{email}</strong> ünvanına 6 rəqəmli kod göndərildi
+            </p>
+            <input value={otp} onChange={e=>setOtp(e.target.value)}
+              onKeyDown={e=>e.key==="Enter"&&handleVerifyOtp()}
+              placeholder="123456" maxLength={6}
+              style={{ textAlign:"center", fontSize:24, letterSpacing:"8px", fontWeight:700, marginBottom:16 }}/>
+            {error && <p style={{ color:"#f87171", fontSize:12, marginBottom:12 }}>{error}</p>}
+            <button onClick={handleVerifyOtp} style={{
+              width:"100%", padding:"13px", borderRadius:12,
+              background:"linear-gradient(135deg,#7c3aed,#6d28d9)", color:"white",
+              border:"none", fontSize:14, fontWeight:700, cursor:"pointer",
+            }}>Təsdiqlə →</button>
+            <button onClick={()=>setStep("email")} style={{
+              width:"100%", marginTop:10, padding:"10px", border:"none",
+              backgroundColor:"transparent", color:"#64748b", fontSize:13, cursor:"pointer",
+            }}>← Geri</button>
+          </>}
+
+          {step === "phone" && <>
+            <h3 style={{ fontSize:18, fontWeight:800, marginBottom:6 }}>Nömrənizi əlavə edin</h3>
+            <p style={{ color:"#64748b", fontSize:13, marginBottom:4 }}>
+              Bu addım istəyə bağlıdır. Nömrəniz yalnız geri ödəmə halında istifadə olunur.
+            </p>
+            <p style={{ color:"#475569", fontSize:11, marginBottom:20 }}>
+              * Əlavə etmək istəməsəniz keçin
+            </p>
+            <input value={phone} onChange={e=>setPhone(e.target.value)}
+              placeholder="+994 XX XXX XX XX" type="tel" style={{ marginBottom:16 }}/>
+            <div style={{ display:"flex", gap:10 }}>
+              <button onClick={handleFinish} style={{
+                flex:1, padding:"12px", borderRadius:12, border:"1px solid rgba(255,255,255,0.1)",
+                backgroundColor:"rgba(255,255,255,0.04)", color:"#94a3b8", fontSize:13, cursor:"pointer",
+              }}>Keç →</button>
+              <button onClick={handleFinish} style={{
+                flex:2, padding:"12px", borderRadius:12,
+                background:"linear-gradient(135deg,#7c3aed,#6d28d9)", color:"white",
+                border:"none", fontSize:14, fontWeight:700, cursor:"pointer",
+              }}>Tamamla ✓</button>
+            </div>
+          </>}
+        </>
+      )}
+    </ModalWrap>
+  );
+}
+
+// ─── MODAL WRAPPER ────────────────────────────────────────────────────────────
+function ModalWrap({ children, onClose, wide }) {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+  return (
+    <div className="anim-fadein" onClick={onClose} style={{
+      position:"fixed", inset:0, backgroundColor:"rgba(0,0,0,0.7)", zIndex:500,
+      display:"flex", alignItems:"center", justifyContent:"center", padding:20,
+      backdropFilter:"blur(8px)",
+    }}>
+      <div className="anim-scalein" onClick={e=>e.stopPropagation()} style={{
+        backgroundColor:"#0f0f1a", border:"1px solid rgba(255,255,255,0.08)",
+        borderRadius:22, padding:28, width:"100%", maxWidth: wide ? 540 : 420,
+        position:"relative", maxHeight:"90vh", overflowY:"auto",
+        boxShadow:"0 32px 80px rgba(0,0,0,0.6)",
+      }}>
+        <button onClick={onClose} style={{
+          position:"absolute", top:16, right:16, background:"rgba(255,255,255,0.06)",
+          border:"none", color:"#64748b", borderRadius:"50%", width:30, height:30,
+          cursor:"pointer", fontSize:16, display:"flex", alignItems:"center", justifyContent:"center",
+        }}>✕</button>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─── HOME PAGE ────────────────────────────────────────────────────────────────
+function HomePage({ onOrder, navigate }) {
+  const productsRef = useRef(null);
+  const featured = PRODUCTS.filter(p => p.badge).slice(0,6);
+  const allFeatured = PRODUCTS.slice(0,8);
+
+  const scrollToProducts = () => {
+    productsRef.current?.scrollIntoView({ behavior:"smooth", block:"start" });
+  };
+
+  return (
+    <div>
+      {/* HERO */}
+      <section style={{ position:"relative", zIndex:1, padding:"100px 24px 80px", textAlign:"center", maxWidth:760, margin:"0 auto" }}>
+        {/* Animated blobs */}
+        <div style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:0, overflow:"hidden" }}>
+          {[
+            {w:700,h:700,top:-250,left:-250,c:"rgba(109,40,217,0.12)"},
+            {w:600,h:600,top:"40%",right:-250,c:"rgba(59,130,246,0.07)"},
+            {w:500,h:500,bottom:-100,left:"30%",c:"rgba(139,92,246,0.06)"},
+          ].map((b,i)=>(
+            <div key={i} style={{
+              position:"absolute", width:b.w, height:b.h, borderRadius:"50%",
+              top:b.top, right:b.right, bottom:b.bottom, left:b.left,
+              background:`radial-gradient(circle, ${b.c} 0%, transparent 70%)`,
+              filter:"blur(80px)", animation:`blobPulse ${4+i}s ease-in-out infinite`,
+              animationDelay:`${i*1.5}s`,
+            }}/>
+          ))}
+        </div>
+
+        {/* Badge */}
+        <div className="anim-fadeup" style={{
+          display:"inline-flex", alignItems:"center", gap:8,
+          backgroundColor:"rgba(167,139,250,0.08)", border:"1px solid rgba(167,139,250,0.22)",
+          borderRadius:24, padding:"6px 18px", fontSize:13, color:"#c4b5fd", marginBottom:28, fontWeight:500,
+        }}>
+          ⚡ 32+ Rəqəmsal Abunəlik · 12 saat ərzində çatdırılır
+        </div>
+
+        <h1 className="anim-fadeup delay-1" style={{
+          fontSize:"clamp(36px,6vw,64px)", fontWeight:900, lineHeight:1.05,
+          letterSpacing:"-2px", marginBottom:22,
+        }}>
+          <span className="gradient-text">Bütün Rəqəmsal</span><br/>
+          <span className="gradient-text-animate">Abunəliklər</span><br/>
+          <span style={{ color:"#f1f5f9" }}>Bir Yerdə</span>
+        </h1>
+
+        <p className="anim-fadeup delay-2" style={{ color:"#94a3b8", fontSize:18, lineHeight:1.75, marginBottom:40, maxWidth:520, margin:"0 auto 40px" }}>
+          Netflix, Spotify, ChatGPT, Adobe, Canva, NordVPN və daha çox. Etibarlı xidmət, sərfəli qiymət, sürətli çatdırılma.
+        </p>
+
+        <div className="anim-fadeup delay-3" style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
+          <button onClick={scrollToProducts} style={{
+            background:"linear-gradient(135deg,#7c3aed,#4f46e5)", color:"white",
+            border:"none", borderRadius:14, padding:"15px 32px", fontSize:16, fontWeight:800,
+            cursor:"pointer", boxShadow:"0 0 40px rgba(124,58,237,0.4)", letterSpacing:"-0.3px",
+            transition:"all .2s",
+          }}>
+            Abunəliklərə Bax ↓
+          </button>
+          <a href={WA_LINK} target="_blank" rel="noopener noreferrer" style={{
+            display:"inline-block", backgroundColor:"rgba(37,211,102,0.1)",
+            border:"1px solid rgba(37,211,102,0.25)", color:"#4ade80",
+            textDecoration:"none", borderRadius:14, padding:"15px 28px", fontSize:15, fontWeight:600,
+          }}>
+            💬 Dəstək Xidməti
+          </a>
+        </div>
+
+        {/* Stats */}
+        <div className="anim-fadeup delay-4" style={{ display:"flex", gap:44, justifyContent:"center", marginTop:68, flexWrap:"wrap" }}>
+          {[["1000+","Məmnun müştəri"],["12s","Çatdırılma vaxtı"],["32+","Fərqli abunəlik"],["7/24","Dəstək xidməti"]].map(([n,l])=>(
+            <div key={l} style={{ textAlign:"center" }}>
+              <div style={{ fontSize:28, fontWeight:900, color:"#a78bfa", letterSpacing:"-0.5px" }}>{n}</div>
+              <div style={{ fontSize:12, color:"#475569", marginTop:3, fontWeight:500 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* BRAND MARQUEE */}
+      <div style={{ overflow:"hidden", padding:"28px 0", borderTop:"1px solid rgba(255,255,255,0.04)", borderBottom:"1px solid rgba(255,255,255,0.04)", position:"relative", zIndex:1 }}>
+        <div style={{ position:"absolute", left:0, top:0, bottom:0, width:80, background:"linear-gradient(to right, #07070f, transparent)", zIndex:2 }}/>
+        <div style={{ position:"absolute", right:0, top:0, bottom:0, width:80, background:"linear-gradient(to left, #07070f, transparent)", zIndex:2 }}/>
+        <div className="anim-marquee" style={{ display:"flex", gap:0, whiteSpace:"nowrap" }}>
+          {[...BRANDS,...BRANDS].map((b,i)=>(
+            <span key={i} style={{ padding:"0 28px", color:"#475569", fontSize:13, fontWeight:600, letterSpacing:"0.3px" }}>
+              <span style={{ color:"#7c3aed", marginRight:8 }}>✦</span>{b}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* CATEGORIES */}
+      <section style={{ position:"relative", zIndex:1, padding:"60px 24px 0", maxWidth:1100, margin:"0 auto" }}>
+        <div className="anim-fadeup" style={{ textAlign:"center", marginBottom:44 }}>
+          <h2 style={{ fontSize:34, fontWeight:800, letterSpacing:"-1px", marginBottom:10 }}>Kateqoriyalar</h2>
+          <p style={{ color:"#64748b" }}>İstədiyiniz sahəni seçin</p>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(150px,1fr))", gap:12, marginBottom:64 }}>
+          {[
+            { icon:"🎬", label:"Streaming", key:"streaming" },
+            { icon:"🤖", label:"AI Alətləri", key:"ai" },
+            { icon:"🎨", label:"Dizayn", key:"design" },
+            { icon:"💼", label:"Produktivlik", key:"productivity" },
+            { icon:"🔒", label:"VPN & Güvənlik", key:"vpn" },
+            { icon:"💻", label:"Geliştirici", key:"dev" },
+          ].map((c,i)=>(
+            <div key={c.key}
+              className={`anim-fadeup delay-${i+1}`}
+              onClick={()=>navigate("products", c.key)}
+              style={{
+                backgroundColor:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.07)",
+                borderRadius:16, padding:"20px 16px", textAlign:"center", cursor:"pointer",
+                transition:"all .22s ease",
+              }}
+              onMouseEnter={e=>{ e.currentTarget.style.backgroundColor="rgba(124,58,237,0.12)"; e.currentTarget.style.borderColor="rgba(124,58,237,0.35)"; e.currentTarget.style.transform="translateY(-4px)"; }}
+              onMouseLeave={e=>{ e.currentTarget.style.backgroundColor="rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor="rgba(255,255,255,0.07)"; e.currentTarget.style.transform="translateY(0)"; }}>
+              <div style={{ fontSize:28, marginBottom:8 }}>{c.icon}</div>
+              <div style={{ fontSize:12, fontWeight:600, color:"#94a3b8" }}>{c.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FEATURED PRODUCTS */}
+      <section ref={productsRef} style={{ position:"relative", zIndex:1, padding:"0 24px 64px", maxWidth:1100, margin:"0 auto" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:36, flexWrap:"wrap", gap:12 }}>
+          <div>
+            <h2 style={{ fontSize:30, fontWeight:800, letterSpacing:"-0.8px", marginBottom:6 }}>Seçilmiş Məhsullar</h2>
+            <p style={{ color:"#64748b", fontSize:14 }}>Ən çox sifariş verilən abunəliklər</p>
+          </div>
+          <button onClick={()=>navigate("products")} style={{
+            backgroundColor:"rgba(124,58,237,0.12)", border:"1px solid rgba(124,58,237,0.3)",
+            color:"#a78bfa", borderRadius:10, padding:"9px 18px", fontSize:13, fontWeight:600, cursor:"pointer",
+          }}>Hamısına bax →</button>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(300px,1fr))", gap:18 }}>
+          {allFeatured.map((p,i)=>(
+            <ProductCard key={p.id} product={p} onOrder={onOrder} delay={i+1}/>
+          ))}
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section style={{ position:"relative", zIndex:1, padding:"64px 24px", maxWidth:900, margin:"0 auto" }}>
+        <div className="anim-fadeup" style={{ textAlign:"center", marginBottom:52 }}>
+          <h2 style={{ fontSize:34, fontWeight:800, letterSpacing:"-1px", marginBottom:10 }}>Necə işləyir?</h2>
+          <p style={{ color:"#64748b" }}>4 sadə addımda abunəliyinizi alın</p>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(190px,1fr))", gap:16 }}>
+          {[
+            { n:"01", icon:"🔍", title:"Seçin", desc:"İstədiyiniz platformanı və müddəti seçin.", color:"#7c3aed" },
+            { n:"02", icon:"💳", title:"Ödəyin", desc:"ABB, LEO, Kapital və ya M10 ilə kart köçürməsi edin.", color:"#5b21b6" },
+            { n:"03", icon:"📤", title:"Çeki Yükləyin", desc:"Ödəniş skrinşotunu sayta yükləyin.", color:"#4c1d95" },
+            { n:"04", icon:"✅", title:"Hesabı Alın", desc:"12 saat ərzində hesab məlumatları sizə çatır.", color:"#3b0764" },
+          ].map((s,i)=>(
+            <div key={i} className={`anim-fadeup delay-${i+1}`} style={{
+              backgroundColor:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.06)",
+              borderRadius:18, padding:"24px 20px", textAlign:"center",
+              transition:"transform .22s, border-color .22s",
+            }}
+            onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-5px)"; e.currentTarget.style.borderColor="rgba(124,58,237,0.3)"; }}
+            onMouseLeave={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.borderColor="rgba(255,255,255,0.06)"; }}>
+              <div style={{ fontSize:30, marginBottom:10 }}>{s.icon}</div>
+              <div style={{
+                display:"inline-block", fontSize:9, fontWeight:800, color:s.color,
+                backgroundColor:`${s.color}15`, border:`1px solid ${s.color}35`,
+                borderRadius:20, padding:"3px 10px", letterSpacing:"1px", marginBottom:12,
+              }}>{s.n}</div>
+              <div style={{ fontWeight:700, fontSize:16, marginBottom:8 }}>{s.title}</div>
+              <div style={{ color:"#64748b", fontSize:13, lineHeight:1.6 }}>{s.desc}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{
+          marginTop:20, backgroundColor:"rgba(234,179,8,0.06)", border:"1px solid rgba(234,179,8,0.2)",
+          borderRadius:14, padding:"14px 20px", textAlign:"center", fontSize:13, color:"#fbbf24",
+        }}>
+          ⚠️ 24 saat ərzində çatdırılmadıqda tam geri ödəmə üçün <a href={WA_LINK} target="_blank" rel="noopener noreferrer" style={{ color:"#fbbf24", fontWeight:700 }}>WhatsApp</a> vasitəsilə əlaqə saxlayın
+        </div>
+      </section>
+
+      {/* PAYMENT SECTION */}
+      <section style={{ position:"relative", zIndex:1, padding:"0 24px 64px", maxWidth:900, margin:"0 auto" }}>
+        <div className="anim-fadeup" style={{ textAlign:"center", marginBottom:36 }}>
+          <h2 style={{ fontSize:30, fontWeight:800, letterSpacing:"-0.8px", marginBottom:8 }}>Ödəniş Üsulları</h2>
+          <p style={{ color:"#64748b", fontSize:14 }}>ABB, LEO, Kapital Bank və ya M10 ilə ödəyin</p>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(200px,1fr))", gap:14 }}>
+          {PAYMENT_METHODS.map((pm,i)=>(
+            <div key={i} className={`anim-fadeup delay-${i+1}`} style={{
+              backgroundColor: pm.bg, border:`1px solid ${pm.color}25`,
+              borderRadius:16, padding:"20px 22px",
+              transition:"transform .22s",
+            }}
+            onMouseEnter={e=>e.currentTarget.style.transform="translateY(-4px)"}
+            onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>
+              <div style={{
+                width:44, height:44, borderRadius:12, backgroundColor:`${pm.color}20`,
+                border:`1px solid ${pm.color}40`, display:"flex", alignItems:"center",
+                justifyContent:"center", fontWeight:800, fontSize:12, color:pm.color, marginBottom:12,
+              }}>{pm.short}</div>
+              <div style={{ fontWeight:700, fontSize:15, marginBottom:6 }}>{pm.name}</div>
+              <div style={{ fontSize:12, color:"#94a3b8", fontFamily:"monospace", lineHeight:1.6 }}>{pm.info}</div>
+              {pm.owner && <div style={{ fontSize:11, color:"#64748b", marginTop:4 }}>Ad: {pm.owner}</div>}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* TRUST BADGES */}
+      <section style={{ position:"relative", zIndex:1, padding:"0 24px 80px", maxWidth:1100, margin:"0 auto" }}>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(230px,1fr))", gap:14 }}>
+          {[
+            { icon:"🔒", title:"Güvənli ödəniş", desc:"Card-to-card köçürmə. Çek ilə təsdiq edilir." },
+            { icon:"⚡", title:"12 saat çatdırılma", desc:"Onay verilən kimi 12 saat ərzində hesab göndərilir." },
+            { icon:"🔄", title:"Geri ödəmə zəmanəti", desc:"24 saatı keçərsə tam geri ödəmə edilir." },
+            { icon:"💬", title:"7/24 Dəstək", desc:"WhatsApp vasitəsilə hər sualınıza cavab veririk." },
+          ].map((t,i)=>(
+            <div key={i} className={`anim-fadeup delay-${i+1}`} style={{
+              backgroundColor:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.05)",
+              borderRadius:16, padding:"22px 24px",
+            }}>
+              <div style={{ fontSize:26, marginBottom:10 }}>{t.icon}</div>
+              <div style={{ fontWeight:700, fontSize:14, marginBottom:6 }}>{t.title}</div>
+              <div style={{ color:"#64748b", fontSize:13, lineHeight:1.6 }}>{t.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─── PRODUCTS PAGE ────────────────────────────────────────────────────────────
+function ProductsPage({ onOrder, initialCat = "all" }) {
+  const [cat, setCat] = useState(initialCat);
+  const [search, setSearch] = useState("");
+  const filtered = PRODUCTS.filter(p =>
+    (cat === "all" || p.cat === cat) &&
+    (!search || p.name.toLowerCase().includes(search.toLowerCase()))
+  );
+  return (
+    <div style={{ maxWidth:1100, margin:"0 auto", padding:"48px 24px 80px" }}>
+      <div className="anim-fadeup" style={{ marginBottom:36 }}>
+        <h1 style={{ fontSize:34, fontWeight:800, letterSpacing:"-1px", marginBottom:6 }}>Bütün Məhsullar</h1>
+        <p style={{ color:"#64748b" }}>32+ rəqəmsal abunəlik — streaming, AI, dizayn, VPN və daha çox</p>
+      </div>
+
+      {/* Search */}
+      <div className="anim-fadeup delay-1" style={{ marginBottom:20 }}>
+        <input value={search} onChange={e=>setSearch(e.target.value)}
+          placeholder="🔍  Məhsul axtar... (Netflix, Spotify, ChatGPT...)"
+          style={{ fontSize:14 }}/>
+      </div>
+
+      {/* Category tabs */}
+      <div className="anim-fadeup delay-2" style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:32 }}>
+        {CATEGORIES.map(c=>(
+          <button key={c.id} onClick={()=>setCat(c.id)} style={{
+            padding:"8px 16px", borderRadius:20, border:"none", fontSize:13, fontWeight:600, cursor:"pointer", transition:"all .15s",
+            backgroundColor: cat===c.id ? "#7c3aed" : "rgba(255,255,255,0.05)",
+            color: cat===c.id ? "white" : "#94a3b8",
+            boxShadow: cat===c.id ? "0 0 20px rgba(124,58,237,0.4)" : "none",
+          }}>{c.label} {cat===c.id && `(${filtered.length})`}</button>
+        ))}
+      </div>
+
+      {/* Grid */}
+      {filtered.length > 0
+        ? <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(300px,1fr))", gap:18 }}>
+            {filtered.map((p,i)=><ProductCard key={p.id} product={p} onOrder={onOrder} delay={(i%6)+1}/>)}
+          </div>
+        : <div style={{ textAlign:"center", padding:"60px 20px", color:"#64748b" }}>
+            <div style={{ fontSize:40, marginBottom:12 }}>🔍</div>
+            <p>"{search}" üçün nəticə tapılmadı</p>
+          </div>
+      }
+    </div>
+  );
+}
+
+// ─── PROFILE PAGE ─────────────────────────────────────────────────────────────
+function ProfilePage({ user, onUpdatePhone, navigate }) {
+  const [orders] = useState(() => (ls.get("ps_orders") || []).filter(o=>o.userEmail===user.email).reverse());
+  const [phone, setPhone] = useState(user.phone || "");
+  const [saved, setSaved] = useState(false);
+
+  const statusLabel = { pending:"Gözlənilir", approved:"Təsdiqləndi", delivered:"Çatdırıldı" };
+  const statusColor = { pending:"#f59e0b", approved:"#10b981", delivered:"#a78bfa" };
+
+  const handleSave = () => {
+    const users = ls.get("ps_users") || [];
+    const upd = users.map(u => u.email === user.email ? {...u, phone} : u);
+    ls.set("ps_users", upd);
+    onUpdatePhone(phone);
+    setSaved(true);
+    setTimeout(()=>setSaved(false), 2000);
+  };
+
+  return (
+    <div style={{ maxWidth:800, margin:"0 auto", padding:"48px 24px 80px" }}>
+      <div className="anim-fadeup" style={{ marginBottom:36 }}>
+        <h1 style={{ fontSize:30, fontWeight:800, letterSpacing:"-0.8px", marginBottom:4 }}>Hesabım</h1>
+        <p style={{ color:"#64748b" }}>{user.email}</p>
+      </div>
+
+      {/* Profile info */}
+      <div className="anim-fadeup delay-1" style={{
+        backgroundColor:"#0f0f1a", border:"1px solid rgba(255,255,255,0.07)",
+        borderRadius:18, padding:24, marginBottom:20,
+      }}>
+        <h3 style={{ fontSize:16, fontWeight:700, marginBottom:16 }}>Şəxsi Məlumatlar</h3>
+        <div style={{ display:"grid", gap:12 }}>
+          <div>
+            <div style={{ fontSize:11, color:"#64748b", fontWeight:600, marginBottom:6, textTransform:"uppercase", letterSpacing:"0.5px" }}>Email</div>
+            <div style={{ fontSize:14, color:"#a78bfa", fontFamily:"monospace" }}>{user.email}</div>
+          </div>
+          <div>
+            <div style={{ fontSize:11, color:"#64748b", fontWeight:600, marginBottom:6, textTransform:"uppercase", letterSpacing:"0.5px" }}>Əlaqə nömrəsi (geri ödəmə üçün)</div>
+            <div style={{ display:"flex", gap:10 }}>
+              <input value={phone} onChange={e=>setPhone(e.target.value)}
+                placeholder="+994 XX XXX XX XX" style={{ flex:1 }}/>
+              <button onClick={handleSave} style={{
+                padding:"0 18px", borderRadius:10, border:"none",
+                backgroundColor: saved ? "rgba(34,197,94,0.2)" : "rgba(124,58,237,0.2)",
+                color: saved ? "#4ade80" : "#a78bfa",
+                fontSize:13, fontWeight:600, cursor:"pointer", whiteSpace:"nowrap",
+              }}>{saved ? "✓ Saxlandı" : "Saxla"}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Orders */}
+      <div className="anim-fadeup delay-2">
+        <h3 style={{ fontSize:18, fontWeight:700, marginBottom:16 }}>Sifarişlərim ({orders.length})</h3>
+        {orders.length === 0
+          ? <div style={{
+              backgroundColor:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.06)",
+              borderRadius:16, padding:"40px 24px", textAlign:"center",
+            }}>
+              <div style={{ fontSize:36, marginBottom:12 }}>📦</div>
+              <p style={{ color:"#64748b" }}>Hələ sifariş verməmisiniz</p>
+              <button onClick={()=>navigate("products")} style={{
+                marginTop:16, padding:"10px 24px", borderRadius:10,
+                background:"linear-gradient(135deg,#7c3aed,#6d28d9)", color:"white",
+                border:"none", fontSize:13, fontWeight:600, cursor:"pointer",
+              }}>Məhsullara bax →</button>
+            </div>
+          : <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+              {orders.map(o=>(
+                <div key={o.id} style={{
+                  backgroundColor:"#0f0f1a", border:"1px solid rgba(255,255,255,0.07)",
+                  borderRadius:16, padding:"18px 20px", display:"flex",
+                  alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12,
+                }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                    <div style={{
+                      width:42, height:42, borderRadius:11,
+                      backgroundColor:`${o.color}1a`, border:`1px solid ${o.color}40`,
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      fontSize:10, fontWeight:800, color:o.color,
+                    }}>{o.short}</div>
+                    <div>
+                      <div style={{ fontWeight:700, fontSize:14 }}>{o.productName}</div>
+                      <div style={{ fontSize:12, color:"#64748b" }}>{o.plan} · {o.date}</div>
+                    </div>
+                  </div>
+                  <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+                    <div style={{ fontSize:18, fontWeight:800, color:o.color }}>{o.price}₼</div>
+                    <span style={{
+                      fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:20,
+                      backgroundColor:`${statusColor[o.status] || "#f59e0b"}15`,
+                      color: statusColor[o.status] || "#f59e0b",
+                      border:`1px solid ${statusColor[o.status] || "#f59e0b"}30`,
+                    }}>{statusLabel[o.status] || "Gözlənilir"}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+        }
+      </div>
+    </div>
+  );
+}
+
+// ─── ADMIN PAGE ───────────────────────────────────────────────────────────────
+function AdminPage() {
+  const [pass, setPass] = useState("");
+  const [auth, setAuth] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [accountInputs, setAccountInputs] = useState({});
+  const [saved, setSaved] = useState({});
+
+  const login = () => {
+    if (pass === ADMIN_PASS) { setAuth(true); setOrders(ls.get("ps_orders") || []); }
+    else alert("Şifrə yanlışdır");
+  };
+
+  const approve = (id) => {
+    const acc = accountInputs[id];
+    if (!acc) { alert("Hesab məlumatlarını daxil edin"); return; }
+    const upd = orders.map(o => o.id===id ? {...o, status:"delivered", accountInfo:acc} : o);
+    ls.set("ps_orders", upd);
+    setOrders(upd);
+    setSaved(s=>({...s, [id]:true}));
+  };
+
+  if (!auth) return (
+    <div style={{ maxWidth:400, margin:"120px auto", padding:"0 24px" }}>
+      <div style={{ backgroundColor:"#0f0f1a", border:"1px solid rgba(255,255,255,0.08)", borderRadius:20, padding:32, textAlign:"center" }}>
+        <div style={{ fontSize:40, marginBottom:16 }}>🔐</div>
+        <h2 style={{ fontSize:20, fontWeight:800, marginBottom:20 }}>Admin Panel</h2>
+        <input type="password" value={pass} onChange={e=>setPass(e.target.value)}
+          onKeyDown={e=>e.key==="Enter"&&login()} placeholder="Admin şifrəsi" style={{ marginBottom:16 }}/>
+        <button onClick={login} style={{
+          width:"100%", padding:"13px", borderRadius:12,
+          background:"linear-gradient(135deg,#7c3aed,#6d28d9)", color:"white",
+          border:"none", fontSize:14, fontWeight:700, cursor:"pointer",
+        }}>Giriş</button>
+      </div>
+    </div>
+  );
+
+  const pending = orders.filter(o=>o.status==="pending");
+  const done = orders.filter(o=>o.status!=="pending");
+
+  return (
+    <div style={{ maxWidth:900, margin:"0 auto", padding:"48px 24px 80px" }}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:36, flexWrap:"wrap", gap:12 }}>
+        <div>
+          <h1 style={{ fontSize:28, fontWeight:800 }}>Admin Panel</h1>
+          <p style={{ color:"#64748b", fontSize:13 }}>Gözləyən sifarişlər: {pending.length}</p>
+        </div>
+        <div style={{ display:"flex", gap:12 }}>
+          <div style={{
+            backgroundColor:"rgba(245,158,11,0.1)", border:"1px solid rgba(245,158,11,0.2)",
+            borderRadius:12, padding:"10px 18px", color:"#fbbf24", fontSize:14, fontWeight:700,
+          }}>⏳ {pending.length} Gözlənilir</div>
+          <div style={{
+            backgroundColor:"rgba(16,185,129,0.1)", border:"1px solid rgba(16,185,129,0.2)",
+            borderRadius:12, padding:"10px 18px", color:"#10b981", fontSize:14, fontWeight:700,
+          }}>✅ {done.length} Tamamlandı</div>
+        </div>
+      </div>
+
+      {pending.length === 0 && <div style={{ textAlign:"center", padding:"40px", color:"#64748b" }}>Gözləyən sifariş yoxdur 🎉</div>}
+
+      <div style={{ display:"flex", flexDirection:"column", gap:16, marginBottom:40 }}>
+        {pending.map(o=>(
+          <div key={o.id} style={{
+            backgroundColor:"#0f0f1a", border:"1px solid rgba(245,158,11,0.2)",
+            borderRadius:18, padding:22,
+          }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:10 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                <div style={{
+                  width:42, height:42, borderRadius:11,
+                  backgroundColor:`${o.color}1a`, border:`1px solid ${o.color}40`,
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:10, fontWeight:800, color:o.color,
+                }}>{o.short}</div>
+                <div>
+                  <div style={{ fontWeight:700 }}>{o.productName} — {o.plan}</div>
+                  <div style={{ fontSize:12, color:"#64748b" }}>{o.userEmail} · {o.date} · {o.price}₼</div>
+                </div>
+              </div>
+              <span style={{ fontSize:11, fontWeight:700, padding:"4px 12px", borderRadius:20, backgroundColor:"rgba(245,158,11,0.12)", color:"#fbbf24", border:"1px solid rgba(245,158,11,0.25)" }}>Gözlənilir</span>
+            </div>
+            {o.note && <div style={{ fontSize:12, color:"#94a3b8", marginBottom:12, backgroundColor:"rgba(255,255,255,0.03)", borderRadius:8, padding:"8px 12px" }}>📝 {o.note}</div>}
+            <div style={{ display:"flex", gap:10 }}>
+              <input
+                value={accountInputs[o.id] || ""}
+                onChange={e=>setAccountInputs(s=>({...s,[o.id]:e.target.value}))}
+                placeholder="Hesab məlumatları: email: ... şifrə: ..."
+                style={{ flex:1 }}/>
+              <button onClick={()=>approve(o.id)} style={{
+                padding:"0 20px", borderRadius:10, border:"none",
+                backgroundColor: saved[o.id] ? "rgba(16,185,129,0.2)" : "rgba(124,58,237,0.2)",
+                color: saved[o.id] ? "#10b981" : "#a78bfa",
+                fontSize:13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap",
+              }}>{saved[o.id] ? "✓ Göndərildi" : "Onayla & Göndər"}</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {done.length > 0 && <>
+        <h3 style={{ fontSize:18, fontWeight:700, marginBottom:16, color:"#64748b" }}>Tamamlanan Sifarişlər</h3>
+        <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+          {done.map(o=>(
+            <div key={o.id} style={{
+              backgroundColor:"rgba(16,185,129,0.04)", border:"1px solid rgba(16,185,129,0.15)",
+              borderRadius:14, padding:"14px 18px", display:"flex",
+              alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:8,
+            }}>
+              <div style={{ fontSize:14, fontWeight:600 }}>{o.productName} — {o.plan}</div>
+              <div style={{ fontSize:12, color:"#64748b" }}>{o.userEmail} · {o.price}₼</div>
+              <span style={{ fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20, backgroundColor:"rgba(16,185,129,0.12)", color:"#10b981" }}>✅ Tamamlandı</span>
+            </div>
+          ))}
+        </div>
+      </>}
+    </div>
+  );
+}
+
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+export default function App() {
+  const [page, setPage] = useState("home");
+  const [pageKey, setPageKey] = useState(0);
+  const [visible, setVisible] = useState(true);
+  const [catFilter, setCatFilter] = useState("all");
+
+  const [user, setUser] = useState(() => ls.get("ps_current_user"));
+  const [orderModal, setOrderModal] = useState(null); // {product, planIdx}
+  const [authOpen, setAuthOpen] = useState(false);
+
+  const navigate = (p, cat = "all") => {
+    setVisible(false);
+    setTimeout(() => {
+      setPage(p);
+      setCatFilter(cat);
+      setPageKey(k => k+1);
+      window.scrollTo({ top:0, behavior:"smooth" });
+      setVisible(true);
+    }, 220);
+  };
+
+  const handleOrder = (product, planIdx) => {
+    setOrderModal({ product, planIdx });
+  };
+
+  const handleLogin = (u) => {
+    setUser(u);
+    ls.set("ps_current_user", u);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    ls.set("ps_current_user", null);
+    navigate("home");
+  };
+
+  const handleUpdatePhone = (phone) => {
+    const upd = { ...user, phone };
+    setUser(upd);
+    ls.set("ps_current_user", upd);
+  };
+
+  return (
+    <div style={{ minHeight:"100vh", backgroundColor:"#07070f", color:"#f1f5f9", position:"relative" }}>
+
+      <Navbar
+        page={page} navigate={navigate}
+        user={user} onLogout={handleLogout}
+        onAuthOpen={()=>setAuthOpen(true)}
+      />
+
+      <div key={pageKey} className="page-wrap" style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(12px)", transition:"opacity .22s ease, transform .22s ease" }}>
+        {page === "home"     && <HomePage onOrder={handleOrder} navigate={navigate}/>}
+        {page === "products" && <ProductsPage onOrder={handleOrder} initialCat={catFilter}/>}
+        {page === "profile"  && user && <ProfilePage user={user} onUpdatePhone={handleUpdatePhone} navigate={navigate}/>}
+        {page === "admin"    && <AdminPage/>}
+      </div>
+
+      {page !== "admin" && <Footer navigate={navigate}/>}
+
+      {/* Modals */}
+      {authOpen && (
+        <AuthModal onClose={()=>setAuthOpen(false)} onSuccess={handleLogin}/>
+      )}
+      {orderModal && (
+        <OrderModal
+          product={orderModal.product}
+          planIdx={orderModal.planIdx}
+          user={user}
+          onClose={()=>setOrderModal(null)}
+          onAuthOpen={()=>{ setOrderModal(null); setAuthOpen(true); }}
+        />
+      )}
+
+      <WhatsAppBtn/>
+
+      {/* Secret admin access - click logo 5 times */}
+      <div style={{ position:"fixed", bottom:90, right:24, zIndex:100 }}>
+        <button onClick={()=>navigate("admin")} style={{
+          backgroundColor:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)",
+          color:"#334155", borderRadius:8, padding:"5px 10px", fontSize:10, cursor:"pointer",
+        }}>Admin</button>
       </div>
     </div>
   );
