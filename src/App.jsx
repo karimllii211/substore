@@ -1,525 +1,669 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const CSS = `
-  @keyframes fiu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes fi{from{opacity:0}to{opacity:1}}
-  @keyframes mq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-  @keyframes sp{to{transform:rotate(360deg)}}
-  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.4)}70%{box-shadow:0 0 0 10px rgba(37,211,102,0)}}
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:#07070f;scroll-behavior:smooth}
-  ::-webkit-scrollbar{width:4px}
-  ::-webkit-scrollbar-thumb{background:#2d2d4e;border-radius:4px}
-  a{text-decoration:none;color:inherit}
-  button,input,textarea{font-family:inherit;outline:none}
-  .fi{animation:fi .3s ease both}
-  .fiu{animation:fiu .45s ease both}
-  .fiu1{animation:fiu .45s .08s ease both;opacity:0}
-  .fiu2{animation:fiu .45s .16s ease both;opacity:0}
-  .fiu3{animation:fiu .45s .24s ease both;opacity:0}
-  .fiu4{animation:fiu .45s .32s ease both;opacity:0}
-  .fiu5{animation:fiu .45s .4s ease both;opacity:0}
-  .fiu6{animation:fiu .45s .48s ease both;opacity:0}
-  .mq-wrap{overflow:hidden;white-space:nowrap}
-  .mq-track{display:inline-flex;animation:mq 35s linear infinite}
-  .mq-track:hover{animation-play-state:paused}
-  .sp{animation:sp .7s linear infinite}
-  .wa-pulse{animation:pulse 2s infinite}
-  input[type=file]{display:none}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+  html, body { background: #07070f; color: #f1f5f9; scroll-behavior: smooth; overflow-x: hidden; }
+  
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: #2d2d4e; border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: #7c3aed; }
+  
+  a { text-decoration: none; color: inherit; }
+  button, input, textarea { font-family: inherit; outline: none; border: none; background: none; }
+  
+  /* Animations */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  @keyframes pulseWa { 0%, 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); } 50% { box-shadow: 0 0 0 12px rgba(37,211,102,0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .page-enter { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .anim-item { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .anim-d1 { animation-delay: 0.1s; } .anim-d2 { animation-delay: 0.2s; }
+  .anim-d3 { animation-delay: 0.3s; } .anim-d4 { animation-delay: 0.4s; }
+  
+  .mq-wrap { overflow: hidden; white-space: nowrap; width: 100%; position: relative; }
+  .mq-wrap::before, .mq-wrap::after { content: ""; position: absolute; top: 0; bottom: 0; width: 60px; z-index: 2; }
+  .mq-wrap::before { left: 0; background: linear-gradient(to right, #07070f, transparent); }
+  .mq-wrap::after { right: 0; background: linear-gradient(to left, #07070f, transparent); }
+  .mq-track { display: inline-flex; animation: marquee 40s linear infinite; }
+  .mq-track:hover { animation-play-state: paused; }
+  
+  .wa-btn { animation: pulseWa 2.5s infinite; }
+  .glass-card { background: rgba(20, 20, 32, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.06); }
+  
+  /* Form Elements */
+  .custom-file-upload { display: inline-block; padding: 12px 20px; cursor: pointer; border-radius: 12px; background: rgba(124,58,237,0.15); border: 1px dashed rgba(124,58,237,0.4); color: #a78bfa; font-weight: 500; text-align: center; width: 100%; transition: all 0.2s; }
+  .custom-file-upload:hover { background: rgba(124,58,237,0.25); border-color: #7c3aed; }
+  input[type="file"] { display: none; }
 `;
 
-const BG="#07070f",CARD="#0f0f1a",CARD2="#141420",ACC="#7c3aed",ACC2="#a78bfa",
-  T1="#f1f5f9",T2="#94a3b8",T3="#64748b",T4="#334155",BD="rgba(255,255,255,.06)";
-
-const CATS=[
-  {id:"all",label:"Hamısı",icon:"🌐"},
-  {id:"entertainment",label:"Əyləncə",icon:"🎬"},
-  {id:"ai",label:"AI & Süni İntellekt",icon:"🤖"},
-  {id:"design",label:"Dizayn & Video",icon:"🎨"},
-  {id:"vpn",label:"VPN & Antivirus",icon:"🔒"},
-  {id:"social",label:"Sosial & Biznes",icon:"💼"},
-  {id:"productivity",label:"Produktivlik",icon:"⚡"},
-];
-
-const SVCS=[
-  {id:1,n:"Netflix",cat:"entertainment",c:"#E50914",g:"rgba(229,9,20,.28)",s:"N",d:"4K Ultra HD · 4 ekran · Bütün seriallar",pl:[{l:"1 Ay",p:8},{l:"3 Ay",p:22},{l:"1 İl",p:80}],b:"Populyar",sold:6248,hot:true},
-  {id:2,n:"Spotify",cat:"entertainment",c:"#1DB954",g:"rgba(29,185,84,.28)",s:"♪",d:"80M+ mahnı · Reklamsız · Offline",pl:[{l:"1 Ay",p:5},{l:"3 Ay",p:13},{l:"1 İl",p:48}],b:null,sold:4521,hot:true},
-  {id:3,n:"YouTube Premium",cat:"entertainment",c:"#FF0000",g:"rgba(255,0,0,.23)",s:"YT",d:"Reklamsız · Offline video · Arxa fon",pl:[{l:"1 Ay",p:6},{l:"3 Ay",p:16},{l:"1 İl",p:55}],b:null,sold:3892,hot:true},
-  {id:4,n:"Disney+",cat:"entertainment",c:"#1A78C2",g:"rgba(26,120,194,.28)",s:"D+",d:"Marvel · Star Wars · Pixar · NatGeo",pl:[{l:"1 Ay",p:7},{l:"3 Ay",p:18},{l:"1 İl",p:65}],b:null,sold:2103,hot:false},
-  {id:5,n:"Apple TV+",cat:"entertainment",c:"#888",g:"rgba(136,136,136,.25)",s:"TV",d:"Apple Originals · 4K HDR · Dolby Vision",pl:[{l:"1 Ay",p:6},{l:"3 Ay",p:16}],b:null,sold:987,hot:false},
-  {id:6,n:"Tidal HiFi",cat:"entertainment",c:"#00E5FF",g:"rgba(0,229,255,.22)",s:"Ti",d:"Master keyfiyyət · Exclusive kontentlər",pl:[{l:"1 Ay",p:7},{l:"3 Ay",p:18}],b:null,sold:432,hot:false},
-  {id:7,n:"Deezer Premium",cat:"entertainment",c:"#EF5466",g:"rgba(239,84,102,.28)",s:"Dz",d:"90M+ mahnı · Flow · Offline pley",pl:[{l:"1 Ay",p:5},{l:"3 Ay",p:12}],b:null,sold:654,hot:false},
-  {id:8,n:"ChatGPT Plus",cat:"ai",c:"#10A37F",g:"rgba(16,163,127,.28)",s:"AI",d:"GPT-4o · DALL·E 3 · Sürətli cavablar",pl:[{l:"1 Ay",p:25},{l:"3 Ay",p:68}],b:"Trend",sold:9875,hot:true},
-  {id:9,n:"Claude Pro",cat:"ai",c:"#D97706",g:"rgba(217,119,6,.28)",s:"Cl",d:"Claude 4 · Uzun kontekst · Kod yaratma",pl:[{l:"1 Ay",p:20},{l:"3 Ay",p:55}],b:null,sold:2341,hot:false},
-  {id:10,n:"Midjourney",cat:"ai",c:"#5865F2",g:"rgba(88,101,242,.28)",s:"MJ",d:"AI şəkil yaratma · Pro plan · Sürətli",pl:[{l:"1 Ay",p:15},{l:"3 Ay",p:40}],b:null,sold:3120,hot:true},
-  {id:11,n:"Gemini Advanced",cat:"ai",c:"#4285F4",g:"rgba(66,133,244,.28)",s:"Gm",d:"Google AI Ultra · Multimodal · 2M token",pl:[{l:"1 Ay",p:20},{l:"3 Ay",p:55}],b:null,sold:1876,hot:false},
-  {id:12,n:"Grok Super",cat:"ai",c:"#1DA1F2",g:"rgba(29,161,242,.28)",s:"Gk",d:"xAI · Real-time xəbər · Aurora görüntü",pl:[{l:"1 Ay",p:9},{l:"3 Ay",p:24}],b:"Yeni",sold:133,hot:false},
-  {id:13,n:"Gamma AI",cat:"ai",c:"#7C3AED",g:"rgba(124,58,237,.28)",s:"Ga",d:"AI prezentasiya yaratma · Sürətli slide",pl:[{l:"1 Ay",p:8}],b:null,sold:453,hot:false},
-  {id:14,n:"Perplexity Pro",cat:"ai",c:"#20B2AA",g:"rgba(32,178,170,.28)",s:"Pp",d:"AI axtarış mühərriki · Dərin analiz",pl:[{l:"1 Ay",p:18},{l:"3 Ay",p:48}],b:null,sold:765,hot:false},
-  {id:15,n:"Grammarly Premium",cat:"ai",c:"#15C39A",g:"rgba(21,195,154,.28)",s:"Gr",d:"AI yazı köməkçisi · Qrammatika · Ton",pl:[{l:"1 Ay",p:10},{l:"3 Ay",p:26},{l:"1 İl",p:90}],b:null,sold:2340,hot:false},
-  {id:16,n:"Canva Pro",cat:"design",c:"#8B5CF6",g:"rgba(139,92,246,.28)",s:"Cv",d:"Premium şablonlar · AI alətləri · Brand Kit",pl:[{l:"1 Ay",p:9},{l:"3 Ay",p:24},{l:"1 İl",p:85}],b:null,sold:5621,hot:true},
-  {id:17,n:"Adobe Creative Cloud",cat:"design",c:"#FF0000",g:"rgba(255,0,0,.28)",s:"Ad",d:"Photoshop · Illustrator · Premiere · +20",pl:[{l:"1 Ay",p:18},{l:"3 Ay",p:48}],b:"Populyar",sold:4550,hot:true},
-  {id:18,n:"Adobe Photoshop",cat:"design",c:"#31A8FF",g:"rgba(49,168,255,.28)",s:"Ps",d:"Peşəkar foto redaktə · AI alətlər",pl:[{l:"1 Ay",p:14},{l:"3 Ay",p:38}],b:null,sold:3210,hot:false},
-  {id:19,n:"Adobe Illustrator",cat:"design",c:"#FF9A00",g:"rgba(255,154,0,.28)",s:"Ai",d:"Vektor qrafika · Logo dizayn · İllüstrasiya",pl:[{l:"1 Ay",p:14},{l:"3 Ay",p:38}],b:null,sold:2890,hot:false},
-  {id:20,n:"Adobe Premiere Pro",cat:"design",c:"#9999FF",g:"rgba(153,153,255,.28)",s:"Pr",d:"Peşəkar video montaj · Rəng düzəltməsi",pl:[{l:"1 Ay",p:14},{l:"3 Ay",p:38}],b:null,sold:2340,hot:false},
-  {id:21,n:"Figma Professional",cat:"design",c:"#F24E1E",g:"rgba(242,78,30,.28)",s:"Fg",d:"UI/UX dizayn · Prototype · Komanda işi",pl:[{l:"1 Ay",p:12},{l:"3 Ay",p:32}],b:null,sold:1876,hot:false},
-  {id:22,n:"CapCut Pro",cat:"design",c:"#FE2C55",g:"rgba(254,44,85,.28)",s:"CC",d:"Video montaj · AI effektlər · Şablonlar",pl:[{l:"1 Ay",p:8},{l:"3 Ay",p:21}],b:null,sold:7000,hot:false},
-  {id:23,n:"Alight Motion",cat:"design",c:"#FF4136",g:"rgba(255,65,54,.28)",s:"AM",d:"Mobil video redaktə · Animasiya · VFX",pl:[{l:"1 Ay",p:10}],b:null,sold:363,hot:false},
-  {id:24,n:"Envato Elements",cat:"design",c:"#82B541",g:"rgba(130,181,65,.28)",s:"En",d:"Şablonlar · Şriftlər · Milyonlarla asset",pl:[{l:"1 Ay",p:12},{l:"3 Ay",p:32}],b:null,sold:1543,hot:false},
-  {id:25,n:"NordVPN",cat:"vpn",c:"#4687FF",g:"rgba(70,135,255,.28)",s:"Nd",d:"6000+ server · 60 ölkə · Double VPN",pl:[{l:"1 Ay",p:8},{l:"3 Ay",p:20},{l:"1 İl",p:65}],b:"Populyar",sold:9875,hot:true},
-  {id:26,n:"ExpressVPN",cat:"vpn",c:"#DA3940",g:"rgba(218,57,64,.28)",s:"Ex",d:"94 ölkə · Sürət lideri · TrustedServer",pl:[{l:"1 Ay",p:12},{l:"3 Ay",p:32}],b:null,sold:4321,hot:false},
-  {id:27,n:"Surfshark",cat:"vpn",c:"#0EA5E9",g:"rgba(14,165,233,.28)",s:"Sf",d:"Limitsiz cihaz · CleanWeb · Nexus VPN",pl:[{l:"1 Ay",p:6},{l:"3 Ay",p:16},{l:"1 İl",p:50}],b:null,sold:3210,hot:false},
-  {id:28,n:"Kaspersky Total",cat:"vpn",c:"#00A54F",g:"rgba(0,165,79,.28)",s:"Ks",d:"Antivirus + VPN + Parola meneceri",pl:[{l:"1 İl",p:25}],b:null,sold:2100,hot:false},
-  {id:29,n:"Bitdefender Total",cat:"vpn",c:"#ED1C24",g:"rgba(237,28,36,.28)",s:"Bd",d:"Tam qoruma · 5 cihaz · VPN daxil",pl:[{l:"1 İl",p:22}],b:null,sold:1654,hot:false},
-  {id:30,n:"LinkedIn Premium",cat:"social",c:"#0A66C2",g:"rgba(10,102,194,.28)",s:"Li",d:"Career · InMail · Müsahibə hazırlığı",pl:[{l:"1 Ay",p:12},{l:"3 Ay",p:32}],b:null,sold:8663,hot:true},
-  {id:31,n:"Zoom Pro",cat:"social",c:"#2D8CFF",g:"rgba(45,140,255,.28)",s:"Zm",d:"100 iştirakçı · Limitsiz müddət · Cloud",pl:[{l:"1 Ay",p:11},{l:"3 Ay",p:29}],b:null,sold:569,hot:false},
-  {id:32,n:"Semrush",cat:"social",c:"#FF642D",g:"rgba(255,100,45,.28)",s:"Se",d:"SEO · Rəqib analizi · Açar söz tədqiqatı",pl:[{l:"1 Ay",p:13}],b:null,sold:678,hot:false},
-  {id:33,n:"Hootsuite Pro",cat:"social",c:"#00A1CB",g:"rgba(0,161,203,.28)",s:"Hs",d:"Sosial media idarəetmə · Planlama",pl:[{l:"1 Ay",p:10},{l:"3 Ay",p:27}],b:null,sold:432,hot:false},
-  {id:34,n:"Microsoft 365",cat:"productivity",c:"#D83B01",g:"rgba(216,59,1,.28)",s:"M3",d:"Word · Excel · PowerPoint · 1TB OneDrive",pl:[{l:"1 Ay",p:10},{l:"1 İl",p:90}],b:null,sold:5432,hot:true},
-  {id:35,n:"Notion Pro",cat:"productivity",c:"#6B7280",g:"rgba(107,114,128,.25)",s:"Nt",d:"Sonsuz bloklar · AI · Komanda · API",pl:[{l:"1 Ay",p:8},{l:"3 Ay",p:21}],b:null,sold:2341,hot:false},
-  {id:36,n:"Dropbox Plus",cat:"productivity",c:"#0061FF",g:"rgba(0,97,255,.28)",s:"Dp",d:"2TB yaddaş · Offline sənədlər · Paylaşım",pl:[{l:"1 Ay",p:9},{l:"1 İl",p:85}],b:null,sold:1234,hot:false},
-  {id:37,n:"AutoCAD",cat:"productivity",c:"#E51B23",g:"rgba(229,27,35,.28)",s:"AC",d:"2D/3D CAD dizayn · Mühəndislik · BIM",pl:[{l:"1 Ay",p:30},{l:"1 İl",p:300}],b:null,sold:2478,hot:false},
-  {id:38,n:"Duolingo Plus",cat:"productivity",c:"#58CC02",g:"rgba(88,204,2,.28)",s:"Du",d:"Reklamsız · Sonsuz qəlb · Offline dərslər",pl:[{l:"1 Ay",p:5},{l:"3 Ay",p:13},{l:"1 İl",p:45}],b:null,sold:3210,hot:false},
-];
-
-const PAYS=[
-  {id:"abb",n:"ABB Bank",num:"4169 7388 0012 3456",holder:"F. Kərimli",c:"#1565C0",bg:"rgba(21,101,192,.12)"},
-  {id:"leo",n:"LEO (Leobank)",num:"4169 5887 0023 4567",holder:"F. Kərimli",c:"#FF6B35",bg:"rgba(255,107,53,.12)"},
-  {id:"kapital",n:"Kapital Bank",num:"5536 9145 0034 5678",holder:"F. Kərimli",c:"#003087",bg:"rgba(0,48,135,.12)"},
-  {id:"m10",n:"M10",num:"+994 10 313 69 41",holder:"M10 hesab nömrəsi",c:"#00B4D8",bg:"rgba(0,180,216,.12)"},
-];
-
-// ===== HELPERS =====
-const nav=(goTo,pg,opts={})=>{
-  goTo(pg,opts);
-  window.scrollTo({top:0,behavior:"smooth"});
+// Theme Constants
+const COLORS = {
+  bg: "#07070f", card: "#0f0f1a", cardHover: "#161626",
+  accent: "#7c3aed", accentLight: "#a78bfa", accentDark: "#5b21b6",
+  text1: "#f1f5f9", text2: "#94a3b8", text3: "#64748b",
+  border: "rgba(255,255,255,0.06)"
 };
 
-function Btn({children,style={},onClick,variant="primary",...rest}){
-  const [h,sh]=useState(false);
-  const base={padding:"11px 22px",borderRadius:11,border:"none",fontSize:14,fontWeight:600,cursor:"pointer",transition:"all .18s",...style};
-  const variants={
-    primary:{background:h?"#6d28d9":`linear-gradient(135deg,${ACC},#5b21b6)`,color:"#fff",boxShadow:h?"0 0 24px rgba(124,58,237,.5)":"0 0 16px rgba(124,58,237,.3)"},
-    ghost:{background:h?"rgba(255,255,255,.07)":"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.1)",color:T1},
-    danger:{background:h?"#b91c1c":"#dc2626",color:"#fff"},
-  };
-  return <button style={{...base,...variants[variant]}} onClick={onClick} onMouseEnter={()=>sh(true)} onMouseLeave={()=>sh(false)} {...rest}>{children}</button>;
-}
+const SVGS = {
+  netflix: <svg viewBox="0 0 111 111" width="100%" height="100%"><path fill="#E50914" d="M105.062 14.28L62.03 105.694h-22.38l-40.4-91.414h23.513l24.717 63.858L85.235 14.28h19.827z"/></svg>,
+  spotify: <svg viewBox="0 0 24 24" width="100%" height="100%" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.54.659.3 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15.001 10.62 18.721 12.9c.42.18.6.78.24 1.14zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.239.54-.959.72-1.559.3z"/></svg>,
+  youtube: <svg viewBox="0 0 24 24" width="100%" height="100%" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>,
+  chatgpt: <svg viewBox="0 0 24 24" width="100%" height="100%" fill="#10A37F"><path d="M22.28 9.68a5.98 5.98 0 0 0-1.87-4.14 5.96 5.96 0 0 0-4.13-1.87 5.97 5.97 0 0 0-5.86-2.58 5.98 5.98 0 0 0-4.15 1.87A5.95 5.95 0 0 0 1.7 10.3a5.97 5.97 0 0 0 2.58 5.86 5.98 5.98 0 0 0 1.87 4.14 5.96 5.96 0 0 0 4.13 1.87 5.97 5.97 0 0 0 5.86 2.58 5.98 5.98 0 0 0 4.15-1.87 5.95 5.95 0 0 0 4.56-7.34 5.97 5.97 0 0 0-2.57-5.86zm-10.28 10.6a4.4 4.4 0 0 1-3.23-1.4 4.38 4.38 0 0 1-1.35-3.26l4.58 2.65zm7.1-4.7a4.4 4.4 0 0 1-1.88 2.92 4.39 4.39 0 0 1-3.48.55V13.8l4.58-2.65v4.43zm1.18-7.55a4.4 4.4 0 0 1-1.35 3.26 4.39 4.39 0 0 1-3.23 1.4L11.12 9.9v-5.3a4.4 4.4 0 0 1 4.58 1.15 4.38 4.38 0 0 1 1.38 3.28zm-11.8 1.1a4.4 4.4 0 0 1 1.88-2.92 4.39 4.39 0 0 1 3.48-.55v5.25L4.9 12.65V8.23zm-.72 7.14a4.4 4.4 0 0 1 1.35-3.26 4.39 4.39 0 0 1 3.23-1.4l4.58 2.65v5.3a4.4 4.4 0 0 1-4.58-1.15 4.38 4.38 0 0 1-1.38-3.28zm9.05-8.24-4.58-2.65 4.58-2.65v5.3z"/></svg>,
+};
 
-function Input({label,type="text",value,onChange,placeholder="",hint=""}){
-  return(
-    <div style={{marginBottom:18}}>
-      {label&&<label style={{display:"block",fontSize:12,fontWeight:600,color:T2,marginBottom:6,letterSpacing:".3px"}}>{label}</label>}
-      <input type={type} value={value} onChange={onChange} placeholder={placeholder}
-        style={{width:"100%",background:CARD2,border:`1px solid ${BD}`,borderRadius:10,padding:"11px 14px",color:T1,fontSize:14}}/>
-      {hint&&<p style={{fontSize:11,color:T3,marginTop:4}}>{hint}</p>}
-    </div>
+const CATS = [
+  { id: "all", label: "Bütün Məhsullar", icon: "🌐" },
+  { id: "entertainment", label: "Əyləncə", icon: "🎬" },
+  { id: "ai", label: "AI & Süni İntellekt", icon: "🤖" },
+  { id: "design", label: "Dizayn & Video", icon: "🎨" },
+  { id: "vpn", label: "VPN & Antivirus", icon: "🔒" },
+  { id: "productivity", label: "Produktivlik & Biznes", icon: "💼" },
+];
+
+const SVCS = [
+  { id: 1, n: "Netflix", cat: "entertainment", c: "#E50914", s: SVGS.netflix, d: "4K Ultra HD · 4 ekran · Bütün seriallar", pl: [{ l: "1 Ay", p: 8 }, { l: "3 Ay", p: 22 }, { l: "1 İl", p: 80 }], b: "Populyar", hot: true },
+  { id: 2, n: "Spotify", cat: "entertainment", c: "#1DB954", s: SVGS.spotify, d: "80M+ mahnı · Reklamsız · Offline rejim", pl: [{ l: "1 Ay", p: 5 }, { l: "3 Ay", p: 13 }, { l: "1 İl", p: 48 }], b: null, hot: true },
+  { id: 3, n: "YouTube Premium", cat: "entertainment", c: "#FF0000", s: SVGS.youtube, d: "Reklamsız · Offline video · Arxa fon", pl: [{ l: "1 Ay", p: 6 }, { l: "3 Ay", p: 16 }, { l: "1 İl", p: 55 }], b: null, hot: true },
+  { id: 8, n: "ChatGPT Plus", cat: "ai", c: "#10A37F", s: SVGS.chatgpt, d: "GPT-4o · DALL·E 3 · Sürətli cavablar", pl: [{ l: "1 Ay", p: 25 }, { l: "3 Ay", p: 68 }], b: "Trend", hot: true },
+  { id: 16, n: "Canva Pro", cat: "design", c: "#8B5CF6", s: "Cv", d: "Premium şablonlar · AI alətləri", pl: [{ l: "1 Ay", p: 9 }, { l: "3 Ay", p: 24 }, { l: "1 İl", p: 85 }], b: null, hot: true },
+  { id: 25, n: "NordVPN", cat: "vpn", c: "#4687FF", s: "Nd", d: "6000+ server · Yüksək məxfilik", pl: [{ l: "1 Ay", p: 8 }, { l: "3 Ay", p: 20 }, { l: "1 İl", p: 65 }], b: "Populyar", hot: true },
+  { id: 10, n: "Midjourney", cat: "ai", c: "#5865F2", s: "MJ", d: "AI şəkil yaratma · Pro plan", pl: [{ l: "1 Ay", p: 15 }, { l: "3 Ay", p: 40 }], b: null, hot: false },
+  { id: 17, n: "Adobe Creative Cloud", cat: "design", c: "#FF0000", s: "Ad", d: "Photoshop, Premiere və 20+ tətbiq", pl: [{ l: "1 Ay", p: 18 }, { l: "3 Ay", p: 48 }], b: "Kampaniya", hot: true },
+  { id: 4, n: "Disney+", cat: "entertainment", c: "#1A78C2", s: "D+", d: "Marvel · Star Wars · Pixar", pl: [{ l: "1 Ay", p: 7 }, { l: "3 Ay", p: 18 }, { l: "1 İl", p: 65 }], b: null, hot: false },
+  { id: 34, n: "Microsoft 365", cat: "productivity", c: "#D83B01", s: "M3", d: "Word · Excel · 1TB OneDrive", pl: [{ l: "1 Ay", p: 10 }, { l: "1 İl", p: 90 }], b: null, hot: false },
+  { id: 21, n: "Figma Pro", cat: "design", c: "#F24E1E", s: "Fg", d: "UI/UX dizayn · Komanda işi", pl: [{ l: "1 Ay", p: 12 }, { l: "3 Ay", p: 32 }], b: null, hot: false },
+  { id: 26, n: "ExpressVPN", cat: "vpn", c: "#DA3940", s: "Ex", d: "94 ölkə · Yüksək sürət", pl: [{ l: "1 Ay", p: 12 }, { l: "3 Ay", p: 32 }], b: null, hot: false },
+];
+
+const PAYS = [
+  { id: "abb", n: "ABB Bank", num: "4169 7388 0012 3456", holder: "F. Kərimli", c: "#1565C0" },
+  { id: "leo", n: "LEO Bank", num: "4169 5887 0023 4567", holder: "F. Kərimli", c: "#FF6B35" },
+  { id: "kapital", n: "Kapital Bank", num: "5536 9145 0034 5678", holder: "F. Kərimli", c: "#003087" },
+  { id: "m10", n: "M10", num: "+994 10 313 69 41", holder: "M10 hesab nömrəsi", c: "#00B4D8" },
+];
+
+function Btn({ children, onClick, variant = "primary", style = {}, className = "", loading = false, ...rest }) {
+  const [h, sh] = useState(false);
+  const base = { padding: "12px 24px", borderRadius: 14, fontSize: 14, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer", transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)", position: "relative", overflow: "hidden", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, ...style };
+  
+  const variants = {
+    primary: { background: h && !loading ? COLORS.accentDark : COLORS.accent, color: "#fff", boxShadow: h && !loading ? `0 8px 24px ${COLORS.accent}60` : `0 4px 12px ${COLORS.accent}30`, transform: h && !loading ? "translateY(-2px)" : "none" },
+    ghost: { background: h ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.04)", border: `1px solid ${h ? "rgba(255,255,255,0.15)" : COLORS.border}`, color: COLORS.text1, transform: h ? "translateY(-2px)" : "none" },
+    danger: { background: h ? "#991b1b" : "#dc2626", color: "#fff" },
+  };
+
+  return (
+    <button style={{ ...base, ...variants[variant] }} onClick={loading ? undefined : onClick} onMouseEnter={() => sh(true)} onMouseLeave={() => sh(false)} className={className} {...rest}>
+      {loading ? <span className="loader" style={{width: 18, height: 18, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.8s linear infinite"}}/> : children}
+    </button>
   );
 }
 
-function Notif({n}){
-  if(!n) return null;
-  const colors={success:"#10b981",error:"#ef4444",info:ACC};
-  return(
-    <div className="fi" style={{position:"fixed",top:80,right:20,zIndex:9999,background:CARD,border:`1px solid ${colors[n.type]||colors.info}40`,borderLeft:`3px solid ${colors[n.type]||colors.info}`,borderRadius:12,padding:"14px 20px",maxWidth:340,boxShadow:"0 8px 32px rgba(0,0,0,.4)"}}>
-      <p style={{color:T1,fontSize:14,fontWeight:500}}>{n.msg}</p>
-    </div>
-  );
-}
-
-function Tag({text,color}){
-  return <span style={{fontSize:9,fontWeight:700,color,background:`${color}18`,border:`1px solid ${color}35`,borderRadius:20,padding:"3px 8px",textTransform:"uppercase",letterSpacing:".6px",whiteSpace:"nowrap"}}>{text}</span>;
-}
-
-// ===== NAVBAR =====
-function Navbar({page,goTo,user}){
-  const [sc,setSc]=useState(false);
-  useEffect(()=>{const h=()=>setSc(window.scrollY>20);window.addEventListener("scroll",h);return()=>window.removeEventListener("scroll",h);},[]);
-  const link=(pg,label)=>{
-    const [h,sh]=useState(false);
-    return <span key={pg} onMouseEnter={()=>sh(true)} onMouseLeave={()=>sh(false)} onClick={()=>nav(goTo,pg)} style={{color:page===pg?"#a78bfa":h?T1:T2,fontSize:14,cursor:"pointer",padding:"6px 12px",borderRadius:8,transition:"color .2s"}}>{label}</span>;
-  };
-  return(
-    <nav style={{position:"sticky",top:0,zIndex:200,backdropFilter:"blur(24px)",WebkitBackdropFilter:"blur(24px)",background:sc?"rgba(7,7,15,.95)":"rgba(7,7,15,.8)",borderBottom:`1px solid ${BD}`,padding:"0 32px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-      <div style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer"}} onClick={()=>nav(goTo,"home")}>
-        <div style={{width:36,height:36,borderRadius:10,background:`linear-gradient(135deg,${ACC},#4f46e5)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:900,color:"#fff"}}>P</div>
-        <span style={{fontWeight:800,fontSize:17,letterSpacing:"-.4px",color:T1}}>Premium <span style={{color:ACC2}}>Shop</span></span>
+function Input({ label, type = "text", value, onChange, placeholder = "", hint = "", icon }) {
+  return (
+    <div style={{ marginBottom: 20, position: "relative" }}>
+      {label && <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: COLORS.text2, marginBottom: 8 }}>{label}</label>}
+      <div style={{ position: "relative" }}>
+        {icon && <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: COLORS.text3 }}>{icon}</span>}
+        <input type={type} value={value} onChange={onChange} placeholder={placeholder}
+          style={{ width: "100%", background: COLORS.cardHover, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: `14px 16px ${icon ? "14px 42px" : "14px 16px"}`, color: COLORS.text1, fontSize: 14, transition: "border 0.2s" }}
+          onFocus={(e) => e.target.style.borderColor = COLORS.accent}
+          onBlur={(e) => e.target.style.borderColor = COLORS.border}
+        />
       </div>
-      <div style={{display:"flex",alignItems:"center",gap:4}}>
-        {link("home","Ana Səhifə")}
-        {link("shop","Məhsullar")}
-        {user?(
-          <div style={{display:"flex",alignItems:"center",gap:8,marginLeft:8}}>
-            <span onClick={()=>nav(goTo,"dashboard")} style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer",background:CARD,border:`1px solid ${BD}`,borderRadius:10,padding:"7px 14px"}}>
-              <div style={{width:24,height:24,borderRadius:"50%",background:`linear-gradient(135deg,${ACC},#4f46e5)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:"#fff"}}>{user.name?user.name[0].toUpperCase():"U"}</div>
-              <span style={{fontSize:13,color:T1,fontWeight:500}}>{user.name||user.email.split("@")[0]}</span>
-            </span>
-          </div>
-        ):(
-          <div style={{display:"flex",gap:8,marginLeft:8}}>
-            <Btn variant="ghost" style={{padding:"7px 16px",fontSize:13}} onClick={()=>nav(goTo,"auth")}>Giriş</Btn>
-            <Btn style={{padding:"7px 16px",fontSize:13}} onClick={()=>{goTo("auth",{authMode:"register"});window.scrollTo({top:0});}}>Qeydiyyat</Btn>
-          </div>
-        )}
+      {hint && <p style={{ fontSize: 12, color: COLORS.text3, marginTop: 6 }}>{hint}</p>}
+    </div>
+  );
+}
+
+function Notif({ n }) {
+  if (!n) return null;
+  const colors = { success: "#10b981", error: "#ef4444", info: COLORS.accent };
+  return (
+    <div className="anim-item" style={{ position: "fixed", top: 80, right: 24, zIndex: 9999, background: COLORS.card, border: `1px solid ${colors[n.type]}40`, borderLeft: `4px solid ${colors[n.type]}`, borderRadius: 12, padding: "16px 24px", maxWidth: 360, boxShadow: "0 12px 40px rgba(0,0,0,0.5)", display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ color: colors[n.type], fontSize: 20 }}>{n.type === "success" ? "✓" : "!"}</div>
+      <p style={{ color: COLORS.text1, fontSize: 14, fontWeight: 500, lineHeight: 1.4 }}>{n.msg}</p>
+    </div>
+  );
+}
+
+function SvcCard({ svc, onClick }) {
+  const [h, sh] = useState(false);
+  
+  return (
+    <div onMouseEnter={() => sh(true)} onMouseLeave={() => sh(false)} onClick={onClick}
+      style={{ background: COLORS.card, border: `1px solid ${h ? svc.c + "50" : COLORS.border}`, borderRadius: 20, padding: 24, position: "relative", overflow: "hidden", transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)", transform: h ? "translateY(-6px)" : "none", cursor: "pointer", boxShadow: h ? `0 24px 60px ${svc.c}20` : "none" }}>
+      
+      {/* Background glow */}
+      <div style={{ position: "absolute", top: -40, right: -40, width: 140, height: 140, borderRadius: "50%", background: `radial-gradient(circle, ${svc.c}30 0%, transparent 70%)`, opacity: h ? 1 : 0.3, transition: "opacity 0.3s", pointerEvents: "none" }} />
+      
+      {svc.b && <span style={{ position: "absolute", top: 16, right: 16, fontSize: 10, fontWeight: 800, color: svc.c, background: `${svc.c}15`, padding: "4px 10px", borderRadius: 20, textTransform: "uppercase", letterSpacing: "1px" }}>{svc.b}</span>}
+
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 24 }}>
+        <div style={{ width: 48, height: 48, borderRadius: 14, background: `${svc.c}10`, border: `1px solid ${svc.c}30`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: typeof svc.s === "string" ? 18 : "inherit", fontWeight: 800, color: svc.c, padding: typeof svc.s === "string" ? 0 : 10 }}>
+          {svc.s}
+        </div>
+        <div>
+          <h3 style={{ fontWeight: 700, fontSize: 16, color: COLORS.text1 }}>{svc.n}</h3>
+          <p style={{ color: COLORS.text3, fontSize: 12, marginTop: 4 }}>{svc.d}</p>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 6, marginBottom: 24 }}>
+        <span style={{ fontSize: 32, fontWeight: 900, color: svc.c, lineHeight: 1 }}>{svc.pl[0].p}</span>
+        <span style={{ color: COLORS.text2, fontSize: 14, fontWeight: 600, paddingBottom: 4 }}>AZN <span style={{ color: COLORS.text3, fontSize: 12, fontWeight: 400 }}>/ {svc.pl[0].l.toLowerCase()}</span></span>
+      </div>
+
+      <div style={{ width: "100%", padding: "12px", borderRadius: 12, background: h ? svc.c : `${svc.c}10`, color: h ? "#fff" : svc.c, textAlign: "center", fontSize: 14, fontWeight: 700, transition: "all 0.3s" }}>
+        Sifariş et
+      </div>
+    </div>
+  );
+}
+
+function Navbar({ page, goTo, user }) {
+  const [sc, setSc] = useState(false);
+  useEffect(() => { const h = () => setSc(window.scrollY > 20); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
+  
+  return (
+    <nav style={{ position: "sticky", top: 0, zIndex: 200, background: sc ? "rgba(7,7,15,0.85)" : "transparent", backdropFilter: sc ? "blur(20px)" : "none", borderBottom: sc ? `1px solid ${COLORS.border}` : "1px solid transparent", transition: "all 0.3s", padding: "16px 24px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => { goTo("home"); window.scrollTo(0,0); }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.accentDark})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 900, color: "#fff", boxShadow: `0 4px 16px ${COLORS.accent}40` }}>P</div>
+          <span style={{ fontWeight: 800, fontSize: 20, letterSpacing: "-0.5px", color: COLORS.text1 }}>Premium <span style={{ color: COLORS.accentLight }}>Shop</span></span>
+        </div>
+        
+        <div style={{ display: window.innerWidth > 768 ? "flex" : "none", gap: 6 }}>
+          {["home", "shop"].map((p, i) => (
+             <button key={p} onClick={() => { goTo(p); window.scrollTo(0,0); }} style={{ padding: "8px 16px", color: page === p ? COLORS.accentLight : COLORS.text2, fontWeight: page === p ? 700 : 500, cursor: "pointer", transition: "color 0.2s" }}>
+               {i === 0 ? "Ana Səhifə" : "Məhsullar"}
+             </button>
+          ))}
+        </div>
+
+        <div>
+          {user ? (
+            <button onClick={() => goTo("dashboard")} className="glass-card" style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 16px", borderRadius: 12, cursor: "pointer", transition: "all 0.2s" }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: COLORS.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff" }}>{user.email[0].toUpperCase()}</div>
+              <span style={{ fontSize: 14, color: COLORS.text1, fontWeight: 600 }}>Hesabım</span>
+            </button>
+          ) : (
+            <div style={{ display: "flex", gap: 10 }}>
+              <Btn variant="ghost" onClick={() => goTo("auth", { mode: "login" })} style={{ padding: "10px 18px" }}>Giriş</Btn>
+              <Btn onClick={() => goTo("auth", { mode: "register" })} style={{ padding: "10px 18px" }}>Qeydiyyat</Btn>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );
 }
 
-// ===== FOOTER =====
-function Footer({goTo}){
-  return(
-    <footer style={{borderTop:`1px solid ${BD}`,padding:"48px 32px 28px",marginTop:80}}>
-      <div style={{maxWidth:1100,margin:"0 auto",display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:40}}>
+function Footer({ goTo }) {
+  return (
+    <footer style={{ borderTop: `1px solid ${COLORS.border}`, padding: "60px 24px 40px", marginTop: 80, background: "linear-gradient(to top, rgba(124,58,237,0.03), transparent)" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 40 }}>
         <div>
-          <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:14}}>
-            <div style={{width:32,height:32,borderRadius:9,background:`linear-gradient(135deg,${ACC},#4f46e5)`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,color:"#fff",fontSize:14}}>P</div>
-            <span style={{fontWeight:800,fontSize:15,color:T1}}>Premium <span style={{color:ACC2}}>Shop</span></span>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.accentDark})`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 14 }}>P</div>
+            <span style={{ fontWeight: 800, fontSize: 18, color: COLORS.text1 }}>Premium Shop</span>
           </div>
-          <p style={{color:T3,fontSize:13,lineHeight:1.7,maxWidth:280}}>Azərbaycanda rəqəmsal abunəliklərin ən etibarlı ünvanı. Sürətli çatdırılma, keyfiyyət zəmanəti.</p>
-          <p style={{color:T4,fontSize:12,marginTop:16}}>© 2025 PremiumShop · premiumshopaz.com</p>
+          <p style={{ color: COLORS.text3, fontSize: 14, lineHeight: 1.7, marginBottom: 20 }}>Azərbaycanda rəqəmsal abunəliklərin ən etibarlı ünvanı. Bütün xidmətlər üçün 100% zəmanət.</p>
+          <p style={{ color: COLORS.text3, fontSize: 13 }}>© 2026 premiumshopaz.com</p>
         </div>
+        
         <div>
-          <p style={{fontWeight:700,fontSize:13,color:T2,marginBottom:14,textTransform:"uppercase",letterSpacing:".5px"}}>Kateqoriyalar</p>
-          {["Əyləncə","AI & Süni İntellekt","Dizayn & Video","VPN & Antivirus","Sosial & Biznes","Produktivlik"].map(l=>(
-            <p key={l} onClick={()=>nav(goTo,"shop")} style={{color:T3,fontSize:13,marginBottom:8,cursor:"pointer"}}>{l}</p>
-          ))}
+          <h4 style={{ fontWeight: 700, fontSize: 15, color: COLORS.text1, marginBottom: 20 }}>Tez Keçidlər</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <span onClick={() => { goTo("shop"); window.scrollTo(0,0); }} style={{ color: COLORS.text3, fontSize: 14, cursor: "pointer", width: "fit-content" }}>Bütün Məhsullar</span>
+            <span onClick={() => { goTo("auth", {mode: "register"}); window.scrollTo(0,0); }} style={{ color: COLORS.text3, fontSize: 14, cursor: "pointer", width: "fit-content" }}>Qeydiyyat</span>
+          </div>
         </div>
+
         <div>
-          <p style={{fontWeight:700,fontSize:13,color:T2,marginBottom:14,textTransform:"uppercase",letterSpacing:".5px"}}>Əlaqə</p>
-          <p style={{color:T3,fontSize:13,marginBottom:8}}>WhatsApp: +994 10 313 69 41</p>
-          <p style={{color:T3,fontSize:13,marginBottom:8}}>12 saat ərzində çatdırılma</p>
-          <p style={{color:T3,fontSize:13}}>7/24 dəstək xidməti</p>
-          <a href="https://wa.me/994103136941" target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:8,marginTop:16,background:"rgba(37,211,102,.12)",border:"1px solid rgba(37,211,102,.25)",borderRadius:10,padding:"8px 16px",color:"#25D366",fontSize:13,fontWeight:600}}>
-            WhatsApp ilə Yazın
-          </a>
+          <h4 style={{ fontWeight: 700, fontSize: 15, color: COLORS.text1, marginBottom: 20 }}>Əlaqə</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <p style={{ color: COLORS.text3, fontSize: 14 }}>Dəstək: +994 10 313 69 41</p>
+            <p style={{ color: COLORS.text3, fontSize: 14 }}>İş saatları: 7/24</p>
+            <a href="https://wa.me/994103136941" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 8, background: "rgba(37,211,102,0.1)", border: "1px solid rgba(37,211,102,0.3)", borderRadius: 10, padding: "10px 16px", color: "#25D366", fontSize: 14, fontWeight: 600, width: "fit-content", transition: "background 0.2s" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Dəstək Xidməti
+            </a>
+          </div>
         </div>
       </div>
     </footer>
   );
 }
 
-// ===== WA BUTTON =====
-function WaBtn(){
-  const [h,sh]=useState(false);
-  return(
-    <a href="https://wa.me/994103136941" target="_blank" rel="noopener noreferrer" className="wa-pulse"
-      style={{position:"fixed",bottom:24,right:24,zIndex:999,width:56,height:56,borderRadius:"50%",background:"#25D366",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:h?"0 8px 32px rgba(37,211,102,.6)":"0 4px 20px rgba(37,211,102,.35)",transform:h?"scale(1.12)":"scale(1)",transition:"all .2s"}}
-      onMouseEnter={()=>sh(true)} onMouseLeave={()=>sh(false)} title="Dəstək Xidməti - WhatsApp">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    </a>
-  );
-}
+function HomePage({ goTo }) {
+  const brands = ["Netflix", "Spotify", "YouTube", "Disney+", "Adobe", "ChatGPT", "Canva", "NordVPN", "LinkedIn", "Microsoft", "Figma", "AutoCAD"];
+  const scrollToShop = () => {
+    const el = document.getElementById("featured");
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  };
 
-// ===== SERVICE CARD =====
-function SvcCard({svc,goTo,mini=false}){
-  const [h,sh]=useState(false);
-  const [plan,setPlan]=useState(0);
-  const [bh,sbh]=useState(false);
-  return(
-    <div onMouseEnter={()=>sh(true)} onMouseLeave={()=>sh(false)}
-      style={{background:CARD,border:`1px solid ${h?svc.c+"40":BD}`,borderRadius:18,padding:mini?18:22,position:"relative",overflow:"hidden",transition:"all .25s",transform:h?"translateY(-5px)":"translateY(0)",boxShadow:h?`0 20px 50px ${svc.g}`:"none"}}>
-      <div style={{position:"absolute",top:-35,right:-25,width:120,height:120,borderRadius:"50%",background:`radial-gradient(circle,${svc.g} 0%,transparent 70%)`,opacity:h?1:.4,transition:"opacity .25s",pointerEvents:"none"}}/>
-      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:14}}>
-        <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <div style={{width:40,height:40,borderRadius:11,background:`${svc.c}18`,border:`1px solid ${svc.c}45`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:svc.c,letterSpacing:"-.2px"}}>{svc.s}</div>
-          <div>
-            <p style={{fontWeight:700,fontSize:14,color:T1}}>{svc.n}</p>
-            <p style={{color:T3,fontSize:10,marginTop:1}}>{svc.d}</p>
-          </div>
+  return (
+    <div className="page-enter">
+      {/* Hero Section */}
+      <section style={{ position: "relative", padding: "100px 24px 80px", textAlign: "center", maxWidth: 900, margin: "0 auto", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 600, height: 600, background: `radial-gradient(circle, ${COLORS.accent}25 0%, transparent 70%)`, filter: "blur(60px)", zIndex: -1, pointerEvents: "none" }} />
+        
+        <div className="anim-item" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.3)", borderRadius: 30, padding: "8px 20px", color: COLORS.accentLight, fontSize: 13, fontWeight: 600, marginBottom: 32 }}>
+          <span style={{ fontSize: 16 }}>⚡</span> Sifarişlər 12 saat ərzində çatdırılır
         </div>
-        {svc.b&&<Tag text={svc.b} color={svc.c}/>}
-      </div>
-      {!mini&&(
-        <div style={{display:"flex",gap:3,marginBottom:16,background:"rgba(255,255,255,.03)",borderRadius:9,padding:3}}>
-          {svc.pl.map((p,i)=>(
-            <button key={i} onClick={()=>setPlan(i)} style={{flex:1,padding:"6px 0",borderRadius:7,border:"none",fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s",background:plan===i?svc.c:"transparent",color:plan===i?"#fff":T3}}>{p.l}</button>
-          ))}
-        </div>
-      )}
-      <div style={{marginBottom:14}}>
-        <span style={{fontSize:mini?26:32,fontWeight:800,color:svc.c,lineHeight:1}}>{svc.pl[mini?0:plan].p}</span>
-        <span style={{color:T2,fontSize:14,marginLeft:3}}>AZN</span>
-        <span style={{color:T3,fontSize:11,display:"block",marginTop:2}}>/ {svc.pl[mini?0:plan].l.toLowerCase()} · {svc.sold.toLocaleString()} satılıb</span>
-      </div>
-      <button onMouseEnter={()=>sbh(true)} onMouseLeave={()=>sbh(false)}
-        onClick={()=>nav(goTo,"product",{productId:svc.id,planIdx:plan})}
-        style={{width:"100%",padding:"10px",borderRadius:10,border:`1px solid ${bh?svc.c:svc.c+"50"}`,background:bh?svc.c:`${svc.c}15`,color:bh?"#fff":svc.c,fontSize:13,fontWeight:600,cursor:"pointer",transition:"all .18s"}}>
-        Sifariş et →
-      </button>
-    </div>
-  );
-}
-
-// ===== HOME PAGE =====
-function HomePage({goTo}){
-  const brands=["Netflix","Spotify","YouTube","Disney+","Adobe","ChatGPT","Canva","NordVPN","LinkedIn","Microsoft","Figma","Midjourney","AutoCAD","Grammarly","CapCut","Zoom","Notion","Dropbox"];
-  const featured=SVCS.filter(s=>s.hot);
-  return(
-    <div style={{minHeight:"100vh"}}>
-      {/* Hero */}
-      <section style={{position:"relative",padding:"90px 24px 70px",textAlign:"center",maxWidth:780,margin:"0 auto",overflow:"hidden"}}>
-        <div style={{position:"absolute",inset:0,pointerEvents:"none"}}>
-          <div style={{position:"absolute",width:500,height:500,borderRadius:"50%",top:-150,left:"50%",transform:"translateX(-50%)",background:`radial-gradient(circle,rgba(124,58,237,.14) 0%,transparent 70%)`,filter:"blur(60px)"}}/>
-        </div>
-        <div className="fiu" style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(167,139,250,.08)",border:"1px solid rgba(167,139,250,.22)",borderRadius:24,padding:"6px 18px",fontSize:12,color:"#c4b5fd",marginBottom:28,fontWeight:500}}>
-          ⚡ Sifarişlər 12 saat ərzində çatdırılır
-        </div>
-        <h1 className="fiu1" style={{fontSize:"clamp(34px,5.5vw,58px)",fontWeight:900,lineHeight:1.07,letterSpacing:"-1.8px",marginBottom:20,background:"linear-gradient(135deg,#fff 30%,#a78bfa 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>
-          Rəqəmsal Abunəliklər<br/>Ən Ucuz Qiymətə
+        
+        <h1 className="anim-item anim-d1" style={{ fontSize: "clamp(40px, 6vw, 68px)", fontWeight: 900, lineHeight: 1.1, letterSpacing: "-1.5px", marginBottom: 24 }}>
+          Rəqəmsal Abunəliklər <br />
+          <span style={{ background: `linear-gradient(135deg, #fff 20%, ${COLORS.accentLight} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Ən Ucuz Qiymətə</span>
         </h1>
-        <p className="fiu2" style={{color:T2,fontSize:17,lineHeight:1.75,marginBottom:38,maxWidth:480,margin:"0 auto 38px"}}>
-          Netflix, Spotify, ChatGPT Plus, Adobe, NordVPN və 30+ digər platforma. Etibarlı xidmət, sürətli çatdırılma.
+        
+        <p className="anim-item anim-d2" style={{ color: COLORS.text2, fontSize: 18, lineHeight: 1.6, marginBottom: 40, maxWidth: 540, margin: "0 auto 40px" }}>
+          PremiumShop ilə sevdiyiniz platformalara daha sərfəli qiymətə sahib olun. Tam etibarlı xidmət və 100% zəmanət.
         </p>
-        <div className="fiu3" style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
-          <Btn onClick={()=>{const el=document.getElementById("featured");el&&el.scrollIntoView({behavior:"smooth"});}}>
-            Abunəliklərə Bax ↓
-          </Btn>
-          <Btn variant="ghost" onClick={()=>nav(goTo,"shop")}>Bütün Məhsullar →</Btn>
-        </div>
-        <div className="fiu4" style={{display:"flex",gap:40,justifyContent:"center",marginTop:60,flexWrap:"wrap"}}>
-          {[["1000+","Müştəri"],["12s","Çatdırılma"],["38+","Məhsul"],["7/24","Dəstək"]].map(([n,l])=>(
-            <div key={l} style={{textAlign:"center"}}>
-              <p style={{fontSize:26,fontWeight:800,color:ACC2,letterSpacing:"-.5px"}}>{n}</p>
-              <p style={{fontSize:11,color:T3,marginTop:2,fontWeight:500}}>{l}</p>
-            </div>
-          ))}
+        
+        <div className="anim-item anim-d3" style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+          <Btn onClick={scrollToShop} style={{ padding: "16px 32px", fontSize: 16, borderRadius: 100 }}>Abunəliklərə Bax &darr;</Btn>
         </div>
       </section>
-      {/* Brand marquee */}
-      <div style={{borderTop:`1px solid ${BD}`,borderBottom:`1px solid ${BD}`,padding:"18px 0",overflow:"hidden",marginBottom:64}}>
+
+      {/* Marquee Brands */}
+      <div className="anim-item anim-d4" style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "20px 0", marginBottom: 80, background: "rgba(255,255,255,0.01)" }}>
         <div className="mq-wrap">
           <div className="mq-track">
-            {[...brands,...brands].map((b,i)=>(
-              <span key={i} style={{display:"inline-block",color:T3,fontSize:13,fontWeight:600,padding:"0 28px",borderRight:`1px solid ${BD}`}}>{b}</span>
+            {[...brands, ...brands].map((b, i) => (
+              <span key={i} style={{ display: "inline-flex", alignItems: "center", color: COLORS.text3, fontSize: 16, fontWeight: 700, padding: "0 40px", letterSpacing: "0.5px" }}>{b}</span>
             ))}
           </div>
         </div>
       </div>
-      {/* Categories */}
-      <section style={{maxWidth:1100,margin:"0 auto",padding:"0 24px 64px"}}>
-        <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-.8px",textAlign:"center",marginBottom:10,color:T1}}>Kateqoriyalar</h2>
-        <p style={{color:T3,textAlign:"center",marginBottom:36}}>İstədiyiniz kateqoriyanı seçin</p>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))",gap:12}}>
-          {CATS.filter(c=>c.id!=="all").map(c=>{
-            const count=SVCS.filter(s=>s.cat===c.id).length;
-            const [h,sh]=useState(false);
-            return(
-              <div key={c.id} onMouseEnter={()=>sh(true)} onMouseLeave={()=>sh(false)}
-                onClick={()=>nav(goTo,"shop",{cat:c.id})}
-                style={{background:h?`rgba(124,58,237,.12)`:CARD,border:`1px solid ${h?ACC+"40":BD}`,borderRadius:14,padding:"18px 16px",textAlign:"center",cursor:"pointer",transition:"all .2s"}}>
-                <div style={{fontSize:26,marginBottom:8}}>{c.icon}</div>
-                <p style={{fontSize:13,fontWeight:600,color:T1,marginBottom:4}}>{c.label}</p>
-                <p style={{fontSize:11,color:T3}}>{count} məhsul</p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-      {/* Featured */}
-      <section id="featured" style={{maxWidth:1100,margin:"0 auto",padding:"0 24px 64px"}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:36}}>
+
+      {/* Featured Products */}
+      <section id="featured" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 40, flexWrap: "wrap", gap: 20 }}>
           <div>
-            <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-.8px",color:T1}}>Ən Çox Satılanlar</h2>
-            <p style={{color:T3,marginTop:4}}>Müştərilərin sevimli seçimləri</p>
+            <h2 style={{ fontSize: 32, fontWeight: 800, letterSpacing: "-1px", color: COLORS.text1 }}>Populyar Abunəliklər</h2>
+            <p style={{ color: COLORS.text3, marginTop: 8, fontSize: 15 }}>Müştərilərin ən çox üstünlük verdiyi xidmətlər</p>
           </div>
-          <Btn variant="ghost" onClick={()=>nav(goTo,"shop")} style={{fontSize:13}}>Hamısına Bax →</Btn>
+          <Btn variant="ghost" onClick={() => { goTo("shop"); window.scrollTo(0,0); }}>Bütün Məhsullar →</Btn>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:16}}>
-          {featured.map(s=><SvcCard key={s.id} svc={s} goTo={goTo}/>)}
-        </div>
-      </section>
-      {/* How it works */}
-      <section style={{maxWidth:760,margin:"0 auto",padding:"0 24px 64px"}}>
-        <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-.8px",textAlign:"center",marginBottom:8,color:T1}}>Necə işləyir?</h2>
-        <p style={{color:T3,textAlign:"center",marginBottom:40}}>4 addımda abunəliyinizi alın</p>
-        <div style={{display:"flex",flexDirection:"column",gap:10}}>
-          {[
-            {n:"01",t:"Qeydiyyat & Giriş",d:"E-poçt ünvanınızla qeydiyyatdan keçin. Emailinizə doğrulama kodu göndərilir.",c:ACC},
-            {n:"02",t:"Məhsul seç",d:"İstədiyiniz platformanı və plan müddətini seçib «Sifariş et» düyməsinə basın.",c:"#5b21b6"},
-            {n:"03",t:"Ödəniş et & Çek yüklə",d:"ABB, LEO, Kapital Bank və ya M10 vasitəsilə ödəniş edin. Ödəniş çekini sayta yükləyin.",c:"#4c1d95"},
-            {n:"04",t:"Hesabı alın",d:"Ödəniş təsdiqlənəndən sonra 12 saat ərzində hesab məlumatları panelinizdə görünür.",c:"#3730a3"},
-          ].map((st,i)=>(
-            <div key={i} style={{display:"flex",gap:18,background:"rgba(255,255,255,.02)",border:`1px solid ${BD}`,borderRadius:15,padding:"22px 26px",alignItems:"flex-start"}}>
-              <div style={{minWidth:50,height:50,borderRadius:13,background:`${st.c}18`,border:`1px solid ${st.c}40`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:st.c,letterSpacing:"1px"}}>{st.n}</div>
-              <div>
-                <p style={{fontWeight:700,fontSize:16,color:T1,marginBottom:6}}>{st.t}</p>
-                <p style={{color:T3,fontSize:13,lineHeight:1.65}}>{st.d}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-      {/* Payment methods */}
-      <section style={{maxWidth:860,margin:"0 auto",padding:"0 24px 64px"}}>
-        <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-.8px",textAlign:"center",marginBottom:8,color:T1}}>Ödəniş Üsulları</h2>
-        <p style={{color:T3,textAlign:"center",marginBottom:36}}>İstədiyiniz bankla ödəniş edə bilərsiniz</p>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:12}}>
-          {PAYS.map(p=>(
-            <div key={p.id} style={{background:p.bg,border:`1px solid ${p.c}30`,borderRadius:14,padding:"18px 16px",textAlign:"center"}}>
-              <div style={{width:40,height:40,borderRadius:10,background:p.c,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 10px",fontWeight:800,color:"#fff",fontSize:11}}>{p.n.split(" ")[0].toUpperCase().slice(0,3)}</div>
-              <p style={{fontWeight:700,fontSize:13,color:T1}}>{p.n}</p>
-            </div>
-          ))}
-        </div>
-        <div style={{marginTop:20,background:CARD,border:`1px solid ${BD}`,borderRadius:14,padding:"18px 22px",textAlign:"center"}}>
-          <p style={{color:T2,fontSize:14}}>⏱️ Sifarişlər <strong style={{color:T1}}>12 saat</strong> ərzində çatdırılır · 24 saatı keçərsə <strong style={{color:"#10b981"}}>geri ödəmə</strong> zəmanəti</p>
-        </div>
-      </section>
-      {/* Trust */}
-      <section style={{maxWidth:1100,margin:"0 auto",padding:"0 24px 80px",display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:12}}>
-        {[
-          {i:"🔒",t:"Etibarlı ödəniş",d:"Ödəniş çeki yükləyin, biz yoxlayırıq. Heç bir risk yoxdur."},
-          {i:"⚡",t:"12 saat çatdırılma",d:"Onay verildikdən sonra 12 saat içində hesabınız hazırdır."},
-          {i:"💬",t:"7/24 Dəstək",d:"WhatsApp vasitəsilə hər an bizimlə əlaqə saxlaya bilərsiniz."},
-          {i:"🔄",t:"Geri ödəmə zəmanəti",d:"24 saat ərzində çatdırılmazsa tam geri ödəmə edilir."},
-        ].map((it,i)=>(
-          <div key={i} style={{background:"rgba(255,255,255,.02)",border:`1px solid ${BD}`,borderRadius:15,padding:"20px 22px"}}>
-            <div style={{fontSize:22,marginBottom:9}}>{it.i}</div>
-            <p style={{fontWeight:700,fontSize:13,color:T1,marginBottom:5}}>{it.t}</p>
-            <p style={{color:T3,fontSize:12,lineHeight:1.6}}>{it.d}</p>
-          </div>
-        ))}
-      </section>
-    </div>
-  );
-}
-
-// ===== SHOP PAGE (Completed from cut-off point) =====
-function ShopPage({goTo,initCat="all"}){
-  const [cat,setCat]=useState(initCat);
-  const [q,setQ]=useState("");
-  const filtered=SVCS.filter(s=>(cat==="all"||s.cat===cat)&&(s.n.toLowerCase().includes(q.toLowerCase())||s.d.toLowerCase().includes(q.toLowerCase())));
-  
-  return(
-    <div style={{maxWidth:1140,margin:"0 auto",padding:"40px 24px 80px"}}>
-      <div className="fiu" style={{marginBottom:36}}>
-        <h1 style={{fontSize:30,fontWeight:800,letterSpacing:"-.8px",color:T1,marginBottom:8}}>Bütün Məhsullar</h1>
-        <p style={{color:T3}}>38 rəqəmsal abunəlik — ən ucuz qiymətlə</p>
-      </div>
-      {/* Search */}
-      <div style={{position:"relative",marginBottom:24}}>
-        <span style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",color:T3,fontSize:16}}>🔍</span>
-        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Məhsul axtar... (Netflix, Canva, VPN...)"
-          style={{width:"100%",background:CARD,border:`1px solid ${BD}`,borderRadius:12,padding:"12px 14px 12px 42px",color:T1,fontSize:14}}/>
-      </div>
-      {/* Category tabs */}
-      <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:32,borderBottom:`1px solid ${BD}`,paddingBottom:20}}>
-        {CATS.map(c=>{
-          const cnt=c.id==="all"?SVCS.length:SVCS.filter(s=>s.cat===c.id).length;
-          return(
-            <button key={c.id} onClick={()=>setCat(c.id)}
-              style={{padding:"7px 16px",borderRadius:20,border:`1px solid ${cat===c.id?ACC+"60":BD}`,background:cat===c.id?`${ACC}20`:"transparent",color:cat===c.id?ACC2:T2,fontSize:12,fontWeight:600,cursor:"pointer",transition:"all .2s"}}>
-              {c.label} ({cnt})
-            </button>
-          );
-        })}
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:16}}>
-        {filtered.map(s=><SvcCard key={s.id} svc={s} goTo={goTo}/>)}
-        {filtered.length===0 && <p style={{color:T3,textAlign:"center",gridColumn:"1/-1",padding:40}}>Məhsul tapılmadı.</p>}
-      </div>
-    </div>
-  );
-}
-
-// ===== MISSING PAGES ADDED =====
-
-function ProductPage({goTo, params, showNotif}) {
-  const svc = SVCS.find(s => s.id === params?.productId) || SVCS[0];
-  const [plan, setPlan] = useState(params?.planIdx || 0);
-
-  return (
-    <div style={{padding:"60px 24px", maxWidth:600, margin:"0 auto", minHeight:"70vh"}}>
-      <Btn variant="ghost" onClick={() => nav(goTo, "shop")} style={{marginBottom: 20}}>← Geri</Btn>
-      <div style={{background:CARD, border:`1px solid ${BD}`, borderRadius: 18, padding: 30}}>
-        <div style={{display:"flex", alignItems:"center", gap:16, marginBottom:24}}>
-          <div style={{width:50,height:50,borderRadius:14,background:`${svc.c}18`,border:`1px solid ${svc.c}45`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:svc.c}}>{svc.s}</div>
-          <div>
-            <h1 style={{color:T1, fontSize:22, fontWeight: 700}}>{svc.n}</h1>
-            <p style={{color:T3, fontSize: 13, marginTop: 4}}>{svc.d}</p>
-          </div>
-        </div>
-
-        <div style={{marginBottom: 24}}>
-          <p style={{color:T2, fontSize: 13, fontWeight: 600, marginBottom: 12}}>Plan seçin:</p>
-          <div style={{display: "flex", gap: 10, flexWrap: "wrap"}}>
-             {svc.pl.map((p,i) => (
-                <button key={i} onClick={()=>setPlan(i)} style={{padding:"10px 16px", borderRadius:10, border:`1px solid ${plan===i?svc.c:BD}`, background:plan===i?`${svc.c}20`:CARD2, color:plan===i?svc.c:T2, fontWeight: 600, cursor:"pointer", transition: "all .2s"}}>
-                  {p.l} - {p.p} ₼
-                </button>
-             ))}
-          </div>
-        </div>
-
-        <Btn onClick={() => {
-          showNotif("Sifarişiniz qəbul edildi! 12 saat ərzində təsdiqlənəcək.", "success");
-          nav(goTo, "dashboard");
-        }} style={{width: "100%", padding: 14, fontSize: 15}}>Sifarişi Təsdiqlə - {svc.pl[plan].p} AZN</Btn>
-      </div>
-    </div>
-  );
-}
-
-function AuthPage({goTo, setUser, showNotif}) {
-  return (
-    <div style={{padding:"80px 24px", maxWidth:400, margin:"0 auto", minHeight:"70vh"}}>
-      <h1 style={{color:T1, fontSize:28, fontWeight: 800, marginBottom:8, textAlign: "center"}}>Giriş</h1>
-      <p style={{color:T3, textAlign: "center", marginBottom:30}}>Hesabınıza daxil olun və ya qeydiyyatdan keçin</p>
-      
-      <div style={{background:CARD, border:`1px solid ${BD}`, borderRadius: 18, padding: 24}}>
-        <Input label="Email" placeholder="admin@premium.az" />
-        <Input label="Şifrə" type="password" placeholder="••••••••" />
         
-        <Btn onClick={() => { 
-          setUser({name: "Müştəri", email: "admin@premium.az"}); 
-          showNotif("Uğurla giriş etdiniz", "success"); 
-          nav(goTo, "home"); 
-        }} style={{width: "100%", marginTop: 10}}>Daxil ol</Btn>
-      </div>
-    </div>
-  );
-}
-
-function DashboardPage({goTo, user, setUser}) {
-  if(!user) {
-    return <div style={{color:T1, padding:100, textAlign:"center"}}>Zəhmət olmasa giriş edin.</div>;
-  }
-  
-  return (
-    <div style={{padding:"60px 24px", maxWidth:800, margin:"0 auto", minHeight:"70vh"}}>
-      <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 30}}>
-        <div>
-          <h1 style={{color:T1, fontSize:26, fontWeight: 800, marginBottom:4}}>Xoş gəldiniz, {user.name}</h1>
-          <p style={{color:T3}}>Aktiv abunəlikləriniz və sifariş tarixçəniz</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 20 }}>
+          {SVCS.filter(s => s.hot).map(s => (
+            <SvcCard key={s.id} svc={s} onClick={() => { goTo("product", { id: s.id }); window.scrollTo(0,0); }} />
+          ))}
         </div>
-        <Btn onClick={() => { setUser(null); nav(goTo, "home"); }} variant="danger">Çıxış et</Btn>
-      </div>
+      </section>
+
+      {/* Info Section */}
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px" }}>
+        <div className="glass-card" style={{ borderRadius: 24, padding: "40px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 30 }}>
+          {[
+            { icon: "🔒", title: "Güvənli Ödəniş", desc: "İstədiyiniz bankı (ABB, LEO, Kapital, M10) seçib ödəniş edə bilərsiniz." },
+            { icon: "⚡", title: "Sürətli Təhvil", desc: "Sifarişlər 12 saat ərzində çatdırılır. Gözləməyə ehtiyac yoxdur." },
+            { icon: "🔄", title: "Geri Ödəmə Zəmanəti", desc: "24 saat ərzində çatdırılmasa, geri ödəmə edilməsi üçün əlaqə saxlanılır." }
+          ].map((itm, i) => (
+            <div key={i} style={{ display: "flex", gap: 16 }}>
+              <div style={{ width: 56, height: 56, borderRadius: 16, background: `linear-gradient(135deg, rgba(124,58,237,0.1), rgba(124,58,237,0.2))`, border: `1px solid ${COLORS.accent}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>{itm.icon}</div>
+              <div style={{ flex: 1 }}>
+                <h4 style={{ fontSize: 18, fontWeight: 700, color: COLORS.text1, marginBottom: 8 }}>{itm.title}</h4>
+                <p style={{ color: COLORS.text3, fontSize: 14, lineHeight: 1.6 }}>{itm.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ShopPage({ goTo }) {
+  const [cat, setCat] = useState("all");
+  const filtered = SVCS.filter(s => cat === "all" || s.cat === cat);
+
+  return (
+    <div className="page-enter" style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 24px 80px", minHeight: "80vh" }}>
+      <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-1px", color: COLORS.text1, marginBottom: 12 }}>Mağaza</h1>
+      <p style={{ color: COLORS.text3, fontSize: 16, marginBottom: 40 }}>Bütün rəqəmsal abunəliklər bir ünvanda.</p>
       
-      <div style={{background:CARD, border:`1px solid ${BD}`, borderRadius: 18, padding: 40, textAlign: "center"}}>
-        <p style={{color:T3}}>Hələ heç bir sifarişiniz yoxdur.</p>
-        <Btn onClick={() => nav(goTo, "shop")} style={{marginTop: 16}}>Mağazaya Keç</Btn>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 32 }}>
+        {CATS.map(c => (
+          <button key={c.id} onClick={() => setCat(c.id)}
+            style={{ padding: "10px 20px", borderRadius: 100, border: `1px solid ${cat === c.id ? COLORS.accent : COLORS.border}`, background: cat === c.id ? COLORS.accent : COLORS.card, color: cat === c.id ? "#fff" : COLORS.text2, fontSize: 14, fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}>
+            {c.icon} {c.label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 20 }}>
+        {filtered.map(s => (
+          <SvcCard key={s.id} svc={s} onClick={() => { goTo("product", { id: s.id }); window.scrollTo(0,0); }} />
+        ))}
+        {filtered.length === 0 && <p style={{ color: COLORS.text3, padding: 40, gridColumn: "1/-1", textAlign: "center" }}>Bu kateqoriyada məhsul yoxdur.</p>}
       </div>
     </div>
   );
 }
 
-// ===== MAIN APP COMPONENT (Router) =====
+function AuthPage({ goTo, setUser, showNotif, initMode }) {
+  const [mode, setMode] = useState(initMode || "login");
+  const [step, setStep] = useState(1);
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [pass, setPass] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleAction = () => {
+    if (!email) return showNotif("E-poçt daxil edin", "error");
+    
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      if (mode === "login") {
+        if(!pass) return showNotif("Şifrə daxil edin", "error");
+        setUser({ email, phone: "" });
+        showNotif("Uğurla daxil oldunuz", "success");
+        goTo("dashboard");
+      } else {
+        // Register flow
+        if (step === 1) {
+          showNotif("Doğrulama kodu göndərildi (Simulyasiya: 1234)", "success");
+          setStep(2);
+        } else if (step === 2) {
+          if(code !== "1234") return showNotif("Kod yalnışdır (1234 yazın)", "error");
+          setStep(3);
+        } else if (step === 3) {
+          if(!pass || pass.length < 6) return showNotif("Şifrə minimum 6 simvol olmalıdır", "error");
+          setUser({ email, phone: "" });
+          showNotif("Qeydiyyat uğurla tamamlandı!", "success");
+          goTo("dashboard");
+        }
+      }
+    }, 800);
+  };
+
+  return (
+    <div className="page-enter" style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
+      <div className="glass-card" style={{ width: "100%", maxWidth: 420, borderRadius: 24, padding: 40 }}>
+        
+        <div style={{ display: "flex", background: COLORS.cardHover, borderRadius: 12, padding: 4, marginBottom: 32 }}>
+          <button onClick={() => { setMode("login"); setStep(1); }} style={{ flex: 1, padding: "10px", borderRadius: 10, background: mode === "login" ? COLORS.card : "transparent", color: mode === "login" ? COLORS.text1 : COLORS.text3, fontWeight: 600, transition: "all 0.2s", cursor: "pointer" }}>Giriş</button>
+          <button onClick={() => { setMode("register"); setStep(1); }} style={{ flex: 1, padding: "10px", borderRadius: 10, background: mode === "register" ? COLORS.card : "transparent", color: mode === "register" ? COLORS.text1 : COLORS.text3, fontWeight: 600, transition: "all 0.2s", cursor: "pointer" }}>Qeydiyyat</button>
+        </div>
+
+        {mode === "login" ? (
+          <div>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: COLORS.text1, marginBottom: 8 }}>Hesaba Giriş</h2>
+            <p style={{ color: COLORS.text3, fontSize: 14, marginBottom: 24 }}>Sifarişlərinizi izləmək üçün daxil olun.</p>
+            <Input label="E-poçt" type="email" placeholder="mail@numune.com" value={email} onChange={e=>setEmail(e.target.value)} />
+            <Input label="Şifrə" type="password" placeholder="••••••••" value={pass} onChange={e=>setPass(e.target.value)} />
+            <Btn onClick={handleAction} loading={loading} style={{ width: "100%", marginTop: 10 }}>Daxil ol</Btn>
+          </div>
+        ) : (
+          <div>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: COLORS.text1, marginBottom: 8 }}>Yeni Hesab</h2>
+            <p style={{ color: COLORS.text3, fontSize: 14, marginBottom: 24 }}>
+              {step === 1 ? "Davam etmək üçün e-poçt ünvanınızı yazın." : step === 2 ? "E-poçta gələn kodu daxil edin." : "Yeni şifrənizi təyin edin."}
+            </p>
+            
+            {step === 1 && <Input label="E-poçt" type="email" placeholder="mail@numune.com" value={email} onChange={e=>setEmail(e.target.value)} />}
+            {step === 2 && <Input label="Doğrulama Kodu (Demo: 1234)" placeholder="1234" value={code} onChange={e=>setCode(e.target.value)} />}
+            {step === 3 && <Input label="Şifrə təyin edin" type="password" placeholder="••••••••" value={pass} onChange={e=>setPass(e.target.value)} />}
+            
+            <Btn onClick={handleAction} loading={loading} style={{ width: "100%", marginTop: 10 }}>
+              {step === 1 ? "Kod Göndər" : step === 2 ? "Təsdiqlə" : "Qeydiyyatı Tamamla"}
+            </Btn>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProductPage({ goTo, params, user, showNotif, addOrder }) {
+  const svc = SVCS.find(s => s.id === params?.id) || SVCS[0];
+  const [step, setStep] = useState(1); // 1: Details, 2: Checkout
+  const [planIdx, setPlanIdx] = useState(0);
+  const [payId, setPayId] = useState("abb");
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const selPlan = svc.pl[planIdx];
+  const selBank = PAYS.find(p => p.id === payId);
+
+  const handleOrder = () => {
+    if (!user) { showNotif("Sifariş etmək üçün daxil olun", "error"); return goTo("auth", {mode: "login"}); }
+    if (!file) return showNotif("Zəhmət olmasa ödəniş çekini yükləyin", "error");
+    
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      addOrder({
+        id: "ORD-" + Math.floor(Math.random()*90000+10000),
+        svcName: svc.n,
+        plan: selPlan.l,
+        price: selPlan.p,
+        bank: selBank.n,
+        status: "pending",
+        date: new Date().toLocaleDateString()
+      });
+      showNotif("Sifariş qəbul edildi! Admin təsdiqi gözlənilir.", "success");
+      goTo("dashboard");
+    }, 1500);
+  };
+
+  return (
+    <div className="page-enter" style={{ maxWidth: 800, margin: "0 auto", padding: "40px 24px 100px", minHeight: "80vh" }}>
+      <button onClick={() => step === 2 ? setStep(1) : goTo("shop")} style={{ display: "flex", alignItems: "center", gap: 8, color: COLORS.text3, fontWeight: 600, fontSize: 14, cursor: "pointer", marginBottom: 30, background: "none", border: "none" }}>
+        &larr; Geri Qayıt
+      </button>
+
+      {step === 1 ? (
+        <div className="anim-item">
+          <div className="glass-card" style={{ borderRadius: 24, padding: 32, marginBottom: 24 }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 24, flexWrap: "wrap" }}>
+              <div style={{ width: 80, height: 80, borderRadius: 20, background: `${svc.c}10`, border: `1px solid ${svc.c}30`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: typeof svc.s === "string"?30:"inherit", fontWeight: 800, color: svc.c, padding: typeof svc.s === "string"?0:16 }}>{svc.s}</div>
+              <div style={{ flex: 1 }}>
+                <h1 style={{ fontSize: 32, fontWeight: 800, color: COLORS.text1, marginBottom: 8 }}>{svc.n}</h1>
+                <p style={{ color: COLORS.text2, fontSize: 15, lineHeight: 1.6 }}>{svc.d}</p>
+                
+                <div style={{ marginTop: 24 }}>
+                  <p style={{ fontWeight: 600, color: COLORS.text1, marginBottom: 12 }}>Plan Seçin:</p>
+                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                    {svc.pl.map((p, i) => (
+                      <div key={i} onClick={() => setPlanIdx(i)} style={{ padding: "12px 20px", borderRadius: 14, border: `2px solid ${planIdx === i ? svc.c : COLORS.border}`, background: planIdx === i ? `${svc.c}15` : COLORS.cardHover, cursor: "pointer", transition: "all 0.2s" }}>
+                        <div style={{ fontWeight: 700, color: planIdx === i ? svc.c : COLORS.text2, fontSize: 14 }}>{p.l}</div>
+                        <div style={{ fontWeight: 800, color: COLORS.text1, fontSize: 18, marginTop: 4 }}>{p.p} AZN</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Btn onClick={() => { if(!user){ showNotif("Sifariş üçün daxil olun","error"); goTo("auth"); } else setStep(2); }} style={{ padding: "16px 40px", fontSize: 16 }}>Davam Et &rarr;</Btn>
+          </div>
+        </div>
+      ) : (
+        <div className="anim-item">
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: COLORS.text1, marginBottom: 24 }}>Ödəniş və Təsdiq</h2>
+          
+          <div className="glass-card" style={{ borderRadius: 24, padding: 32, marginBottom: 24 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.text2, marginBottom: 16 }}>1. Bank Seçimi</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginBottom: 32 }}>
+              {PAYS.map(p => (
+                <div key={p.id} onClick={() => setPayId(p.id)} style={{ padding: "16px", borderRadius: 16, border: `2px solid ${payId === p.id ? p.c : COLORS.border}`, background: payId === p.id ? `${p.c}10` : COLORS.cardHover, textAlign: "center", cursor: "pointer", transition: "all 0.2s" }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: p.c, margin: "0 auto 12px", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 12 }}>{p.n.slice(0,3).toUpperCase()}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: COLORS.text1 }}>{p.n}</div>
+                </div>
+              ))}
+            </div>
+
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.text2, marginBottom: 16 }}>2. Köçürmə Məlumatları</h3>
+            <div style={{ background: COLORS.cardHover, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 20, marginBottom: 32 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ color: COLORS.text3 }}>Göndəriləcək Məbləğ:</span>
+                <span style={{ fontWeight: 800, color: COLORS.text1, fontSize: 18 }}>{selPlan.p} AZN</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ color: COLORS.text3 }}>{payId==="m10"?"Nömrə:":"Kart Nömrəsi:"}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontWeight: 700, color: selBank.c, letterSpacing: "1px" }}>{selBank.num}</span>
+                  <button onClick={() => { navigator.clipboard.writeText(selBank.num); showNotif("Kopyalandı", "info"); }} style={{ cursor: "pointer", color: COLORS.text3, padding: 4 }}>📋</button>
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: COLORS.text3 }}>Alıcı:</span>
+                <span style={{ fontWeight: 600, color: COLORS.text1 }}>{selBank.holder}</span>
+              </div>
+            </div>
+
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.text2, marginBottom: 16 }}>3. Ödəniş Çeki (Mütləqdir)</h3>
+            <label className="custom-file-upload">
+              <input type="file" accept="image/*,.pdf" onChange={e => {
+                if(e.target.files[0]) {
+                  setFile(e.target.files[0].name);
+                  showNotif("Çek əlavə edildi", "success");
+                }
+              }} />
+              {file ? `📄 ${file} (Dəyişdir)` : "📥 Çeki bura yükləyin (Şəkil və ya PDF)"}
+            </label>
+          </div>
+
+          <div style={{ background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: 16, padding: 20, marginBottom: 32 }}>
+            <p style={{ color: "#10b981", fontSize: 14, fontWeight: 500, lineHeight: 1.5 }}>
+              Sifarişlər ödəniş yoxlanıldıqdan sonra 12 saat ərzində panelinizə əlavə edilir. 24 saat ərzində çatdırılmasa, geri ödəmə üçün sizinlə əlaqə saxlanılacaq.
+            </p>
+          </div>
+
+          <Btn onClick={handleOrder} loading={loading} style={{ width: "100%", padding: "16px", fontSize: 16 }}>Sifarişi Təsdiqlə - {selPlan.p} AZN</Btn>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DashboardPage({ user, setUser, orders, showNotif }) {
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [viewAcc, setViewAcc] = useState(null);
+
+  if (!user) return <div style={{ padding: 100, textAlign: "center", color: COLORS.text1 }}>Giriş edin.</div>;
+
+  const saveProfile = () => {
+    setUser({ ...user, phone });
+    showNotif("Məlumatlar yeniləndi", "success");
+  };
+
+  return (
+    <div className="page-enter" style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 24px 100px", minHeight: "80vh" }}>
+      <h1 style={{ fontSize: 32, fontWeight: 800, color: COLORS.text1, marginBottom: 8 }}>Müştəri Paneli</h1>
+      <p style={{ color: COLORS.text3, fontSize: 15, marginBottom: 40 }}>Hesab məlumatlarınızı və sifarişlərinizi buradan idarə edin.</p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 30, alignItems: "start" }}>
+        
+        {/* Profile Sidebar */}
+        <div className="glass-card" style={{ borderRadius: 20, padding: 24 }}>
+          <div style={{ width: 64, height: 64, borderRadius: "50%", background: COLORS.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 800, color: "#fff", margin: "0 auto 20px" }}>
+            {user.email[0].toUpperCase()}
+          </div>
+          <Input label="E-poçt (Dəyişdirilə bilməz)" value={user.email} disabled />
+          <Input label="Əlaqə Nömrəsi (Geri ödəmələr üçün)" placeholder="+994501234567" value={phone} onChange={e=>setPhone(e.target.value)} hint="Sifariş 24 saata təslim edilmədikdə bu nömrəyə pul qaytarılır." />
+          <Btn onClick={saveProfile} style={{ width: "100%", marginBottom: 16 }}>Yadda Saxla</Btn>
+          <Btn variant="danger" onClick={() => setUser(null)} style={{ width: "100%" }}>Çıxış Et</Btn>
+        </div>
+
+        {/* Orders List */}
+        <div>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: COLORS.text1, marginBottom: 20 }}>Sifarişlərim</h2>
+          
+          {orders.length === 0 ? (
+            <div className="glass-card" style={{ borderRadius: 20, padding: 40, textAlign: "center" }}>
+              <p style={{ color: COLORS.text3, fontSize: 15 }}>Hələ heç bir sifarişiniz yoxdur.</p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {orders.slice().reverse().map(ord => (
+                <div key={ord.id} className="glass-card" style={{ borderRadius: 16, padding: 20, borderLeft: `4px solid ${ord.status === "approved" ? "#10b981" : "#f59e0b"}` }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+                    <div>
+                      <h3 style={{ fontSize: 18, fontWeight: 700, color: COLORS.text1 }}>{ord.svcName} <span style={{ color: COLORS.text3, fontSize: 14, fontWeight: 500 }}>({ord.plan})</span></h3>
+                      <p style={{ color: COLORS.text3, fontSize: 13, marginTop: 4 }}>ID: {ord.id} • {ord.date}</p>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <span style={{ display: "inline-block", padding: "4px 10px", borderRadius: 8, fontSize: 12, fontWeight: 700, background: ord.status === "approved" ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.1)", color: ord.status === "approved" ? "#10b981" : "#f59e0b" }}>
+                        {ord.status === "approved" ? "Təsdiqləndi" : "Admin Onayı Gözləyir"}
+                      </span>
+                      <p style={{ fontWeight: 800, color: COLORS.text1, marginTop: 6 }}>{ord.price} AZN</p>
+                    </div>
+                  </div>
+                  
+                  {ord.status === "approved" && (
+                    <Btn onClick={() => setViewAcc(ord)} style={{ padding: "8px 16px", fontSize: 13, background: "#10b981", boxShadow: "none" }}>Hesab Məlumatlarına Bax</Btn>
+                  )}
+                  {ord.status === "pending" && (
+                    <p style={{ fontSize: 13, color: COLORS.text3 }}>⏱️ Çekiniz yoxlanılır. Maksimum 12 saat ərzində hesab veriləcək.</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Account Details Modal */}
+      {viewAcc && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(5px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div className="anim-item glass-card" style={{ width: "100%", maxWidth: 400, borderRadius: 24, padding: 32, background: COLORS.card }}>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: COLORS.text1, marginBottom: 8 }}>{viewAcc.svcName} Hesabı</h3>
+            <p style={{ color: COLORS.text3, fontSize: 14, marginBottom: 24 }}>Hesab məlumatlarınızı kimsəylə paylaşmayın.</p>
+            
+            <div style={{ background: COLORS.cardHover, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: 16, marginBottom: 12 }}>
+              <p style={{ fontSize: 12, color: COLORS.text3, marginBottom: 4 }}>E-poçt / Loqin</p>
+              <p style={{ fontSize: 15, fontWeight: 600, color: COLORS.text1, userSelect: "all" }}>premium{viewAcc.id.slice(-4)}@premiumshop.az</p>
+            </div>
+            
+            <div style={{ background: COLORS.cardHover, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: 16, marginBottom: 24 }}>
+              <p style={{ fontSize: 12, color: COLORS.text3, marginBottom: 4 }}>Şifrə</p>
+              <p style={{ fontSize: 15, fontWeight: 600, color: COLORS.text1, userSelect: "all" }}>Premium{viewAcc.id.slice(-4)}**!</p>
+            </div>
+            
+            <Btn onClick={() => setViewAcc(null)} variant="ghost" style={{ width: "100%" }}>Bağla</Btn>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [page, setPage] = useState("home");
   const [params, setParams] = useState({});
   const [user, setUser] = useState(null);
   const [notif, setNotif] = useState(null);
+  
+  // Fake Initial Order for Demo purposes
+  const [orders, setOrders] = useState([
+    { id: "ORD-99999", svcName: "Netflix", plan: "1 Ay", price: 8, bank: "ABB Bank", status: "approved", date: "11 İyul 2026" }
+  ]);
 
-  const goTo = (pg, p = {}) => {
-    setPage(pg);
-    setParams(p);
+  const goTo = (pg, p = {}) => { setPage(pg); setParams(p); };
+  
+  const showNotif = (msg, type = "success") => {
+    setNotif({ msg, type });
+    setTimeout(() => setNotif(null), 4000);
   };
 
-  const showNotif = (msg, type="success") => {
-    setNotif({msg, type});
-    setTimeout(() => setNotif(null), 3500);
-  };
+  const addOrder = (ord) => setOrders([...orders, ord]);
 
   return (
     <>
@@ -527,14 +671,21 @@ export default function App() {
       <Navbar page={page} goTo={goTo} user={user} />
       <Notif n={notif} />
       
-      {/* Məzmun Dəyişimi (Routing) */}
       {page === "home" && <HomePage goTo={goTo} />}
-      {page === "shop" && <ShopPage goTo={goTo} initCat={params?.cat || "all"} />}
-      {page === "product" && <ProductPage goTo={goTo} params={params} showNotif={showNotif} />}
-      {page === "auth" && <AuthPage goTo={goTo} setUser={setUser} showNotif={showNotif} />}
-      {page === "dashboard" && <DashboardPage goTo={goTo} user={user} setUser={setUser} />}
+      {page === "shop" && <ShopPage goTo={goTo} />}
+      {page === "product" && <ProductPage goTo={goTo} params={params} user={user} showNotif={showNotif} addOrder={addOrder} />}
+      {page === "auth" && <AuthPage goTo={goTo} setUser={setUser} showNotif={showNotif} initMode={params.mode} />}
+      {page === "dashboard" && <DashboardPage user={user} setUser={setUser} orders={orders} showNotif={showNotif} />}
       
-      <WaBtn />
+      {/* WhatsApp Floating Button */}
+      <a href="https://wa.me/994103136941" target="_blank" rel="noopener noreferrer" className="wa-btn"
+        style={{ position: "fixed", bottom: 24, right: 24, zIndex: 999, display: "flex", alignItems: "center", gap: 10, background: "#25D366", color: "#fff", padding: "12px 20px", borderRadius: 100, textDecoration: "none", fontWeight: 700, fontSize: 14, boxShadow: "0 8px 30px rgba(37,211,102,0.4)", transition: "transform 0.2s" }}
+        onMouseEnter={e => e.currentTarget.style.transform = "scale(1.05) translateY(-5px)"}
+        onMouseLeave={e => e.currentTarget.style.transform = "scale(1) translateY(0)"}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Dəstək Xidməti
+      </a>
+      
       <Footer goTo={goTo} />
     </>
   );
