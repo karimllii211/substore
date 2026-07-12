@@ -228,14 +228,14 @@ const getOfficialLogo = (name, customEmoji, color) => {
   if (lower.includes("chatgpt") || lower.includes("gpt")) {
     return (
       <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#10A37F"}>
-        <path d="M21.74 11.23a4.2 4.2 0 00-.73-2.1 4.24 4.24 0 00-1.8-1.5 4.3 4.3 0 00-.06-1.92 4.2 4.2 0 00-1.07-1.8 4.24 4.24 0 00-2.01-1.12 4.3 4.3 0 00-1.88-.41 4.2 4.2 0 00-2.1.73 4.24 4.24 0 00-1.5 1.8 4.3 4.3 0 00-1.92.06 4.2 4.2 0 00-1.8 1.07A4.24 4.24 0 003.75 8a4.3 4.3 0 00-.41 1.88c0 .76.2 1.48.56 2.1a4.2 4.2 0 00.17 3.56 4.24 4.24 0 00-1.8-1.5c.02.66.21 1.3.56 1.86a4.2 4.2 0 001.5 1.5 4.24 4.24 0 003.88.47c.66-.2 1.25-.56 1.73-1.03a4.2 4.2 0 002.1-.73 4.24 4.24 0 001.5-1.8c.66.02 1.3-.17 1.86-.52a4.2 4.2 0 001.5-1.5 4.24 4.24 0 00.47-3.88c.2-.66.56-1.25 1.03-1.73zM12 14.5a2.5 2.5 0 112.5-2.5 2.5 2.5 0 01-2.5 2.5z"/>
+        <path d="M22.2819 9.8211 20.3374 8.7001c.2185-.562.3336-1.168.3336-1.7831 0-2.4578-2.0001-4.458-4.4578-4.458-.6151 0-1.2211.1151-1.7831.3336L14.1799.3499C13.5658.1189 12.8988 0 12.2318 0c-2.4578 0-4.458 2.0001-4.458 4.4578 0 .6151.1151 1.2211.3336 1.7831L6.1558 7.3789C5.5938 7.1604 4.9878 7.0453 4.3727 7.0453c-2.4578 0-4.458 2.0001-4.458 4.4578 0 .6151.1151 1.2211.3336 1.7831L1.1009 14.8291c-.2185.562-.3336 1.168-.3336 1.7831 0 2.4578 2.0001 4.458 4.4578 4.458.6151 0 1.2211-.1151 1.7831-.3336l1.9445 1.121c.562.2185 1.168.3336 1.7831.3336 2.4578 0 4.458-2.0001 4.458-4.4578 0-.6151-.1151-1.2211-.3336-1.7831l1.9445-1.121c.562-.2185 1.168-.3336 1.7831-.3336 2.4578 0 4.458-2.0001 4.458-4.4578 0-.6151-.1151-1.2211-.3336-1.7831zM12 16.5c-2.4853 0-4.5-2.0147-4.5-4.5S9.5147 7.5 12 7.5s4.5 2.0147 4.5 4.5-2.0147 4.5-4.5 4.5z"/>
       </svg>
     );
   }
   if (lower.includes("canva")) {
     return (
       <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#8B5CF6"}>
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.5 11.5c-.3 0-.5-.2-.5-.5v-2c0-.3.2-.5.5-.5s.5.2.5.5v2c0 .3-.2.5-.5.5zm-2.5 2c-.3 0-.5-.2-.5-.5V9c0-.3.2-.5.5-.5s.5.2.5.5v6c0 .3-.2.5-.5.5zm-2.5 1c-.3 0-.5-.2-.5-.5V8c0-.3.2-.5.5-.5s.5.2.5.5v8c0 .3-.2.5-.5.5zm-2.5-2c-.3 0-.5-.2-.5-.5V9c0-.3.2-.5.5-.5s.5.2.5.5v6c0 .3-.2.5-.5.5zm-2.5-2c-.3 0-.5-.2-.5-.5v-2c0-.3.2-.5.5-.5s.5.2.5.5v2c0 .3-.2.5-.5.5z"/>
+        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm6.652 14.28c-.19.34-.43.64-.72.9-.62.59-1.47.82-2.31.82H6.96l5.77-9.98h4.69c.84 0 1.69.23 2.31.82.29.26.53.56.72.9.23.4.35.83.35 1.28 0 .45-.12.89-.35 1.28z"/>
       </svg>
     );
   }
@@ -289,17 +289,19 @@ export default function App() {
     return local ? JSON.parse(local) : null;
   });
 
+  // UI state managers
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [authMode, setAuthMode] = useState(null); 
-  const [authForm, setAuthForm] = useState({ name: "", surname: "", phone: "", email: "", pass: "", otpInput: "" });
+  const [authForm, setAuthForm] = useState({ name: "", surname: "", phone: "", email: "", pass: "", otpInput: "", profileImg: "" });
   const [otpCode, setOtpCode] = useState(null);
   const [selectedBank, setSelectedBank] = useState(CARD_ACCOUNTS[0]);
   const [uploadedReceipt, setUploadedReceipt] = useState(null);
   const [notification, setNotification] = useState(null);
 
+  // Administrative panel credentials
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
     return localStorage.getItem("premium_shop_admin_active") === "true";
   });
@@ -345,13 +347,14 @@ export default function App() {
         name: authForm.name || "Hörmətli",
         surname: authForm.surname || "Müştəri",
         email: authForm.email,
-        phone: authForm.phone || "+994503136941"
+        phone: authForm.phone || "",
+        profileImg: authForm.profileImg || ""
       });
       showNotif("Uğurlu Giriş! Xoş gəldiniz.", "success");
       setAuthMode(null);
     } else if (authMode === "register") {
-      if (!authForm.name || !authForm.surname || !authForm.phone || !authForm.email || !authForm.pass) {
-        showNotif("Zəhmət olmasa bütün məlumatları doldurun", "error");
+      if (!authForm.name || !authForm.surname || !authForm.email || !authForm.pass) {
+        showNotif("Ad, Soyad, E-poçt və Şifrə mütləq doldurulmalıdır!", "error");
         return;
       }
       const code = "1234";
@@ -364,7 +367,8 @@ export default function App() {
           name: authForm.name,
           surname: authForm.surname,
           email: authForm.email,
-          phone: authForm.phone
+          phone: authForm.phone,
+          profileImg: authForm.profileImg
         });
         showNotif("Qeydiyyat tamamlandı! E-poçt təsdiqləndi.", "success");
         setAuthMode(null);
@@ -395,7 +399,7 @@ export default function App() {
   const handleCheckoutSubmit = (e) => {
     e.preventDefault();
     if (!user) {
-      showNotif("Sifariş tamamlamaq üçün əvvəlcə giriş etməlisiniz!", "error");
+      showNotif("Sifariş tamamlamaq üçün əvvəlcə qeydiyyatdan keçməli yaxud giriş etməlisiniz!", "error");
       setAuthMode("login");
       setIsCheckoutOpen(false);
       return;
@@ -410,7 +414,7 @@ export default function App() {
       userEmail: user.email,
       userName: user.name,
       userSurname: user.surname,
-      userPhone: user.phone,
+      userPhone: user.phone || "Qeyd edilməyib",
       productName: item.product.name,
       duration: item.package.duration,
       price: item.package.price,
@@ -421,6 +425,7 @@ export default function App() {
       date: new Date().toLocaleDateString("az-AZ")
     }));
 
+    // CRITICAL FIX: Merge into orders top-level state to ensure it immediately reflects in the admin panel
     setOrders(prev => [...prev, ...newOrders]);
     setCart([]);
     setIsCheckoutOpen(false);
@@ -533,8 +538,12 @@ export default function App() {
 
             {user ? (
               <button onClick={() => setPage("dashboard")} className="glass-card flex items-center gap-2.5 px-4 py-2 rounded-xl border border-indigo-500/20">
-                <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-sm text-white">
-                  {user.name[0].toUpperCase()}
+                <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-sm text-white overflow-hidden">
+                  {user.profileImg ? (
+                    <img src={user.profileImg} alt="User" className="w-full h-full object-cover" />
+                  ) : (
+                    user.name[0].toUpperCase()
+                  )}
                 </div>
                 <span className="font-semibold text-xs text-indigo-200 hidden sm:inline">{user.name}</span>
               </button>
@@ -610,7 +619,7 @@ export default function App() {
               </div>
             </div>
 
-            {}
+            {/* CATALOG LIST (Absolutely no pre-written static prices on cards) */}
             <div id="catalog" className="space-y-6 animate-card" style={{ animationDelay: '200ms' }}>
               <div className="flex items-center justify-between">
                 <h2 className="text-3xl font-extrabold tracking-tight text-white">Populyar Abunəliklər</h2>
@@ -671,21 +680,25 @@ export default function App() {
           </section>
         )}
 
-        {}
+        {/* CUSTOMER DASHBOARD SCREEN */}
         {page === "dashboard" && (
           <main className="max-w-6xl mx-auto px-6 py-12">
             <div className="flex flex-col md:flex-row justify-between items-start gap-10">
               <div className="w-full md:w-1/3 space-y-6 animate-card">
                 <div className="glass-card rounded-2xl p-6 text-center">
-                  <div className="w-20 h-20 rounded-full bg-indigo-600 flex items-center justify-center font-extrabold text-2xl text-white mx-auto mb-4">
-                    {user ? user.name[0].toUpperCase() : "U"}
+                  <div className="w-20 h-20 rounded-full bg-indigo-600 flex items-center justify-center font-extrabold text-2xl text-white mx-auto mb-4 overflow-hidden">
+                    {user?.profileImg ? (
+                      <img src={user.profileImg} alt="User" className="w-full h-full object-cover" />
+                    ) : (
+                      user ? user.name[0].toUpperCase() : "U"
+                    )}
                   </div>
                   <h3 className="text-lg font-bold text-white">{user?.name} {user?.surname}</h3>
                   <p className="text-xs text-gray-400 mt-1">{user?.email}</p>
                   <div className="mt-6 pt-6 border-t border-indigo-950/50 text-left space-y-3">
                     <div className="flex justify-between text-xs">
                       <span className="text-gray-400">Telefon:</span>
-                      <span className="text-white font-bold">{user?.phone}</span>
+                      <span className="text-white font-bold">{user?.phone || "Qeyd edilməyib"}</span>
                     </div>
                   </div>
                   <button onClick={() => { setUser(null); setPage("home"); }} className="w-full mt-6 py-3 rounded-xl bg-red-950/30 border border-red-900/40 text-red-400 font-bold text-xs transition">Çıxış Et</button>
@@ -727,7 +740,7 @@ export default function App() {
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div className="p-3 rounded-lg bg-indigo-950/60 border border-indigo-900/40 flex justify-between items-center">
                                   <div className="space-y-0.5">
-                                    <span className="text-[10px] text-gray-400 block">E-Poçt:</span>
+                                    <span className="text-[10px] text-gray-400 block">E-Poçt / Giriş:</span>
                                     <span className="text-xs font-bold text-white select-all">{order.credentials.email}</span>
                                   </div>
                                   <button onClick={() => { navigator.clipboard.writeText(order.credentials.email); showNotif("E-Poçt kopyalandı!", "success"); }} className="text-[10px] bg-indigo-800/40 px-2 py-0.5 rounded text-white">Kopyala</button>
@@ -755,7 +768,7 @@ export default function App() {
           </main>
         )}
 
-        {}
+        {/* ADMIN DASHBOARD (Perfect buyer attributes view, guaranteed sync) */}
         {page === "admin_dashboard" && isAdminLoggedIn && (
           <main className="max-w-7xl mx-auto px-6 py-12">
             <div className="flex items-center justify-between border-b border-indigo-950/80 pb-6 mb-8 animate-card">
@@ -784,7 +797,7 @@ export default function App() {
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="border-b border-indigo-950/80 text-gray-400 text-xs uppercase tracking-wider">
-                          <th className="py-4 px-4">Sifarişçi</th>
+                          <th className="py-4 px-4">Sifarişçi (Məlumatlar)</th>
                           <th className="py-4 px-4">Məhsul / Müddət</th>
                           <th className="py-4 px-4">Kart / Ödəniş</th>
                           <th className="py-4 px-4">Yüklənən Çek</th>
@@ -797,7 +810,8 @@ export default function App() {
                           <tr key={order.id} className="hover:bg-indigo-950/5">
                             <td className="py-4 px-4">
                               <p className="font-bold text-white">{order.userName} {order.userSurname}</p>
-                              <p className="text-[10px] text-gray-500">{order.userEmail} · {order.userPhone}</p>
+                              <p className="text-[10px] text-indigo-300">{order.userEmail}</p>
+                              <p className="text-[10px] text-gray-400">Telefon: {order.userPhone}</p>
                             </td>
                             <td className="py-4 px-4">
                               <p className="font-semibold text-white">{order.productName}</p>
@@ -892,7 +906,7 @@ export default function App() {
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Müddət və Paket Seçin:</label>
               <div className="grid grid-cols-2 gap-3">
                 {selectedProduct.packages && selectedProduct.packages.map((pkg, index) => (
-                  <div key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between animate-card ${selectedDuration?.id === pkg.id ? "bg-indigo-600/10 border-indigo-500" : "bg-indigo-950/10 border-indigo-900/20 hover:border-indigo-800/40"}`} style={{ animationDelay: `${index * 80}ms` }}>
+                  <div key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between animate-card ${selectedDuration?.id === pkg.id ? "bg-indigo-600/10 border-indigo-500" : "bg-indigo-950/10 border-indigo-900/20"}`} style={{ animationDelay: `${index * 80}ms` }}>
                     <span className="font-bold text-sm text-white">{pkg.duration}</span>
                     <span className="text-lg font-black text-indigo-400 mt-2">{pkg.price} AZN</span>
                   </div>
@@ -959,7 +973,7 @@ export default function App() {
         </div>
       )}
 
-      {/* CHECKOUT MODAL WITH SOLID CONTRAST BANKING AND CARD COPIER */}
+      {}
       {isCheckoutOpen && (
         <div className="fixed inset-0 z-50 bg-[#030308]/95 flex items-center justify-center p-6 overflow-y-auto">
           <div className="glass-card rounded-3xl w-full max-w-2xl p-6 sm:p-8 relative my-8 animate-modal">
@@ -1063,24 +1077,28 @@ export default function App() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase block">Ad:</label>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase block">Ad <span className="text-red-500">*</span>:</label>
                     <input type="text" required placeholder="Adınız" value={authForm.name} onChange={e => setAuthForm({ ...authForm, name: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase block">Soyad:</label>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase block">Soyad <span className="text-red-500">*</span>:</label>
                     <input type="text" required placeholder="Soyadınız" value={authForm.surname} onChange={e => setAuthForm({ ...authForm, surname: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase block">Mobil Nömrə:</label>
-                  <input type="tel" required placeholder="+994503136941" value={authForm.phone} onChange={e => setAuthForm({ ...authForm, phone: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
+                  <label className="text-[10px] font-bold text-gray-400 uppercase block">Mobil Nömrə (İstəyə bağlı):</label>
+                  <input type="tel" placeholder="+994503136941" value={authForm.phone} onChange={e => setAuthForm({ ...authForm, phone: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase block">E-Poçt:</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase block">Profil Şəkli Linki (İstəyə bağlı):</label>
+                  <input type="url" placeholder="https://..." value={authForm.profileImg} onChange={e => setAuthForm({ ...authForm, profileImg: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase block">E-Poçt <span className="text-red-500">*</span>:</label>
                   <input type="email" required placeholder="faiq@example.com" value={authForm.email} onChange={e => setAuthForm({ ...authForm, email: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase block">Şifrə yaradın:</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase block">Şifrə yaradın <span className="text-red-500">*</span>:</label>
                   <input type="password" required placeholder="••••••••" value={authForm.pass} onChange={e => setAuthForm({ ...authForm, pass: e.target.value })} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
                 </div>
                 <button type="submit" className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs glow-btn transition">Davam Et</button>
@@ -1114,12 +1132,12 @@ export default function App() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Loqin / E-Poçt:</label>
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Loqin / E-Poçt / Parametr:</label>
               <input type="text" required placeholder="premium-netflix@substore.az" value={accountEmail} onChange={e => setAccountEmail(e.target.value)} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Şifrə:</label>
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Şifrə / Açılış Şifrəsi:</label>
               <input type="text" required placeholder="PremiumXYZ123!" value={accountPass} onChange={e => setAccountPass(e.target.value)} className="w-full bg-[#0c0c1d] border border-indigo-900/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500" />
             </div>
 
@@ -1263,13 +1281,14 @@ export default function App() {
         </div>
       </footer>
 
-      {/* FLOATING WHATSAPP BUTTON (Positioned to the bottom-left corner) */}
-      <a href="https://wa.me/994103136941" target="_blank" rel="noopener noreferrer" className="wa-btn"
-        style={{ position: "fixed", bottom: 24, left: 24, zIndex: 999, display: "flex", alignItems: "center", gap: 10, background: "#25D366", color: "#fff", padding: "12px 20px", borderRadius: 100, textDecoration: "none", fontWeight: 700, fontSize: 14, boxShadow: "0 8px 30px rgba(37,211,102,0.4)", transition: "transform 0.2s" }}
-        onMouseEnter={e => e.currentTarget.style.transform = "scale(1.05) translateY(-5px)"}
-        onMouseLeave={e => e.currentTarget.style.transform = "scale(1) translateY(0)"}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Dəstək Xidməti
+      {/* NEW UPDATED WHATSAPP BUTTON */}
+      <a href="https://wa.me/994103136941" target="_blank" rel="noopener noreferrer" 
+         className="fixed bottom-6 left-6 z-50 flex items-center gap-3 bg-[#25D366] text-white px-4 py-3 rounded-xl shadow-[0_8px_20px_rgba(37,211,102,0.3)] transition-transform hover:scale-105"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        <span className="font-bold text-sm">WhatsApp</span>
       </a>
     </>
   );
