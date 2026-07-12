@@ -1,6 +1,5 @@
 bash
 
-cat > /mnt/user-data/outputs/App.jsx << 'ENDOFFILE'
 import { useState, useEffect } from "react";
 
 const CSS = `
@@ -830,5 +829,4 @@ export default function App(){
     </>
   );
 }
-ENDOFFILE
 echo "File created: $(wc -l < /mnt/user-data/outputs/App.jsx) lines"
