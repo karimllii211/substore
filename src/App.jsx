@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
 // =========================================================================
-// ⚠️ SON AYAR: Sizin real "serviceId" artıq sistemə yazıldı!
-// İndi sadəcə "templateId" hissəsini öz real şablon ID-nizlə əvəzləyin.
+// ⚠️ REAL APİ AYARLARINIZ TAM SİNXRONİZASİYA EDİLDİ
 // =========================================================================
 const EMAILJS_CONFIG = {
-  serviceId: "service_ehwga57", // <-- Real Service ID-niz bura uğurla yazıldı!
-  templateId: "template_04cpqac", // <-- EmailJS panelindəki "Template ID"-ni bura yazın!
-  publicKey: "MpwQ11f-oEOzMIkNs", // Real Public Key daxil edilib
-  privateKey: "OmxGuIfsqwmr8FTV8Rkmr", // Real Private Key (Access Token) daxil edilib
+  serviceId: "service_ehwga57", // Real Service ID-niz uğurla yazıldı!
+  templateId: "template_gi46c1d", // Real Template ID-niz uğurla yazıldı!
+  publicKey: "MpwQ11f-oEOzMIkNs", // Real Public Key
+  privateKey: "OmxGuIfsqwmr8FTV8Rkmr", // Real Private Key (Access Token)
   adminEmail: "premiumshopazerbaycan@gmail.com" // Sifarişlərin göndəriləcəyi rəsmi admin e-maili
 };
 
@@ -363,7 +362,11 @@ export default function App() {
         user_id: EMAILJS_CONFIG.publicKey,
         accessToken: EMAILJS_CONFIG.privateKey, // REST API göndərişləri üçün Access Token mütləqdir
         template_params: {
+          // 'The recipients address is corrupted' xətasını keçmək üçün 
+          // bütün mümkün olan alıcı parametrlərini eyni vaxtda doldururuq!
           to_email: toEmail,
+          email: toEmail,
+          user_email: toEmail,
           to_name: toName,
           subject: subject,
           message_html: messageHtml
@@ -385,19 +388,13 @@ export default function App() {
       } else {
         const errText = await response.text();
         console.error("EmailJS REST API Error:", errText);
-        
-        // Şablon tapılmayanda anlaşılan xəta mesajı
-        if (errText.includes("The template ID not found")) {
-          showNotif(`EmailJS Xətası: Şablon tapılmadı. EmailJS panelində "Email Templates" bölməsindən real ID-ni kopyalayıb koda yazın!`, "error");
-        } else {
-          showNotif(`E-mail Göndərilmə Xətası: ${errText}`, "error");
-        }
+        showNotif(`E-mail Göndərilmə Xətası: ${errText}`, "error");
         setIsEmailSending(false);
         return false;
       }
     } catch (error) {
       console.error("EmailJS Exception:", error);
-      showNotif(`E-mail xidmətinə qoşulmaq mümkün olmadı! İnternet bağlantısını yoxlayın.`, "error");
+      showNotif(`E-mail xidmətinə qoşulmaq mümkün olmadı!`, "error");
       setIsEmailSending(false);
       return false;
     }
@@ -892,7 +889,7 @@ export default function App() {
                         </div>
 
                         <div className="flex flex-col md:items-end gap-3 w-full md:w-auto">
-                          <span className="text-lg font-bold text-white">{order.price}</span>
+                          <span className="text-lg font-bold text-white">{order.price} AZN</span>
                           {order.status === "pending" && (
                             <span className="px-3 py-1 rounded-full bg-yellow-950/40 border border-yellow-800/40 text-yellow-400 text-xs font-bold">
                               ⌛ Gözləmədə (Çek Yoxlanılır)
