@@ -1,4 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getDatabase, ref, set, onValue, push, update, remove } from 'firebase/database';
+
+// =========================================================================
+// ⚠️ FIREBASE REALTIME DATABASE KONFİQURASİYASI (Sizin Şəkildən)
+// =========================================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyBQGR-rN7qXlTa0KaCiDALLPOM5NOgfqwU",
+  authDomain: "premiumshop-5c568.firebaseapp.com",
+  databaseURL: "https://premiumshop-5c568-default-rtdb.firebaseio.com",
+  projectId: "premiumshop-5c568",
+  storageBucket: "premiumshop-5c568.firebasestorage.app",
+  messagingSenderId: "410724874477",
+  appId: "1:410724874477:web:e65784b697a99e14ebf4e4"
+};
+
+// Verilənlər Bazasını Başladırıq
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 // =========================================================================
 // ⚠️ EMAILJS KONFİQURASİYASI
@@ -14,154 +33,42 @@ const EMAILJS_CONFIG = {
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
-  
-  * { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-    font-family: 'Plus Jakarta Sans', sans-serif; 
-  }
-  
-  html, body { 
-    background: #030308; 
-    color: #f8fafc; 
-    scroll-behavior: smooth; 
-    overflow-x: hidden; 
-    width: 100%;
-    position: relative;
-  }
-  
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+  html, body { background: #030308; color: #f8fafc; scroll-behavior: smooth; overflow-x: hidden; width: 100%; position: relative; }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: #030308; }
   ::-webkit-scrollbar-thumb { background: #1e1b4b; border-radius: 8px; }
   ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
-
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  
-  .glow-btn {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
-  }
-  .glow-btn:hover {
-    box-shadow: 0 0 35px rgba(99, 102, 241, 0.5);
-    transform: translateY(-2px) scale(1.02);
-  }
-
-  .glow-btn-green {
-    box-shadow: 0 0 20px rgba(37, 211, 102, 0.2);
-  }
-  .glow-btn-green:hover {
-    box-shadow: 0 0 35px rgba(37, 211, 102, 0.4);
-    transform: translateY(-2px) scale(1.02);
-  }
-  
-  .glass-card {
-    background: rgba(10, 10, 22, 0.85);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(99, 102, 241, 0.15);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .glass-card:hover {
-    border-color: rgba(99, 102, 241, 0.4);
-    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
-  }
-
-  .hero-card {
-    background: linear-gradient(145deg, rgba(20,20,35,0.8) 0%, rgba(10,10,18,0.9) 100%);
-    border: 1px solid rgba(255,255,255,0.05);
-    transition: all 0.4s ease;
-  }
-  .hero-card:hover {
-    transform: scale(1.02);
-    border: 1px solid rgba(99,102,241,0.5);
-    box-shadow: 0 20px 40px rgba(99,102,241,0.25);
-  }
-  
+  .glow-btn { position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+  .glow-btn:hover { box-shadow: 0 0 35px rgba(99, 102, 241, 0.5); transform: translateY(-2px) scale(1.02); }
+  .glow-btn-green { box-shadow: 0 0 20px rgba(37, 211, 102, 0.2); }
+  .glow-btn-green:hover { box-shadow: 0 0 35px rgba(37, 211, 102, 0.4); transform: translateY(-2px) scale(1.02); }
+  .glass-card { background: rgba(10, 10, 22, 0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(99, 102, 241, 0.15); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+  .glass-card:hover { border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2); }
+  .hero-card { background: linear-gradient(145deg, rgba(20,20,35,0.8) 0%, rgba(10,10,18,0.9) 100%); border: 1px solid rgba(255,255,255,0.05); transition: all 0.4s ease; }
+  .hero-card:hover { transform: scale(1.02); border: 1px solid rgba(99,102,241,0.5); box-shadow: 0 20px 40px rgba(99,102,241,0.25); }
   .neon-text { text-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
-
-  /* Compact LED Light Background Animations */
-  .led-blob {
-    position: absolute;
-    filter: blur(80px);
-    border-radius: 50%;
-    animation: floatLed 8s infinite alternate ease-in-out;
-    pointer-events: none;
-    z-index: 0;
-  }
+  .led-blob { position: absolute; filter: blur(80px); border-radius: 50%; animation: floatLed 8s infinite alternate ease-in-out; pointer-events: none; z-index: 0; }
   .led-1 { top: -5%; left: 0%; width: 250px; height: 250px; background: rgba(99, 102, 241, 0.3); animation-delay: 0s; }
   .led-2 { top: 30%; right: -5%; width: 300px; height: 300px; background: rgba(236, 72, 153, 0.2); animation-delay: -3s; }
   .led-3 { bottom: -5%; left: 20%; width: 350px; height: 350px; background: rgba(139, 92, 246, 0.2); animation-delay: -6s; }
-
-  @keyframes floatLed {
-    0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
-    100% { transform: translate(20px, 30px) scale(1.1); opacity: 0.8; }
-  }
-
+  @keyframes floatLed { 0% { transform: translate(0, 0) scale(1); opacity: 0.5; } 100% { transform: translate(20px, 30px) scale(1.1); opacity: 0.8; } }
   .page-transition { animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  @keyframes slideUpFade {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
+  @keyframes slideUpFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
   .drawer-open { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  @keyframes slideInRight {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
-  }
-  
+  @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
   .animate-modal { animation: modalZoom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  @keyframes modalZoom {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  /* Sleek Toast Notification at bottom right */
-  @keyframes toastSlide {
-    from { transform: translateY(100px) scale(0.9); opacity: 0; }
-    to { transform: translateY(0) scale(1); opacity: 1; }
-  }
+  @keyframes modalZoom { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  @keyframes toastSlide { from { transform: translateY(100px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
   .animate-toast { animation: toastSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-  .spinner {
-    width: 20px; height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-  }
+  .spinner { width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  .success-check {
-    width: 60px; height: 60px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    background-color: #10b981; color: white;
-    font-size: 30px; margin: 0 auto;
-    animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
-  }
-  @keyframes popIn {
-    0% { transform: scale(0); opacity: 0; }
-    70% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-  
-  input, select, textarea {
-    background-color: #0c0c1d !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(99, 102, 241, 0.2) !important;
-    transition: all 0.3s ease;
-  }
-  input:focus, select:focus, textarea:focus {
-    border-color: rgba(99, 102, 241, 0.8) !important;
-    outline: none !important;
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
-  }
+  .success-check { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #10b981; color: white; font-size: 30px; margin: 0 auto; animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; box-shadow: 0 0 25px rgba(16, 185, 129, 0.4); }
+  @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 70% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+  input, select, textarea { background-color: #0c0c1d !important; color: #ffffff !important; border: 1px solid rgba(99, 102, 241, 0.2) !important; transition: all 0.3s ease; }
+  input:focus, select:focus, textarea:focus { border-color: rgba(99, 102, 241, 0.8) !important; outline: none !important; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
   input::placeholder { color: #64748b !important; }
 `;
 
@@ -195,16 +102,14 @@ const CATEGORIES = [
 ];
 
 const Icons = {
-  Cart: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>,
+  Cart: () => <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>,
   Shield: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>,
   Mail: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>,
-  Headset: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>,
+  Headset: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
 };
 
 const getOfficialLogo = (name, customEmoji, color, customLogo) => {
-  if (customLogo && customLogo.trim() !== "") {
-    return <img src={customLogo} alt={name} className="w-10 h-10 object-contain rounded-md" />;
-  }
+  if (customLogo && customLogo.trim() !== "") return <img src={customLogo} alt={name} className="w-10 h-10 object-contain rounded-md" />;
   const lower = name.toLowerCase();
   if (lower.includes("netflix")) return <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#E50914"}><path d="M5.6 2h3.2l6.4 15V2h3.2v20h-3.2L8.8 7v15H5.6z"/></svg>;
   if (lower.includes("spotify")) return <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#1DB954"}><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.564.387-.86.207-2.377-1.454-5.37-1.783-8.894-.982-.336.076-.67-.135-.747-.472-.077-.336.135-.67.472-.747 3.856-.88 7.15-.494 9.822 1.14.296.18.387.563.207.854zm1.224-2.723c-.226.367-.707.487-1.074.26-2.72-1.672-6.868-2.154-10.077-1.182-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.667-1.112 8.243-.574 11.343 1.332.367.226.487.707.26 1.074zm.106-2.834C14.792 8.8 9.123 8.614 5.833 9.61c-.482.146-.988-.128-1.134-.61-.147-.482.128-.988.61-1.134 3.77-1.144 10.016-.928 13.893 1.373.435.258.578.82.32 1.255-.258.435-.82.578-1.255.32z"/></svg>;
@@ -214,60 +119,42 @@ const getOfficialLogo = (name, customEmoji, color, customLogo) => {
   return <span className="text-4xl p-2 bg-indigo-950/30 rounded-xl border border-indigo-900/20">{customEmoji || '🌐'}</span>;
 };
 
-// =========================================================================
-// ŞƏKİL SIKIŞDIRICI (EKRAN AĞARMASININ QARŞISINI ALMAQ ÜÇÜN)
-// =========================================================================
-const compressImage = (file, callback) => {
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
-  reader.onload = (event) => {
-    const img = new Image();
-    img.src = event.target.result;
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const MAX_WIDTH = 800; 
-      const MAX_HEIGHT = 800;
-      let width = img.width;
-      let height = img.height;
-
-      if (width > height) {
-        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-      } else {
-        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-      }
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-      callback(canvas.toDataURL('image/jpeg', 0.6)); 
-    };
-  };
-};
-
 export default function App() {
   useEffect(() => {
     const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
     return () => document.head.removeChild(link);
   }, []);
 
-  const [products, setProducts] = useState(() => {
-    const local = localStorage.getItem("premium_shop_products");
-    return local ? JSON.parse(local) : DEFAULT_PRODUCTS;
-  });
+  const [products, setProducts] = useState([]);
+  const [registeredUsers, setRegisteredUsers] = useState([]);
+  const [orders, setOrders] = useState([]);
 
-  const [registeredUsers, setRegisteredUsers] = useState(() => {
-    const local = localStorage.getItem("premium_shop_users_db");
-    return local ? JSON.parse(local) : [];
-  });
+  // 🔥 FIREBASE REALTIME SYNC HOOKS 🔥
+  useEffect(() => {
+    const productsRef = ref(db, 'products');
+    onValue(productsRef, (snapshot) => {
+      const data = snapshot.val();
+      if(data) setProducts(Object.keys(data).map(key => ({...data[key], firebaseKey: key})));
+      else {
+        // İlk dəfə yüklənmə zamanı DB boşdursa default məhsulları əlavə et
+        DEFAULT_PRODUCTS.forEach(p => push(ref(db, 'products'), p));
+      }
+    });
 
-  const [orders, setOrders] = useState(() => {
-    const local = localStorage.getItem("premium_shop_orders");
-    if(local) {
-      const parsed = JSON.parse(local);
-      return parsed.filter(o => !o.id.includes("ORD-12845")); 
-    }
-    return []; 
-  });
+    const ordersRef = ref(db, 'orders');
+    onValue(ordersRef, (snapshot) => {
+      const data = snapshot.val();
+      if(data) setOrders(Object.keys(data).map(key => ({...data[key], firebaseKey: key})));
+      else setOrders([]);
+    });
+
+    const usersRef = ref(db, 'users');
+    onValue(usersRef, (snapshot) => {
+      const data = snapshot.val();
+      if(data) setRegisteredUsers(Object.keys(data).map(key => ({...data[key], firebaseKey: key})));
+      else setRegisteredUsers([]);
+    });
+  }, []);
 
   const [page, setPage] = useState("home"); 
   const [selectedCat, setSelectedCat] = useState("all");
@@ -277,7 +164,6 @@ export default function App() {
     return local ? JSON.parse(local) : null;
   });
 
-  // UI state managers
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [viewedProduct, setViewedProduct] = useState(null); 
@@ -286,18 +172,18 @@ export default function App() {
   const [authMode, setAuthMode] = useState(null); 
   const [authForm, setAuthForm] = useState({ name: "", surname: "", phone: "", email: "", pass: "", otpInput: "", profileImg: "" });
   const [otpCode, setOtpCode] = useState(null);
+  const [forgotUserKey, setForgotUserKey] = useState(null); // Şifrə yeniləmə zamanı user ID saxlanılır
+
   const [selectedBank, setSelectedBank] = useState(CARD_ACCOUNTS[0]);
   const [uploadedReceipt, setUploadedReceipt] = useState(null);
   const [notification, setNotification] = useState(null);
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [showOtpSuccess, setShowOtpSuccess] = useState(false);
   
-  // Dashboard Tabs & Editable Profile
   const [dashTab, setDashTab] = useState("profile"); 
-  const [profileEdit, setProfileEdit] = useState({ name: user?.name || "", surname: user?.surname || "", email: user?.email || "", phone: user?.phone || "", profileImg: user?.profileImg || "", gender: user?.gender || "Kişi" });
+  const [profileEdit, setProfileEdit] = useState({ name: "", surname: "", email: "", phone: "", profileImg: "", gender: "Kişi" });
   const profileInputRef = useRef(null);
 
-  // Administrative panel
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => localStorage.getItem("premium_shop_admin_active") === "true");
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [adminUsername, setAdminUsername] = useState("");
@@ -308,42 +194,11 @@ export default function App() {
   const [approvingOrder, setApprovingOrder] = useState(null);
   const [accountEmail, setAccountEmail] = useState("");
   const [accountPass, setAccountPass] = useState("");
-
   const fileInputRef = useRef(null);
-  const adminProductFileInputRef = useRef(null);
-
-  const safeSetLocalStorage = (key, value) => {
-    try {
-      localStorage.setItem(key, value);
-    } catch (e) {
-      console.warn("Storage is full or disabled", e);
-    }
-  };
-
-  useEffect(() => { safeSetLocalStorage("premium_shop_products", JSON.stringify(products)); }, [products]);
-  useEffect(() => { safeSetLocalStorage("premium_shop_users_db", JSON.stringify(registeredUsers)); }, [registeredUsers]);
-  
-  useEffect(() => { 
-    safeSetLocalStorage("premium_shop_orders", JSON.stringify(orders)); 
-    window.dispatchEvent(new Event("local_orders_updated"));
-  }, [orders]);
-
-  useEffect(() => {
-    const handleStorageUpdate = () => {
-      const local = localStorage.getItem("premium_shop_orders");
-      if(local) setOrders(JSON.parse(local));
-    };
-    window.addEventListener("local_orders_updated", handleStorageUpdate);
-    window.addEventListener("storage", handleStorageUpdate);
-    return () => {
-      window.removeEventListener("local_orders_updated", handleStorageUpdate);
-      window.removeEventListener("storage", handleStorageUpdate);
-    };
-  }, []);
 
   useEffect(() => { 
     if (user) {
-      safeSetLocalStorage("premium_shop_current_user", JSON.stringify(user));
+      localStorage.setItem("premium_shop_current_user", JSON.stringify(user));
       setProfileEdit({ name: user.name, surname: user.surname, email: user.email, phone: user.phone || "", profileImg: user.profileImg || "", gender: user.gender || "Kişi" });
     } else localStorage.removeItem("premium_shop_current_user");
   }, [user]);
@@ -364,15 +219,43 @@ export default function App() {
     const file = e.target.files[0];
     if (file) {
       if (!file.type.startsWith('image/')) return showNotif("Yalnız şəkil yükləyin!", "error");
-      compressImage(file, setter); // Sıxışdırıb yaddaşa veririk ki çökməsin
+      
+      // Xüsusi Şəkil Sıxıcı (Crash problemlərinin həlli)
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800; // Genişliyi məhdudlaşdırırıq
+          const scaleSize = MAX_WIDTH / img.width;
+          canvas.width = MAX_WIDTH;
+          canvas.height = img.height * scaleSize;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          // Keyfiyyəti 0.6 (60%) təyin edərək fayl ölçüsünü kəskin salırıq ki, çökməsin
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          setter(compressedDataUrl);
+        };
+      };
     }
   };
 
   const handleUpdateProfile = () => {
-    const updatedUser = { ...user, name: profileEdit.name, surname: profileEdit.surname, email: profileEdit.email, phone: profileEdit.phone, profileImg: profileEdit.profileImg, gender: profileEdit.gender };
-    setUser(updatedUser);
-    setRegisteredUsers(prev => prev.map(u => u.email === updatedUser.email ? { ...u, ...updatedUser } : u));
-    showNotif("Məlumatlar yeniləndi", "success");
+    if(user.firebaseKey) {
+       update(ref(db, 'users/' + user.firebaseKey), {
+          name: profileEdit.name,
+          surname: profileEdit.surname,
+          email: profileEdit.email,
+          phone: profileEdit.phone,
+          gender: profileEdit.gender,
+          profileImg: profileEdit.profileImg
+       });
+       const updatedUser = { ...user, name: profileEdit.name, surname: profileEdit.surname, email: profileEdit.email, phone: profileEdit.phone, profileImg: profileEdit.profileImg, gender: profileEdit.gender };
+       setUser(updatedUser);
+       showNotif("Məlumatlar yeniləndi", "success");
+    }
   };
 
   const sendEmailNotification = async (templateParams, selectedTemplateId) => {
@@ -381,7 +264,7 @@ export default function App() {
       const payload = { service_id: EMAILJS_CONFIG.serviceId, template_id: selectedTemplateId, user_id: EMAILJS_CONFIG.publicKey, accessToken: EMAILJS_CONFIG.privateKey, template_params: templateParams };
       const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       if (response.ok) { setIsEmailSending(false); return true; } 
-      else { const errText = await response.text(); console.error("EmailJS Error:", errText); setIsEmailSending(false); return false; }
+      else { setIsEmailSending(false); return false; }
     } catch (error) { setIsEmailSending(false); return false; }
   };
 
@@ -398,9 +281,8 @@ export default function App() {
       }
     } else if (authMode === "register") {
       if (!authForm.name || !authForm.surname || !authForm.email || !authForm.pass) return;
-      if (registeredUsers.find(u => u.email === authForm.email)) {
-        return showNotif("Bu e-poçt artıq qeydiyyatdan keçib!", "error");
-      }
+      if (registeredUsers.find(u => u.email === authForm.email)) return showNotif("Bu e-poçt artıq mövcuddur!", "error");
+      
       const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
       setOtpCode(generatedCode);
       const isSent = await sendEmailNotification({ to_email: authForm.email, to_name: authForm.name, otp_code: generatedCode, subject: "Premium Shop Doğrulama Kodu" }, EMAILJS_CONFIG.templateOtp);
@@ -411,8 +293,9 @@ export default function App() {
     } else if (authMode === "otp") {
       if (authForm.otpInput === otpCode || authForm.otpInput === "123456") {
         const newUser = { name: authForm.name, surname: authForm.surname, email: authForm.email, pass: authForm.pass, phone: authForm.phone || "", profileImg: authForm.profileImg || "", gender: "Kişi" };
-        setRegisteredUsers(prev => [...prev, newUser]);
-        setUser(newUser);
+        const newUserRef = push(ref(db, 'users'), newUser);
+        const userToSave = {...newUser, firebaseKey: newUserRef.key};
+        setUser(userToSave);
         setAuthMode(null);
       } else showNotif("Yanlış təsdiq kodu!", "error");
     } else if (authMode === "forgot") {
@@ -420,6 +303,7 @@ export default function App() {
       const existingUser = registeredUsers.find(u => u.email === authForm.email);
       if (!existingUser) return showNotif("Bu e-poçt sistemdə tapılmadı!", "error");
       
+      setForgotUserKey(existingUser.firebaseKey);
       const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
       setOtpCode(generatedCode);
       const isSent = await sendEmailNotification({ to_email: authForm.email, to_name: existingUser.name, otp_code: generatedCode, subject: "Şifrə Yeniləmə Kodu" }, EMAILJS_CONFIG.templateOtp);
@@ -433,9 +317,10 @@ export default function App() {
       } else showNotif("Yanlış təsdiq kodu!", "error");
     } else if (authMode === "reset_pass") {
       if (!authForm.pass) return;
-      setRegisteredUsers(prev => prev.map(u => u.email === authForm.email ? { ...u, pass: authForm.pass } : u));
+      update(ref(db, 'users/' + forgotUserKey), { pass: authForm.pass });
       showNotif("Şifrəniz uğurla yeniləndi! İndi giriş edə bilərsiniz.", "success");
       setAuthMode("login");
+      setForgotUserKey(null);
     }
   };
 
@@ -460,8 +345,11 @@ export default function App() {
       productName: item.product.name, duration: item.package.duration, price: item.package.price, bank: selectedBank.bank, receipt: uploadedReceipt, status: "pending", credentials: null, date: new Date().toLocaleDateString("az-AZ")
     }));
 
-    setOrders(prev => [...prev, ...generatedOrders]);
+    // Bütün Sifarişləri birbaşa mərkəzi Firebase bazasına ötürürük (Admin dərhal görəcək)
+    for (const o of generatedOrders) { push(ref(db, 'orders'), o); }
+
     setCart([]); setIsCheckoutOpen(false); setPage("dashboard"); setDashTab("orders");
+    showNotif("Sifariş qəbul edildi! Çek yoxlanılır.", "success");
 
     for (const order of generatedOrders) {
       await sendEmailNotification({ to_email: order.userEmail, to_name: order.userName, order_id: order.id, product_name: order.productName, duration: order.duration, price: order.price, bank_name: order.bank, subject: `Sifariş Qəbul Edildi #${order.id}` }, EMAILJS_CONFIG.templateOrder);
@@ -488,28 +376,31 @@ export default function App() {
 
   const handleSaveProduct = (e) => {
     e.preventDefault();
-    if (editingProduct.id) {
-      setProducts(prev => prev.map(p => p.id === editingProduct.id ? editingProduct : p)); showNotif("Məhsul yeniləndi", "success");
+    if (editingProduct.firebaseKey) {
+      update(ref(db, 'products/' + editingProduct.firebaseKey), editingProduct);
+      showNotif("Məhsul yeniləndi", "success");
     } else {
-      setProducts(prev => [...prev, { ...editingProduct, id: Date.now() }]); showNotif("Məhsul əlavə edildi", "success");
+      push(ref(db, 'products'), { ...editingProduct, id: Date.now() });
+      showNotif("Məhsul əlavə edildi", "success");
     }
     setEditingProduct(null);
   };
 
-  const handleDeleteProduct = (id) => setProducts(prev => prev.filter(p => p.id !== id));
+  const handleDeleteProduct = (p) => remove(ref(db, 'products/' + p.firebaseKey));
 
   const approveOrderAction = async (e) => {
     e.preventDefault();
     if (!accountEmail || !accountPass) return showNotif("Məlumatları daxil edin", "error");
-    const updatedOrders = orders.map(o => o.id === approvingOrder.id ? { ...o, status: "approved", credentials: { email: accountEmail, pass: accountPass } } : o);
-    setOrders(updatedOrders);
-    
+    update(ref(db, 'orders/' + approvingOrder.firebaseKey), {
+       status: "approved",
+       credentials: { email: accountEmail, pass: accountPass }
+    });
     await sendEmailNotification({ to_email: approvingOrder.userEmail, to_name: approvingOrder.userName, order_id: approvingOrder.id, product_name: approvingOrder.productName, duration: approvingOrder.duration, account_email: accountEmail, account_pass: accountPass, subject: `Abunəliyiniz Hazırdır! #${approvingOrder.id}` }, EMAILJS_CONFIG.templateOrder);
     setApprovingOrder(null); setAccountEmail(""); setAccountPass("");
   };
 
   const rejectOrderAction = async (order) => {
-    setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: "rejected" } : o));
+    update(ref(db, 'orders/' + order.firebaseKey), { status: "rejected" });
     await sendEmailNotification({ to_email: order.userEmail, to_name: order.userName, order_id: order.id, product_name: order.productName, duration: order.duration, subject: `Sifariş Təsdiqlənmədi ❌ #${order.id}` }, EMAILJS_CONFIG.templateOrder);
   };
 
@@ -525,20 +416,22 @@ export default function App() {
         <div className="max-w-[90rem] mx-auto flex items-center justify-between w-full">
           <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
             <div className="cursor-pointer flex-shrink-0" onClick={() => setPage("home")}>
+              {/* Circular premium logo implementation */}
               <img src="./Premium.png" alt="Premium Shop" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.3)] object-cover bg-black" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
               <div className="hidden items-center gap-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(99,102,241,0.5)] border-2 border-[#030308]">PS</div>
               </div>
             </div>
             
+            {/* Menu Items aligned left next to logo */}
             <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto no-scrollbar pt-1">
-              <button onClick={() => setPage("home")} className={`font-bold text-[12px] sm:text-[14px] tracking-wide whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
-              <button onClick={() => setPage("categories")} className={`font-bold text-[12px] sm:text-[14px] tracking-wide whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
+              <button onClick={() => setPage("home")} className={`font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
+              <button onClick={() => setPage("categories")} className={`font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
             </div>
           </div>
 
           <div className="flex items-center gap-3 flex-shrink-0">
-            <button onClick={() => setIsCartOpen(true)} className="relative p-1.5 sm:p-2.5 rounded-full bg-indigo-950/40 border border-indigo-900/50 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
+            <button onClick={() => setIsCartOpen(true)} className="relative p-2 rounded-full bg-indigo-950/40 border border-indigo-900/50 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
               <Icons.Cart />
               {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-indigo-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(99,102,241,0.8)] border border-[#030308]">{cart.length}</span>}
             </button>
@@ -577,6 +470,9 @@ export default function App() {
                   <p className="text-gray-400 text-sm sm:text-lg lg:text-xl max-w-xl leading-relaxed font-medium">Azərbaycanın ən etibarlı platformasında kartla rahatlıqla ödəyin, rəsmi abunəlik hesabınız e-mail ünvanınıza dərhal çatdırılsın.</p>
                   <div className="flex flex-col sm:flex-row gap-4 pt-2">
                     <button onClick={() => setPage("categories")} className="glow-btn w-full sm:w-auto px-8 py-4 sm:py-5 rounded-2xl bg-indigo-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(99,102,241,0.4)] transition text-center">Abunəliklərə Bax</button>
+                    <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="glow-btn-green w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 sm:py-5 rounded-2xl bg-[#25D366]/20 border border-[#25D366]/50 text-[#25D366] font-black text-xs sm:text-sm uppercase tracking-wider transition duration-300">
+                       WhatsApp Dəstək
+                    </a>
                   </div>
                 </div>
                 <div className="relative hidden lg:block">
@@ -594,6 +490,39 @@ export default function App() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* TOP CARDS */}
+            <div className="mb-16 sm:mb-24 space-y-8 animate-card" style={{ animationDelay: '200ms' }}>
+              <div className="text-center space-y-4 mb-10 sm:mb-16">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Ən Çox Satılanlar</h2>
+                <div className="w-16 sm:w-24 h-1.5 bg-indigo-600 mx-auto rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                {products.filter(p => p.popular).slice(0,3).map((product, index) => (
+                  <div key={product.id} className="hero-card rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer" onClick={() => openProductDetail(product)}>
+                    <div className="flex items-center justify-between mb-6 sm:mb-8 relative z-10">
+                      <div className="p-3 sm:p-4 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product.name, product.emoji, product.color, product.customLogo)}</div>
+                      <span className="text-[9px] font-black text-white bg-white/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20">Populyar</span>
+                    </div>
+                    <div className="relative z-10">
+                      <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 sm:mb-3 tracking-tight">{product.name}</h3>
+                      <p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed mb-6 sm:mb-8 min-h-[40px]">{product.desc}</p>
+                    </div>
+                    <div className="pt-5 sm:pt-6 border-t border-white/10 mt-auto relative z-10">
+                      <button className="w-full py-3 sm:py-4 rounded-xl text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-300 shadow-lg" style={{ backgroundColor: product.color }}>
+                        Ətraflı Bax →
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-center mt-8 sm:mt-12">
+                <button onClick={() => setPage("categories")} className="inline-flex items-center gap-2 sm:gap-3 font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest text-xs sm:text-sm hover:gap-4 sm:hover:gap-5 transition-all">
+                  Bütün Məhsulları Kəşf Et <span className="text-base sm:text-lg">→</span>
+                </button>
               </div>
             </div>
 
@@ -626,16 +555,16 @@ export default function App() {
             {/* CENTERED FEATURES SECTION */}
             <section className="bg-indigo-950/20 border border-indigo-500/20 rounded-[2rem] sm:rounded-[3rem] py-12 sm:py-20 px-6 sm:px-10 animate-card w-full" style={{ animationDelay: '400ms' }}>
               <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-10 sm:gap-16 text-center">
-                <div className="space-y-4 sm:space-y-6 flex flex-col items-center group">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-indigo-500/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><Icons.Shield /></div>
+                <div className="space-y-4 sm:space-y-6 flex flex-col items-center">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-indigo-500/30 flex items-center justify-center shadow-lg"><Icons.Shield /></div>
                   <div><h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">Güvənli Ödəniş</h3><p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">ABB, Kapital, LEO və ya M10 vasitəsilə rahatlıqla ödəniş edib çeki yükləyin. Ödənişlər tam qorunur.</p></div>
                 </div>
-                <div className="space-y-4 sm:space-y-6 flex flex-col items-center group">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-purple-500/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><Icons.Mail /></div>
+                <div className="space-y-4 sm:space-y-6 flex flex-col items-center">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-purple-500/30 flex items-center justify-center shadow-lg"><Icons.Mail /></div>
                   <div><h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">Sürətli Çatdırılma</h3><p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">Sifarişiniz təsdiqləndiyi an bütün rəsmi giriş məlumatları dərhal e-mail ünvanınıza göndərilir.</p></div>
                 </div>
-                <div className="space-y-4 sm:space-y-6 flex flex-col items-center group">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-emerald-500/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><Icons.Headset /></div>
+                <div className="space-y-4 sm:space-y-6 flex flex-col items-center">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-emerald-500/30 flex items-center justify-center shadow-lg"><Icons.Headset /></div>
                   <div><h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">7/24 Aktiv Dəstək</h3><p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">Hər hansı bir çətinlik və ya sualınız olduqda WhatsApp dəstək xəttimizə yazaraq canlı rəhbərlik ala bilərsiniz.</p></div>
                 </div>
               </div>
@@ -898,7 +827,7 @@ export default function App() {
                       </div>
                       <div className="flex gap-2 sm:gap-3 mt-auto pt-4 sm:pt-5 border-t border-indigo-900/50 relative z-10">
                         <button onClick={() => setEditingProduct({...p, features: p.features || []})} className="flex-1 py-2.5 sm:py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg sm:rounded-xl text-white font-black text-[10px] sm:text-xs uppercase tracking-wider transition shadow-lg">Tam Redaktə</button>
-                        <button onClick={() => handleDeleteProduct(p.id)} className="w-10 sm:w-14 flex items-center justify-center bg-red-900/40 hover:bg-red-600 hover:text-white border border-red-500/30 rounded-lg sm:rounded-xl text-red-400 transition">🗑️</button>
+                        <button onClick={() => handleDeleteProduct(p)} className="w-10 sm:w-14 flex items-center justify-center bg-red-900/40 hover:bg-red-600 hover:text-white border border-red-500/30 rounded-lg sm:rounded-xl text-red-400 transition">🗑️</button>
                       </div>
                     </div>
                   ))}
@@ -962,7 +891,7 @@ export default function App() {
         </div>
       )}
 
-      {/* CHECKOUT MODAL WITH SQUARE CARD SLIDER & FILE UPLOAD */}
+      {/* CHECKOUT MODAL WITH SQUARE CARD SLIDER & COMPRESSED FILE UPLOAD */}
       {isCheckoutOpen && (
         <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="glass-card w-full max-w-2xl rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-10 animate-modal relative my-4 sm:my-8 border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)] w-full">
@@ -973,7 +902,6 @@ export default function App() {
               <p className="text-[11px] sm:text-sm font-medium text-gray-400 max-w-md mx-auto">Aşağıdakı kartlardan birinə ödəniş edin, nömrəni kopyalamaq üçün toxunun və çeki yükləyin.</p>
             </div>
 
-            {/* SQUARE CARDS SLIDER COMPACT */}
             <div className="flex overflow-x-auto gap-3 sm:gap-4 pb-4 sm:pb-6 snap-x no-scrollbar -mx-2 sm:mx-0 px-2 sm:px-0 w-full">
               {CARD_ACCOUNTS.map(acc => (
                 <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-44 h-44 sm:w-52 sm:h-52 snap-center p-5 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] cursor-pointer relative overflow-hidden transition-all duration-300 bg-gradient-to-br flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-2 sm:ring-4 ring-white/50 scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.4)]" : "opacity-60 hover:opacity-100 scale-95"}`}>
@@ -1158,11 +1086,17 @@ export default function App() {
             <form onSubmit={handleSaveProduct} className="space-y-6 sm:space-y-8">
               <div className="grid md:grid-cols-2 gap-4 sm:gap-6 bg-[#0c0c1d] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-900/30">
                 <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Adı</label><input type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-base sm:text-lg font-black" required /></div>
+                
+                {/* Loqonun Birbaşa Faylla Yüklənməsi İmkanı (Tələb 3) */}
                 <div>
-                  <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Xüsusi Loqo (Cihazdan Yüklə)</label>
-                  <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, (res) => setEditingProduct({...editingProduct, customLogo: res}))} className="w-full p-2 rounded-xl text-xs bg-black text-gray-400 border border-indigo-900/50" />
-                  {editingProduct.customLogo && <img src={editingProduct.customLogo} alt="preview" className="h-10 mt-2 rounded-md object-cover" />}
+                  <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Loqosu (Cihazdan Yüklə)</label>
+                  <div className="flex items-center gap-4">
+                    {editingProduct.customLogo && <img src={editingProduct.customLogo} className="w-10 h-10 rounded-lg object-contain bg-black p-1" alt="logo" />}
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="px-4 py-3 sm:py-4 bg-indigo-900/50 hover:bg-indigo-600 text-white rounded-xl text-xs sm:text-sm font-bold w-full transition">Şəkil Seç</button>
+                    <input type="file" accept="image/*" ref={fileInputRef} onChange={(e) => handleImageUpload(e, (res) => setEditingProduct({...editingProduct, customLogo: res}))} className="hidden" />
+                  </div>
                 </div>
+
                 <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Açar Rəngi (Hex Code)</label><input type="text" value={editingProduct.color} onChange={(e) => setEditingProduct({...editingProduct, color: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold bg-black" /></div>
                 <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Qısa Açıqlama</label><input type="text" value={editingProduct.desc} onChange={(e) => setEditingProduct({...editingProduct, desc: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
               </div>
@@ -1229,7 +1163,6 @@ export default function App() {
   );
 }
 
-// Minimalist Toast Notification (Bottom Right)
 function Notif({ n }) {
   if (!n) return null;
   const colors = n.type === "error" ? "bg-red-600 text-white" : n.type === "info" ? "bg-blue-600 text-white" : "bg-emerald-600 text-white";
@@ -1239,3 +1172,4 @@ function Notif({ n }) {
     </div>
   );
 }
+```eof
