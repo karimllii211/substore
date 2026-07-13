@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // =========================================================================
-// ⚠️ YENİ VƏ REAL EMAILJS KONFİQURASİYASI
+// ⚠️ EMAILJS KONFİQURASİYASI
 // =========================================================================
 const EMAILJS_CONFIG = {
   serviceId: "premiumshop",
@@ -47,6 +47,14 @@ const CSS = `
     box-shadow: 0 0 35px rgba(99, 102, 241, 0.5);
     transform: translateY(-3px) scale(1.02);
   }
+
+  .glow-btn-green {
+    box-shadow: 0 0 20px rgba(37, 211, 102, 0.2);
+  }
+  .glow-btn-green:hover {
+    box-shadow: 0 0 35px rgba(37, 211, 102, 0.4);
+    transform: translateY(-3px) scale(1.02);
+  }
   
   .glass-card {
     background: rgba(10, 10, 22, 0.65);
@@ -62,7 +70,6 @@ const CSS = `
     transform: translateY(-5px);
   }
 
-  /* Big Hero Cards for Home Page */
   .hero-card {
     background: linear-gradient(145deg, rgba(20,20,35,0.8) 0%, rgba(10,10,18,0.9) 100%);
     border: 1px solid rgba(255,255,255,0.05);
@@ -73,22 +80,34 @@ const CSS = `
     border: 1px solid rgba(99,102,241,0.5);
     box-shadow: 0 25px 60px rgba(99,102,241,0.25);
   }
-  .hero-card-img-wrap {
-    transition: transform 0.5s ease;
-  }
-  .hero-card:hover .hero-card-img-wrap {
-    transform: scale(1.1) rotate(2deg);
-  }
   
   .neon-text { text-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
 
-  .page-transition { animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  /* LED Light Background Animations */
+  .led-blob {
+    position: absolute;
+    filter: blur(90px);
+    border-radius: 50%;
+    animation: floatLed 8s infinite alternate ease-in-out;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .led-1 { top: -10%; left: 10%; width: 400px; height: 400px; background: rgba(99, 102, 241, 0.25); animation-delay: 0s; }
+  .led-2 { top: 20%; right: -5%; width: 500px; height: 500px; background: rgba(236, 72, 153, 0.2); animation-delay: -3s; }
+  .led-3 { bottom: -10%; left: 30%; width: 600px; height: 600px; background: rgba(139, 92, 246, 0.2); animation-delay: -6s; }
+
+  @keyframes floatLed {
+    0% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+    100% { transform: translate(30px, 40px) scale(1.1); opacity: 1; }
+  }
+
+  .page-transition { animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   @keyframes slideUpFade {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .drawer-open { animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .drawer-open { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   @keyframes slideInRight {
     from { transform: translateX(100%); }
     to { transform: translateX(0); }
@@ -96,7 +115,7 @@ const CSS = `
   
   .animate-modal { animation: modalZoom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   @keyframes modalZoom {
-    from { opacity: 0; transform: scale(0.9); }
+    from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
   }
 
@@ -115,7 +134,7 @@ const CSS = `
     display: flex; align-items: center; justify-content: center;
     background-color: #10b981; color: white;
     font-size: 35px; margin: 0 auto;
-    animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
   }
   @keyframes popIn {
@@ -135,14 +154,15 @@ const CSS = `
     outline: none !important;
     box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
   }
+  input::placeholder { color: #64748b !important; }
 `;
 
 const DEFAULT_PRODUCTS = [
-  { id: 1, name: "Netflix Premium", cat: "entertainment", color: "#E50914", emoji: "🎬", desc: "4K Ultra HD · 4 Ekran · Eyni anda rəsmi izləmə", packages: [{ id: "p1", duration: "1 Ay", price: 8 }, { id: "p2", duration: "3 Ay", price: 22 }, { id: "p3", duration: "1 İl", price: 80 }] },
-  { id: 2, name: "Spotify Premium", cat: "entertainment", color: "#1DB954", emoji: "🎵", desc: "Reklamsız musiqi · Çevrimdışı yükləmə · Ultra səs keyfiyyəti", packages: [{ id: "p4", duration: "1 Ay", price: 5 }, { id: "p5", duration: "3 Ay", price: 13 }, { id: "p6", duration: "1 İl", price: 48 }] },
-  { id: 3, name: "YouTube Premium", cat: "entertainment", color: "#FF0000", emoji: "📺", desc: "Reklamsız video çarxlar · Arxa fonda işləmə · Premium Music", packages: [{ id: "p7", duration: "1 Ay", price: 6 }, { id: "p8", duration: "3 Ay", price: 16 }, { id: "p9", duration: "1 İl", price: 55 }] },
-  { id: 4, name: "ChatGPT Plus", cat: "ai", color: "#10A37F", emoji: "🤖", desc: "Rəsmi GPT-4o girişi · DALL-E 3 şəkilyaratma · Sürətli analiz", packages: [{ id: "p10", duration: "1 Ay", price: 25 }, { id: "p11", duration: "3 Ay", price: 68 }] },
-  { id: 5, name: "Canva Pro", cat: "design", color: "#8B5CF6", emoji: "🎨", desc: "Milyonlarla premium şablon · AI dizayn köməkçisi", packages: [{ id: "p12", duration: "1 Ay", price: 9 }, { id: "p13", duration: "3 Ay", price: 24 }, { id: "p14", duration: "1 İl", price: 85 }] }
+  { id: 1, name: "Netflix Premium", cat: "entertainment", color: "#E50914", emoji: "🎬", desc: "4K Ultra HD · 4 Ekran · Eyni anda rəsmi izləmə", accountType: "Ortaq Hesab", rating: "4.9", sales: "12.5k", features: ["4K Ultra HD Filmlər və Seriallar", "Bütün cihazlarda kəsintisiz dəstək", "Eyni anda 1 cihazdan giriş", "100% Rəsmi və qapanmayan hesab", "7/24 Texniki dəstək"], packages: [{ id: "p1", duration: "1 Ay", price: 8 }, { id: "p2", duration: "3 Ay", price: 22 }, { id: "p3", duration: "1 İl", price: 80 }] },
+  { id: 2, name: "Spotify Premium", cat: "entertainment", color: "#1DB954", emoji: "🎵", desc: "Reklamsız musiqi · Çevrimdışı yükləmə · Ultra səs keyfiyyəti", accountType: "Fərdi Hesab (Öz mailinə)", rating: "5.0", sales: "18.2k", features: ["Reklamsız kəsintisiz musiqi", "Mahnıları oflayn yükləmə imkanı", "Ən yüksək səs keyfiyyəti", "Öz şəxsi hesabınıza aktivləşmə"], packages: [{ id: "p4", duration: "1 Ay", price: 5 }, { id: "p5", duration: "3 Ay", price: 13 }, { id: "p6", duration: "1 İl", price: 48 }] },
+  { id: 3, name: "YouTube Premium", cat: "entertainment", color: "#FF0000", emoji: "📺", desc: "Reklamsız video çarxlar · Arxa fonda işləmə · Premium Music", accountType: "Fərdi Hesab", rating: "4.8", sales: "9.1k", features: ["Reklamsız videolar", "Ekran sönülü ikən (arxa fonda) işləmə", "YouTube Music Premium daxildir", "Oflayn izləmə üçün yükləmə"], packages: [{ id: "p7", duration: "1 Ay", price: 6 }, { id: "p8", duration: "3 Ay", price: 16 }, { id: "p9", duration: "1 İl", price: 55 }] },
+  { id: 4, name: "ChatGPT Plus", cat: "ai", color: "#10A37F", emoji: "🤖", desc: "Rəsmi GPT-4o girişi · DALL-E 3 şəkilyaratma · Sürətli analiz", accountType: "Ortaq Hesab", rating: "4.9", sales: "5.4k", features: ["Ən ağıllı GPT-4o modelinə giriş", "DALL-E 3 ilə şəkil yaratma", "Sənəd və data analizi (Code Interpreter)", "Premium sürət və kəsintisiz server"], packages: [{ id: "p10", duration: "1 Ay", price: 25 }, { id: "p11", duration: "3 Ay", price: 68 }] },
+  { id: 5, name: "Canva Pro", cat: "design", color: "#8B5CF6", emoji: "🎨", desc: "Milyonlarla premium şablon · AI dizayn köməkçisi", accountType: "Fərdi (Davətnamə)", rating: "4.7", sales: "8.8k", features: ["Bütün Premium şablonlar açıqdır", "Arxa plan silmə xüsusiyyəti", "Magic Studio (AI) alətləri", "Şəxsi mailinizə dəvətnamə göndərilir"], packages: [{ id: "p12", duration: "1 Ay", price: 9 }, { id: "p13", duration: "3 Ay", price: 24 }, { id: "p14", duration: "1 İl", price: 85 }] }
 ];
 
 const BankLogos = {
@@ -160,18 +180,15 @@ const CARD_ACCOUNTS = [
 ];
 
 const CATEGORIES = [
-  { id: "all", label: "Bütün Məhsullar", icon: "🌐" },
+  { id: "all", label: "Bütün Abunəliklər", icon: "🌐" },
   { id: "entertainment", label: "Əyləncə", icon: "🎬" },
   { id: "ai", label: "Süni İntellekt", icon: "🤖" },
   { id: "design", label: "Dizayn", icon: "🎨" }
 ];
 
-// SVG Icons for generic use
 const Icons = {
-  Cart: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinelinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>,
-  Shield: () => <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinelinejoin="round" className="text-indigo-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>,
-  Mail: () => <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinelinejoin="round" className="text-purple-400"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>,
-  Headset: () => <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinelinejoin="round" className="text-pink-400"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>,
+  Cart: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>,
+  Shield: () => <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>,
   WhatsApp: () => <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>,
 };
 
@@ -187,10 +204,7 @@ const getOfficialLogo = (name, customEmoji, color) => {
 
 export default function App() {
   useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css";
-    document.head.appendChild(link);
+    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
     return () => document.head.removeChild(link);
   }, []);
 
@@ -201,10 +215,10 @@ export default function App() {
 
   const [orders, setOrders] = useState(() => {
     const local = localStorage.getItem("premium_shop_orders");
-    return local ? JSON.parse(local) : []; // Boş başlayır
+    return local ? JSON.parse(local) : []; 
   });
 
-  const [page, setPage] = useState("home"); // home, categories, dashboard, admin_dashboard
+  const [page, setPage] = useState("home"); 
   const [selectedCat, setSelectedCat] = useState("all");
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(() => {
@@ -215,8 +229,9 @@ export default function App() {
   // UI state managers
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [viewedProduct, setViewedProduct] = useState(null); // Full Page Product View
   const [selectedDuration, setSelectedDuration] = useState(null);
+  
   const [authMode, setAuthMode] = useState(null); 
   const [authForm, setAuthForm] = useState({ name: "", surname: "", phone: "", email: "", pass: "", otpInput: "", profileImg: "" });
   const [otpCode, setOtpCode] = useState(null);
@@ -226,12 +241,12 @@ export default function App() {
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [showOtpSuccess, setShowOtpSuccess] = useState(false);
   
-  // Dashboard Tabs
-  const [dashTab, setDashTab] = useState("profile"); // profile, orders
-  const [profileEdit, setProfileEdit] = useState({ phone: user?.phone || "", profileImg: user?.profileImg || "" });
+  // Dashboard Tabs & Editable Profile
+  const [dashTab, setDashTab] = useState("profile"); 
+  const [profileEdit, setProfileEdit] = useState({ name: user?.name || "", surname: user?.surname || "", email: user?.email || "", phone: user?.phone || "", profileImg: user?.profileImg || "", gender: user?.gender || "Kişi" });
   const profileInputRef = useRef(null);
 
-  // Administrative panel credentials
+  // Administrative panel
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => localStorage.getItem("premium_shop_admin_active") === "true");
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [adminUsername, setAdminUsername] = useState("");
@@ -250,7 +265,7 @@ export default function App() {
   useEffect(() => { 
     if (user) {
       localStorage.setItem("premium_shop_current_user", JSON.stringify(user));
-      setProfileEdit({ phone: user.phone || "", profileImg: user.profileImg || "" });
+      setProfileEdit({ name: user.name, surname: user.surname, email: user.email, phone: user.phone || "", profileImg: user.profileImg || "", gender: user.gender || "Kişi" });
     } else localStorage.removeItem("premium_shop_current_user");
   }, [user]);
 
@@ -263,10 +278,7 @@ export default function App() {
     e.stopPropagation();
     const el = document.createElement('textarea');
     el.value = text;
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
+    document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
     showNotif("💳 Kart nömrəsi kopyalandı!", "success");
   };
 
@@ -281,50 +293,26 @@ export default function App() {
   };
 
   const handleUpdateProfile = () => {
-    setUser({ ...user, phone: profileEdit.phone, profileImg: profileEdit.profileImg });
+    setUser({ ...user, name: profileEdit.name, surname: profileEdit.surname, email: profileEdit.email, phone: profileEdit.phone, profileImg: profileEdit.profileImg, gender: profileEdit.gender });
     showNotif("Məlumatlarınız uğurla yeniləndi!", "success");
   };
 
   const sendEmailNotification = async (templateParams, selectedTemplateId) => {
     setIsEmailSending(true);
     try {
-      const payload = {
-        service_id: EMAILJS_CONFIG.serviceId,
-        template_id: selectedTemplateId,
-        user_id: EMAILJS_CONFIG.publicKey,
-        accessToken: EMAILJS_CONFIG.privateKey, 
-        template_params: templateParams 
-      };
-
-      const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      if (response.ok) {
-        setIsEmailSending(false);
-        return true;
-      } else {
-        const errText = await response.text();
-        console.error("EmailJS API Error:", errText);
-        showNotif(`E-mail xətası: ${errText}`, "error");
-        setIsEmailSending(false);
-        return false;
-      }
-    } catch (error) {
-      showNotif(`E-mail sisteminə qoşulmaq mümkün olmadı!`, "error");
-      setIsEmailSending(false);
-      return false;
-    }
+      const payload = { service_id: EMAILJS_CONFIG.serviceId, template_id: selectedTemplateId, user_id: EMAILJS_CONFIG.publicKey, accessToken: EMAILJS_CONFIG.privateKey, template_params: templateParams };
+      const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      if (response.ok) { setIsEmailSending(false); return true; } 
+      else { const errText = await response.text(); console.error("EmailJS Error:", errText); setIsEmailSending(false); return false; }
+    } catch (error) { setIsEmailSending(false); return false; }
   };
 
   const handleUserAuth = async (e) => {
     e.preventDefault();
     if (authMode === "login") {
       if (!authForm.email || !authForm.pass) return showNotif("Zəhmət olmasa bütün sahələri doldurun", "error");
-      setUser({ name: authForm.name || "Müştəri", surname: authForm.surname || "", email: authForm.email, phone: authForm.phone || "", profileImg: authForm.profileImg || "" });
-      showNotif("Uğurlu Giriş! Xoş gəldiniz.", "success");
+      setUser({ name: authForm.name || "Müştəri", surname: authForm.surname || "", email: authForm.email, phone: authForm.phone || "", profileImg: authForm.profileImg || "", gender: "Kişi" });
+      // Notification removed for clean UI
       setAuthMode(null);
     } else if (authMode === "register") {
       if (!authForm.name || !authForm.surname || !authForm.email || !authForm.pass) return showNotif("Bütün sahələri doldurun!", "error");
@@ -332,24 +320,18 @@ export default function App() {
       const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
       setOtpCode(generatedCode);
       
-      const isSent = await sendEmailNotification({
-        to_email: authForm.email,
-        to_name: authForm.name,
-        otp_code: generatedCode,
-        subject: "Premium Shop Doğrulama Kodu"
-      }, EMAILJS_CONFIG.templateOtp);
+      const isSent = await sendEmailNotification({ to_email: authForm.email, to_name: authForm.name, otp_code: generatedCode, subject: "Premium Shop Doğrulama Kodu" }, EMAILJS_CONFIG.templateOtp);
 
       if (isSent) {
         setShowOtpSuccess(true);
-        setTimeout(() => {
-          setShowOtpSuccess(false);
-          setAuthMode("otp");
-        }, 2000); // Wait for the checkmark animation
+        setTimeout(() => { setShowOtpSuccess(false); setAuthMode("otp"); }, 2000); 
+      } else {
+        showNotif("E-mail göndərilə bilmədi. İnterneti yoxlayın.", "error");
       }
     } else if (authMode === "otp") {
       if (authForm.otpInput === otpCode || authForm.otpInput === "1234") {
-        setUser({ name: authForm.name, surname: authForm.surname, email: authForm.email, phone: authForm.phone, profileImg: authForm.profileImg });
-        showNotif("Qeydiyyat tamamlandı! E-poçt təsdiqləndi.", "success");
+        setUser({ name: authForm.name, surname: authForm.surname, email: authForm.email, phone: authForm.phone, profileImg: authForm.profileImg, gender: "Kişi" });
+        // Notification removed for clean UI
         setAuthMode(null);
       } else showNotif("Yanlış təsdiq kodu daxil edilib!", "error");
     }
@@ -358,103 +340,60 @@ export default function App() {
   const addToCart = (product, packageItem) => {
     if (cart.find(item => item.product.id === product.id && item.package.id === packageItem.id)) return showNotif("Bu paket artıq səbətdədir!", "info");
     setCart([...cart, { product, package: packageItem }]);
-    showNotif(`${product.name} (${packageItem.duration}) səbətə əlavə edildi!`, "success");
+    showNotif(`${product.name} səbətə əlavə edildi!`, "success");
     setIsCartOpen(true);
   };
 
   const removeFromCart = (index) => {
-    const updated = [...cart];
-    updated.splice(index, 1);
-    setCart(updated);
+    const updated = [...cart]; updated.splice(index, 1); setCart(updated);
   };
 
   const handleCheckoutSubmit = async (e) => {
     e.preventDefault();
-    if (!user) {
-      showNotif("Sifariş tamamlamaq üçün qeydiyyatdan keçin!", "error");
-      setAuthMode("login");
-      setIsCheckoutOpen(false);
-      return;
-    }
-    if (!uploadedReceipt) return showNotif("Zəhmət olmasa ödəniş çekinin şəklini yükləyin!", "error");
+    if (!user) { showNotif("Sifariş üçün qeydiyyatdan keçin!", "error"); setAuthMode("login"); setIsCheckoutOpen(false); return; }
+    if (!uploadedReceipt) return showNotif("Ödəniş çekini yükləyin!", "error");
 
     const generatedOrders = cart.map(item => ({
-      id: "ORD-" + Math.floor(10000 + Math.random() * 90000),
-      userEmail: user.email,
-      userName: user.name,
-      userSurname: user.surname,
-      userPhone: user.phone || "Qeyd edilməyib",
-      productName: item.product.name,
-      duration: item.package.duration,
-      price: item.package.price,
-      bank: selectedBank.bank,
-      receipt: uploadedReceipt,
-      status: "pending",
-      credentials: null,
-      date: new Date().toLocaleDateString("az-AZ")
+      id: "ORD-" + Math.floor(10000 + Math.random() * 90000), userEmail: user.email, userName: user.name, userSurname: user.surname, userPhone: user.phone || "Qeyd edilməyib",
+      productName: item.product.name, duration: item.package.duration, price: item.package.price, bank: selectedBank.bank, receipt: uploadedReceipt, status: "pending", credentials: null, date: new Date().toLocaleDateString("az-AZ")
     }));
 
     setOrders(prev => [...prev, ...generatedOrders]);
-    setCart([]);
-    setIsCheckoutOpen(false);
+    setCart([]); setIsCheckoutOpen(false); setPage("dashboard"); setDashTab("orders");
     showNotif("Sifariş qəbul edildi! Çek yoxlanılır.", "success");
-    setPage("dashboard");
-    setDashTab("orders");
 
     for (const order of generatedOrders) {
-      await sendEmailNotification({
-        to_email: order.userEmail,
-        to_name: order.userName,
-        order_id: order.id,
-        product_name: order.productName,
-        duration: order.duration,
-        price: order.price,
-        bank_name: order.bank,
-        subject: `Sifariş Qəbul Edildi #${order.id}`
-      }, EMAILJS_CONFIG.templateOrder);
-
-      await sendEmailNotification({
-        to_email: EMAILJS_CONFIG.adminEmail,
-        to_name: "Admin",
-        order_id: order.id,
-        user_name: order.userName,
-        user_surname: order.userSurname,
-        user_email: order.userEmail,
-        user_phone: order.userPhone,
-        product_name: order.productName,
-        duration: order.duration,
-        price: order.price,
-        bank_name: order.bank,
-        subject: `🚨 YENİ SİFARİŞ ALINDI #${order.id}`
-      }, EMAILJS_CONFIG.templateOrder);
+      await sendEmailNotification({ to_email: order.userEmail, to_name: order.userName, order_id: order.id, product_name: order.productName, duration: order.duration, price: order.price, bank_name: order.bank, subject: `Sifariş Qəbul Edildi #${order.id}` }, EMAILJS_CONFIG.templateOrder);
+      await sendEmailNotification({ to_email: EMAILJS_CONFIG.adminEmail, to_name: "Admin", order_id: order.id, user_name: order.userName, user_surname: order.userSurname, user_email: order.userEmail, user_phone: order.userPhone, product_name: order.productName, duration: order.duration, price: order.price, bank_name: order.bank, subject: `🚨 YENİ SİFARİŞ #${order.id}` }, EMAILJS_CONFIG.templateOrder);
     }
   };
 
   const handleAdminLogin = (e) => {
     e.preventDefault();
     if (adminUsername === "karimllii" && adminPassword === "Karimli.777") {
-      setIsAdminLoggedIn(true);
-      localStorage.setItem("premium_shop_admin_active", "true");
-      setIsAdminModalOpen(false);
-      showNotif("Hörmətli Admin, Xoş gəldiniz!", "success");
-      setPage("admin_dashboard");
+      setIsAdminLoggedIn(true); localStorage.setItem("premium_shop_admin_active", "true"); setIsAdminModalOpen(false); setPage("admin_dashboard");
+      // Notification removed
     } else showNotif("Yanlış İstifadəçi adı və ya Şifrə!", "error");
   };
 
-  const handleAdminLogout = () => {
-    setIsAdminLoggedIn(false);
-    localStorage.removeItem("premium_shop_admin_active");
-    setPage("home");
+  const handleAdminLogout = () => { setIsAdminLoggedIn(false); localStorage.removeItem("premium_shop_admin_active"); setPage("home"); };
+
+  const handleAddPackage = () => {
+    setEditingProduct({...editingProduct, packages: [...editingProduct.packages, { id: "p" + Date.now(), duration: "Yeni Paket", price: 0 }]});
+  };
+  const handleUpdatePackage = (index, field, value) => {
+    const newPkgs = [...editingProduct.packages]; newPkgs[index][field] = value; setEditingProduct({...editingProduct, packages: newPkgs});
+  };
+  const handleRemovePackage = (index) => {
+    const newPkgs = [...editingProduct.packages]; newPkgs.splice(index, 1); setEditingProduct({...editingProduct, packages: newPkgs});
   };
 
   const handleSaveProduct = (e) => {
     e.preventDefault();
     if (editingProduct.id) {
-      setProducts(prev => prev.map(p => p.id === editingProduct.id ? editingProduct : p));
-      showNotif("Məhsul yeniləndi!", "success");
+      setProducts(prev => prev.map(p => p.id === editingProduct.id ? editingProduct : p)); showNotif("Məhsul yeniləndi!", "success");
     } else {
-      setProducts(prev => [...prev, { ...editingProduct, id: Date.now() }]);
-      showNotif("Məhsul əlavə edildi!", "success");
+      setProducts(prev => [...prev, { ...editingProduct, id: Date.now() }]); showNotif("Məhsul əlavə edildi!", "success");
     }
     setEditingProduct(null);
   };
@@ -464,40 +403,22 @@ export default function App() {
   const approveOrderAction = async (e) => {
     e.preventDefault();
     if (!accountEmail || !accountPass) return showNotif("Hesab məlumatlarını tam daxil edin!", "error");
-    
     const updatedOrders = orders.map(o => o.id === approvingOrder.id ? { ...o, status: "approved", credentials: { email: accountEmail, pass: accountPass } } : o);
     setOrders(updatedOrders);
     
-    await sendEmailNotification({
-      to_email: approvingOrder.userEmail,
-      to_name: approvingOrder.userName,
-      order_id: approvingOrder.id,
-      product_name: approvingOrder.productName,
-      duration: approvingOrder.duration,
-      account_email: accountEmail,
-      account_pass: accountPass,
-      subject: `Abunəliyiniz Hazırdır! #${approvingOrder.id}`
-    }, EMAILJS_CONFIG.templateOrder);
-
-    showNotif("Hesab müştərinin e-mailinə göndərildi!", "success");
-    setApprovingOrder(null); setAccountEmail(""); setAccountPass("");
+    await sendEmailNotification({ to_email: approvingOrder.userEmail, to_name: approvingOrder.userName, order_id: approvingOrder.id, product_name: approvingOrder.productName, duration: approvingOrder.duration, account_email: accountEmail, account_pass: accountPass, subject: `Abunəliyiniz Hazırdır! #${approvingOrder.id}` }, EMAILJS_CONFIG.templateOrder);
+    showNotif("Hesab müştərinin e-mailinə göndərildi!", "success"); setApprovingOrder(null); setAccountEmail(""); setAccountPass("");
   };
 
   const rejectOrderAction = async (order) => {
     setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: "rejected" } : o));
-    await sendEmailNotification({
-      to_email: order.userEmail,
-      to_name: order.userName,
-      order_id: order.id,
-      product_name: order.productName,
-      duration: order.duration,
-      subject: `Sifariş Təsdiqlənmədi ❌ #${order.id}`
-    }, EMAILJS_CONFIG.templateOrder);
+    await sendEmailNotification({ to_email: order.userEmail, to_name: order.userName, order_id: order.id, product_name: order.productName, duration: order.duration, subject: `Sifariş Təsdiqlənmədi ❌ #${order.id}` }, EMAILJS_CONFIG.templateOrder);
     showNotif("Sifariş rədd edildi və mail göndərildi.", "error");
   };
 
-  // Top 3 Products for Home
-  const topProducts = products.filter(p => [1, 2, 3].includes(p.id));
+  const openProductDetail = (product) => {
+    setViewedProduct(product); setSelectedDuration(product.packages[0]); setPage("product_detail");
+  };
 
   return (
     <>
@@ -510,19 +431,8 @@ export default function App() {
           
           {/* Logo Integration */}
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setPage("home")}>
-            {/* Fallback styling wrapped around the img tag. The img src points to the provided Premium.png */}
             <div className="w-auto h-12 flex items-center justify-center transition-transform group-hover:scale-105">
-              <img 
-                src="./Premium.png" 
-                alt="Premium Shop" 
-                className="h-full object-contain drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]"
-                onError={(e) => {
-                  e.target.onerror = null; 
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex'; // Show fallback
-                }}
-              />
-              {/* Fallback PS Logo if image is missing */}
+              <img src="./Premium.png" alt="Premium Shop" className="h-full object-contain drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
               <div className="hidden items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-black text-white text-xl shadow-[0_0_15px_rgba(99,102,241,0.5)]">PS</div>
                 <span className="font-extrabold text-2xl tracking-tight text-white">Premium <span className="text-indigo-400">Shop</span></span>
@@ -530,15 +440,12 @@ export default function App() {
             </div>
           </div>
 
-          {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-8">
             <button onClick={() => setPage("home")} className={`font-bold text-[13px] uppercase tracking-wider transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
             <button onClick={() => setPage("categories")} className={`font-bold text-[13px] uppercase tracking-wider transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Bütün Abunəliklər</button>
           </div>
 
-          {/* Right Actions */}
           <div className="flex items-center gap-4">
-            {/* Proper SVG Cart Icon far right next to profile */}
             <button onClick={() => setIsCartOpen(true)} className="relative p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-900/50 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
               <Icons.Cart />
               {cart.length > 0 && <span className="absolute -top-2 -right-2 bg-indigo-500 text-white font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(99,102,241,0.8)] border border-[#030308]">{cart.length}</span>}
@@ -559,21 +466,23 @@ export default function App() {
       </nav>
 
       {/* DYNAMIC PAGE RENDERER */}
-      <div key={page} className="page-transition min-h-screen">
+      <div key={page} className="page-transition min-h-screen relative overflow-hidden">
         
         {/* ========================================================================= */}
-        {/* HOME PAGE - WIDE & ANIMATED */}
+        {/* HOME PAGE - WIDE & ANIMATED WITH LED BACKGROUND */}
         {/* ========================================================================= */}
         {page === "home" && (
-          <main className="max-w-[90rem] mx-auto px-6 py-12 md:py-20">
-            {/* Hero Section */}
-            <div className="relative rounded-[2.5rem] overflow-hidden glass-card p-10 md:p-20 mb-24 animate-card border border-indigo-500/20">
-              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[150px] pointer-events-none" />
-              <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
+          <main className="max-w-[90rem] mx-auto px-6 py-12 md:py-20 relative z-10">
+            {/* LED Light Blobs */}
+            <div className="led-blob led-1"></div>
+            <div className="led-blob led-2"></div>
+            <div className="led-blob led-3"></div>
 
+            {/* Hero Section */}
+            <div className="relative rounded-[2.5rem] overflow-hidden glass-card p-10 md:p-20 mb-24 animate-card border border-indigo-500/30 bg-black/40 shadow-[0_0_50px_rgba(99,102,241,0.1)]">
               <div className="relative z-10 grid md:grid-cols-2 gap-16 items-center">
                 <div className="space-y-8">
-                  <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 text-xs font-black uppercase tracking-widest shadow-inner">
+                  <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 text-xs font-black uppercase tracking-widest shadow-inner backdrop-blur-md">
                     <span className="relative flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span></span>
                     100% Güvənli Çatdırılma
                   </div>
@@ -588,7 +497,7 @@ export default function App() {
                     <button onClick={() => setPage("categories")} className="glow-btn px-10 py-5 rounded-2xl bg-indigo-600 text-white font-black text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(99,102,241,0.4)] transition">
                       Abunəliklərə Bax
                     </button>
-                    <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 px-10 py-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 font-black text-sm uppercase tracking-wider hover:bg-emerald-900/50 hover:scale-105 transition duration-300">
+                    <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="glow-btn-green flex items-center justify-center gap-3 px-10 py-5 rounded-2xl bg-[#25D366]/20 border border-[#25D366]/50 text-[#25D366] font-black text-sm uppercase tracking-wider transition duration-300">
                       <Icons.WhatsApp /> WhatsApp Dəstək
                     </a>
                   </div>
@@ -605,14 +514,14 @@ export default function App() {
                          <div className="p-4 bg-black/50 backdrop-blur-md rounded-2xl border border-white/10 animate-bounce" style={{animationDelay: "300ms"}}>{getOfficialLogo("Youtube", "📺")}</div>
                       </div>
                       <h3 className="font-black text-3xl text-white drop-shadow-lg">Bütün Premium Xidmətlər</h3>
-                      <p className="text-sm text-indigo-200 font-bold bg-indigo-950/50 px-4 py-2 rounded-full inline-block backdrop-blur-sm">Bir klik uzaqlığında.</p>
+                      <p className="text-sm text-indigo-200 font-bold bg-indigo-950/50 px-4 py-2 rounded-full inline-block backdrop-blur-sm border border-indigo-500/30">Bir klik uzaqlığında.</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* BIG 3 HOME CARDS */}
+            {/* BIG 3 HOME CARDS - NO CATEGORY FILTERS HERE */}
             <div className="mb-20 space-y-8 animate-card" style={{ animationDelay: '200ms' }}>
               <div className="text-center space-y-4 mb-16">
                 <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">Ən Çox Satılanlar</h2>
@@ -620,8 +529,8 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {topProducts.map((product, index) => (
-                  <div key={product.id} className="hero-card rounded-[2rem] p-8 flex flex-col justify-between relative overflow-hidden group">
+                {products.filter(p => p.popular).slice(0,3).map((product, index) => (
+                  <div key={product.id} className="hero-card rounded-[2rem] p-8 flex flex-col justify-between relative overflow-hidden group cursor-pointer" onClick={() => openProductDetail(product)}>
                     <div className="absolute top-0 right-0 w-48 h-48 rounded-full blur-3xl pointer-events-none opacity-20 transition-opacity group-hover:opacity-40" style={{ backgroundColor: product.color }} />
                     
                     <div>
@@ -638,8 +547,8 @@ export default function App() {
                     </div>
 
                     <div className="pt-6 border-t border-white/10 mt-auto">
-                      <button onClick={() => { setSelectedProduct(product); setSelectedDuration(product.packages[0]); }} className="w-full py-4 rounded-xl text-white font-black text-sm uppercase tracking-wider transition-all duration-300 shadow-lg relative overflow-hidden group/btn" style={{ backgroundColor: product.color }}>
-                        <span className="relative z-10 flex items-center justify-center gap-2">Paketləri Gör <span>→</span></span>
+                      <button className="w-full py-4 rounded-xl text-white font-black text-sm uppercase tracking-wider transition-all duration-300 shadow-lg relative overflow-hidden group/btn" style={{ backgroundColor: product.color }}>
+                        <span className="relative z-10 flex items-center justify-center gap-2">Ətraflı Bax <span>→</span></span>
                         <div className="absolute inset-0 bg-black/20 transform scale-x-0 origin-left group-hover/btn:scale-x-100 transition-transform duration-300 ease-out" />
                       </button>
                     </div>
@@ -652,41 +561,14 @@ export default function App() {
                 </button>
               </div>
             </div>
-
-            {/* SVG FEATURES SECTION (Req 5) */}
-            <section className="bg-indigo-950/20 border border-indigo-500/20 rounded-[3rem] py-20 px-10 animate-card" style={{ animationDelay: '400ms' }}>
-              <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-16 text-center md:text-left">
-                <div className="space-y-6 flex flex-col items-center md:items-start">
-                  <div className="w-20 h-20 rounded-2xl bg-indigo-900/40 border border-indigo-500/30 flex items-center justify-center shadow-lg"><Icons.Shield /></div>
-                  <div>
-                    <h3 className="text-2xl font-black text-white mb-3">Güvənli Ödəniş Sistemi</h3>
-                    <p className="text-sm text-gray-400 font-medium leading-relaxed">ABB, Kapital, LEO və ya M10 vasitəsilə rahatlıqla ödəniş edib çeki yükləyin. Ödənişlər tam qorunur.</p>
-                  </div>
-                </div>
-                <div className="space-y-6 flex flex-col items-center md:items-start">
-                  <div className="w-20 h-20 rounded-2xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center shadow-lg"><Icons.Mail /></div>
-                  <div>
-                    <h3 className="text-2xl font-black text-white mb-3">Sürətli E-mail Çatdırılma</h3>
-                    <p className="text-sm text-gray-400 font-medium leading-relaxed">Sifarişiniz təsdiqləndiyi an bütün rəsmi giriş məlumatları dərhal qeydiyyatdan keçdiyiniz e-mail ünvanına göndərilir.</p>
-                  </div>
-                </div>
-                <div className="space-y-6 flex flex-col items-center md:items-start">
-                  <div className="w-20 h-20 rounded-2xl bg-pink-900/40 border border-pink-500/30 flex items-center justify-center shadow-lg"><Icons.Headset /></div>
-                  <div>
-                    <h3 className="text-2xl font-black text-white mb-3">7/24 Aktiv Dəstək</h3>
-                    <p className="text-sm text-gray-400 font-medium leading-relaxed">Hər hansı bir çətinlik və ya sualınız olduqda WhatsApp dəstək xəttimizə klikləyərək canlı rəhbərlik ala bilərsiniz.</p>
-                  </div>
-                </div>
-              </div>
-            </section>
           </main>
         )}
 
         {/* ========================================================================= */}
-        {/* ALL CATEGORIES PAGE (Req 8) */}
+        {/* ALL CATEGORIES PAGE */}
         {/* ========================================================================= */}
         {page === "categories" && (
-          <main className="max-w-[90rem] mx-auto px-6 py-12 animate-card">
+          <main className="max-w-[90rem] mx-auto px-6 py-12 animate-card relative z-10">
             <div className="mb-12 space-y-6">
               <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">Kataloq</h1>
               <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
@@ -700,7 +582,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.filter(p => selectedCat === "all" || p.cat === selectedCat).map((product, index) => (
-                <div key={product.id} className="glass-card rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group animate-card" style={{ animationDelay: `${index * 50}ms` }}>
+                <div key={product.id} onClick={() => openProductDetail(product)} className="cursor-pointer glass-card rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group animate-card" style={{ animationDelay: `${index * 50}ms` }}>
                   <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl pointer-events-none opacity-10 group-hover:opacity-30 transition-opacity" style={{ backgroundColor: product.color }} />
                   <div>
                     <div className="flex items-center justify-between mb-6">
@@ -709,7 +591,7 @@ export default function App() {
                     <h3 className="text-2xl font-black text-white mb-2">{product.name}</h3>
                     <p className="text-xs text-gray-400 font-medium leading-relaxed mb-6">{product.desc}</p>
                   </div>
-                  <button onClick={() => { setSelectedProduct(product); setSelectedDuration(product.packages[0]); }} className="w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest text-white transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02]" style={{ backgroundColor: product.color }}>Sifariş Et</button>
+                  <button className="w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest text-white transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02]" style={{ backgroundColor: product.color }}>Ətraflı</button>
                 </div>
               ))}
             </div>
@@ -717,11 +599,80 @@ export default function App() {
         )}
 
         {/* ========================================================================= */}
-        {/* CUSTOMER DASHBOARD (Req 2, 3, 16) */}
+        {/* SINGLE PRODUCT DETAIL PAGE (Req 8) */}
+        {/* ========================================================================= */}
+        {page === "product_detail" && viewedProduct && (
+          <main className="max-w-6xl mx-auto px-6 py-12 animate-card relative z-10">
+            <button onClick={() => setPage("categories")} className="text-gray-400 hover:text-white font-bold text-sm uppercase tracking-widest mb-8 flex items-center gap-2 transition">
+              ← Geriyə Qayıt
+            </button>
+            <div className="glass-card rounded-[3rem] p-8 md:p-12 border border-indigo-500/20 overflow-hidden relative">
+               <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[150px] pointer-events-none opacity-20" style={{ backgroundColor: viewedProduct.color }} />
+               
+               <div className="grid md:grid-cols-2 gap-12 relative z-10">
+                 {/* Left: Info */}
+                 <div className="space-y-8">
+                    <div className="flex items-center gap-6">
+                      <div className="p-6 bg-black/40 backdrop-blur-md rounded-3xl border border-white/10 shadow-2xl">{getOfficialLogo(viewedProduct.name, viewedProduct.emoji, viewedProduct.color)}</div>
+                      <div>
+                         <span className="text-[10px] font-black text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1.5 rounded-full tracking-widest uppercase inline-block mb-2">100% Zəmanət</span>
+                         <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">{viewedProduct.name}</h1>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-6 text-sm font-black">
+                       <div className="flex items-center gap-2 bg-indigo-950/40 px-4 py-2 rounded-xl border border-indigo-900/50"><span className="text-yellow-400">⭐ {viewedProduct.rating || "5.0"}</span> <span className="text-white">Reytinq</span></div>
+                       <div className="flex items-center gap-2 bg-indigo-950/40 px-4 py-2 rounded-xl border border-indigo-900/50"><span className="text-emerald-400">🔥 {viewedProduct.sales || "1k+"}</span> <span className="text-white">Satış</span></div>
+                    </div>
+
+                    <div className="space-y-4">
+                       <h3 className="text-lg font-black text-white uppercase tracking-widest">Məhsul Haqqında</h3>
+                       <p className="text-gray-400 font-medium leading-relaxed">{viewedProduct.desc}</p>
+                       <div className="inline-block mt-2 px-4 py-2 bg-[#0c0c1d] border border-indigo-500/30 rounded-xl text-indigo-300 font-black text-xs uppercase tracking-widest">Növ: {viewedProduct.accountType || "Rəsmi Hesab"}</div>
+                    </div>
+
+                    <div className="space-y-4 pt-6 border-t border-white/10">
+                       <h3 className="text-lg font-black text-white uppercase tracking-widest">Xüsusiyyətlər</h3>
+                       <ul className="space-y-3">
+                         {(viewedProduct.features || ["Rəsmi zəmanət", "7/24 Dəstək"]).map((feature, i) => (
+                           <li key={i} className="flex items-center gap-3 text-sm font-bold text-gray-300"><span className="text-emerald-400">✓</span> {feature}</li>
+                         ))}
+                       </ul>
+                    </div>
+                 </div>
+
+                 {/* Right: Pricing & Packages */}
+                 <div className="bg-black/30 backdrop-blur-md rounded-[2rem] p-8 border border-white/5 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xl font-black text-white uppercase tracking-widest mb-6 text-center">Müddəti Seçin</h3>
+                      <div className="grid gap-4 mb-8">
+                        {viewedProduct.packages.map((pkg) => (
+                          <div key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`cursor-pointer p-5 rounded-2xl border-2 flex items-center justify-between transition-all duration-300 ${selectedDuration?.id === pkg.id ? "bg-indigo-600/20 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.3)] transform scale-[1.02]" : "bg-[#0c0c1d] border-transparent hover:border-indigo-900/50"}`}>
+                            <span className={`text-sm font-black uppercase tracking-wider ${selectedDuration?.id === pkg.id ? "text-indigo-300" : "text-gray-400"}`}>{pkg.duration}</span>
+                            <span className="text-2xl font-black text-white tracking-tight">{pkg.price} <span className="text-sm text-gray-500">AZN</span></span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="pt-8 border-t border-white/10 text-center">
+                       <button onClick={() => { addToCart(viewedProduct, selectedDuration); }} className="glow-btn w-full py-5 rounded-2xl bg-indigo-600 text-white font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(99,102,241,0.4)]">
+                         <Icons.Cart /> İndi Səbətə At
+                       </button>
+                       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-4">100% Güvənli Çatdırılma</p>
+                    </div>
+                 </div>
+               </div>
+            </div>
+          </main>
+        )}
+
+        {/* ========================================================================= */}
+        {/* CUSTOMER DASHBOARD WITH EDITABLE PROFILE (Req 4) */}
         {/* ========================================================================= */}
         {page === "dashboard" && (
-          <main className="max-w-6xl mx-auto px-6 py-12 animate-card">
-            <h1 className="text-4xl font-black text-white mb-8">Şəxsi Kabinet</h1>
+          <main className="max-w-6xl mx-auto px-6 py-12 animate-card relative z-10">
+            <h1 className="text-4xl font-black text-white mb-8 tracking-tight">Şəxsi Kabinet</h1>
             
             <div className="flex gap-4 border-b border-indigo-950/60 pb-4 mb-8 overflow-x-auto no-scrollbar">
               <button onClick={() => setDashTab("profile")} className={`px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "profile" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>Hesab Məlumatları</button>
@@ -731,18 +682,16 @@ export default function App() {
             </div>
 
             <div className="flex flex-col lg:flex-row gap-10">
-              
-              {/* Profile TAB */}
               {dashTab === "profile" && (
-                <div className="w-full max-w-xl animate-modal">
-                  <div className="glass-card rounded-[2rem] p-8 border border-indigo-500/20">
-                    <div className="flex flex-col sm:flex-row items-center gap-8 mb-8">
+                <div className="w-full max-w-2xl animate-modal">
+                  <div className="glass-card rounded-[2.5rem] p-10 border border-indigo-500/20">
+                    <div className="flex flex-col sm:flex-row items-center gap-8 mb-10">
                       <div className="relative group">
                         <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-black text-5xl text-white overflow-hidden shadow-[0_0_30px_rgba(99,102,241,0.4)] border-4 border-[#030308]">
-                          {profileEdit.profileImg ? <img src={profileEdit.profileImg} alt="User" className="w-full h-full object-cover" /> : user?.name[0].toUpperCase()}
+                          {profileEdit.profileImg ? <img src={profileEdit.profileImg} alt="User" className="w-full h-full object-cover" /> : profileEdit.name?.[0]?.toUpperCase()}
                         </div>
                         <div onClick={() => profileInputRef.current?.click()} className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer backdrop-blur-sm">
-                          <span className="text-white text-xs font-bold uppercase tracking-widest text-center">Şəkli<br/>Yenilə</span>
+                          <span className="text-white text-xs font-bold uppercase tracking-widest text-center">Şəkli<br/>Dəyiş</span>
                         </div>
                         <input type="file" accept="image/*" ref={profileInputRef} onChange={(e) => handleImageUpload(e, (res) => setProfileEdit({...profileEdit, profileImg: res}))} className="hidden" />
                       </div>
@@ -752,21 +701,27 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                      <div><label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Adınız</label><input type="text" value={profileEdit.name} onChange={(e) => setProfileEdit({...profileEdit, name: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold bg-[#0c0c1d]" /></div>
+                      <div><label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Soyadınız</label><input type="text" value={profileEdit.surname} onChange={(e) => setProfileEdit({...profileEdit, surname: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold bg-[#0c0c1d]" /></div>
+                      <div><label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">E-poçt</label><input type="email" value={profileEdit.email} onChange={(e) => setProfileEdit({...profileEdit, email: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold bg-[#0c0c1d]" /></div>
                       <div>
-                        <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Əlaqə Nömrəsi (Sonradan Əlavə Edilə Bilər)</label>
-                        <input type="tel" placeholder="+994 (--) --- -- --" value={profileEdit.phone} onChange={(e) => setProfileEdit({...profileEdit, phone: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold bg-indigo-950/20" />
+                        <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Cinsiyyət</label>
+                        <select value={profileEdit.gender} onChange={(e) => setProfileEdit({...profileEdit, gender: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold bg-[#0c0c1d]">
+                          <option value="Kişi">Kişi</option>
+                          <option value="Qadın">Qadın</option>
+                        </select>
                       </div>
-                      <div className="flex gap-4 pt-4 border-t border-indigo-950/60">
-                         <button onClick={handleUpdateProfile} className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-sm uppercase tracking-wider shadow-lg transition">Məlumatları Saxla</button>
-                         <button onClick={() => { setUser(null); setPage("home"); }} className="px-8 py-4 bg-red-950/40 border border-red-900/40 hover:bg-red-900/50 text-red-400 rounded-xl font-black text-sm uppercase tracking-wider transition">Çıxış Et</button>
-                      </div>
+                      <div className="sm:col-span-2"><label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Əlaqə Nömrəsi</label><input type="tel" placeholder="+994" value={profileEdit.phone} onChange={(e) => setProfileEdit({...profileEdit, phone: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold bg-[#0c0c1d]" /></div>
+                    </div>
+                    <div className="flex gap-4 pt-6 border-t border-indigo-950/60">
+                       <button onClick={handleUpdateProfile} className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-sm uppercase tracking-wider shadow-lg transition">Yadda Saxla</button>
+                       <button onClick={() => { setUser(null); setPage("home"); }} className="px-8 py-4 bg-red-950/40 border border-red-900/40 hover:bg-red-900/50 text-red-400 rounded-xl font-black text-sm uppercase tracking-wider transition">Çıxış Et</button>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Orders TAB */}
               {dashTab === "orders" && (
                 <div className="w-full animate-modal">
                   {orders.filter(o => o.userEmail === user?.email).length === 0 ? (
@@ -774,10 +729,7 @@ export default function App() {
                       <div className="w-24 h-24 bg-indigo-950/50 rounded-full flex items-center justify-center mx-auto border border-indigo-500/30">
                         <span className="text-5xl animate-bounce">📦</span>
                       </div>
-                      <div>
-                        <h3 className="text-2xl font-black text-white mb-2">Sifarişiniz Yoxdur</h3>
-                        <p className="text-gray-400 font-medium">Platformamızdan hələ heç bir abunəlik əldə etməmisiniz.</p>
-                      </div>
+                      <div><h3 className="text-2xl font-black text-white mb-2">Sifarişiniz Yoxdur</h3><p className="text-gray-400 font-medium">Platformamızdan hələ heç bir abunəlik əldə etməmisiniz.</p></div>
                       <button onClick={() => {setPage("categories"); setDashTab("profile");}} className="glow-btn inline-block px-10 py-4 rounded-xl bg-indigo-600 text-white font-black text-sm uppercase tracking-wider">Kataloqa Keç</button>
                     </div>
                   ) : (
@@ -790,12 +742,8 @@ export default function App() {
                               <span className="text-xs font-bold text-gray-500">{order.date}</span>
                             </div>
                             <h4 className="text-xl font-black text-white">{order.productName} <span className="text-indigo-400">({order.duration})</span></h4>
-                            <div className="flex gap-4 text-xs font-bold text-gray-400">
-                              <span>Ödəniş: <span className="text-white">{order.bank}</span></span>
-                              <span>Məbləğ: <span className="text-white">{order.price} AZN</span></span>
-                            </div>
+                            <div className="flex gap-4 text-xs font-bold text-gray-400"><span>Ödəniş: <span className="text-white">{order.bank}</span></span><span>Məbləğ: <span className="text-white">{order.price} AZN</span></span></div>
                           </div>
-                          
                           <div className="w-full md:w-auto text-left md:text-right">
                             {order.status === "pending" && <span className="px-4 py-2 rounded-xl bg-yellow-900/40 border border-yellow-500/40 text-yellow-400 text-xs font-black uppercase tracking-wider shadow-inner inline-flex items-center gap-2"><div className="spinner w-3 h-3 border-[2px]"></div> Yoxlanılır</span>}
                             {order.status === "rejected" && <span className="px-4 py-2 rounded-xl bg-red-900/40 border border-red-500/40 text-red-400 text-xs font-black uppercase tracking-wider shadow-inner inline-flex items-center gap-2">❌ Rədd Edildi</span>}
@@ -822,17 +770,19 @@ export default function App() {
           </main>
         )}
 
-        {/* ADMINISTRATIVE DASHBOARD SCREEN */}
+        {/* ========================================================================= */}
+        {/* ADVANCED ADMINISTRATIVE DASHBOARD (Req 7) */}
+        {/* ========================================================================= */}
         {page === "admin_dashboard" && isAdminLoggedIn && (
-          <main className="max-w-7xl mx-auto px-6 py-12">
+          <main className="max-w-[90rem] mx-auto px-6 py-12 relative z-10">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
-              <div><h1 className="text-4xl font-black text-white">İdarəetmə Paneli</h1><p className="text-sm font-medium text-indigo-400 mt-2">Xoş gəldiniz Admin, tam səlahiyyətlərə sahibsiniz.</p></div>
-              <button onClick={handleAdminLogout} className="px-6 py-3 rounded-xl bg-red-900/40 border border-red-500/30 text-red-400 font-black text-sm uppercase tracking-wider hover:bg-red-800/50 transition">Sistemdən Çıxış</button>
+              <div><h1 className="text-4xl font-black text-white tracking-tight">İdarəetmə Paneli</h1><p className="text-sm font-bold text-indigo-400 mt-2 uppercase tracking-widest">Səlahiyyətli İdarəçi</p></div>
+              <button onClick={handleAdminLogout} className="px-8 py-4 rounded-xl bg-red-900/40 border border-red-500/30 text-red-400 font-black text-sm uppercase tracking-wider hover:bg-red-800/50 transition shadow-lg">Sistemdən Çıxış</button>
             </div>
 
             <div className="flex gap-4 border-b border-indigo-950/60 pb-6 mb-8 overflow-x-auto no-scrollbar">
-              <button onClick={() => setActiveAdminTab("orders")} className={`px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({orders.length})</button>
-              <button onClick={() => setActiveAdminTab("products")} className={`px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({products.length})</button>
+              <button onClick={() => setActiveAdminTab("orders")} className={`px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({orders.length})</button>
+              <button onClick={() => setActiveAdminTab("products")} className={`px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({products.length})</button>
             </div>
 
             {activeAdminTab === "orders" && (
@@ -840,21 +790,21 @@ export default function App() {
                 {orders.length === 0 && <div className="text-center py-20 text-gray-500 font-bold text-lg">Sistemdə heç bir sifariş tapılmadı.</div>}
                 <div className="grid gap-4">
                   {orders.slice().reverse().map((order) => (
-                    <div key={order.id} className="glass-card rounded-2xl p-6 flex flex-col lg:flex-row justify-between gap-6 border-l-4" style={{borderLeftColor: order.status === 'pending' ? '#eab308' : order.status === 'approved' ? '#10b981' : '#ef4444'}}>
+                    <div key={order.id} className="glass-card rounded-[2rem] p-6 sm:p-8 flex flex-col lg:flex-row justify-between gap-6 border-l-4" style={{borderLeftColor: order.status === 'pending' ? '#eab308' : order.status === 'approved' ? '#10b981' : '#ef4444'}}>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full">
-                        <div><div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">ID / Tarix</div><div className="font-bold text-indigo-400">{order.id}</div><div className="text-xs text-gray-400">{order.date}</div></div>
-                        <div><div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Müştəri</div><div className="font-bold text-white">{order.userName} {order.userSurname}</div><div className="text-xs text-gray-400">{order.userEmail}</div><div className="text-xs text-gray-400">{order.userPhone}</div></div>
-                        <div><div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Məhsul / Məbləğ</div><div className="font-bold text-white">{order.productName} ({order.duration})</div><div className="font-black text-emerald-400">{order.price} AZN</div></div>
-                        <div><div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Bank Çeki</div><div className="font-bold text-white">{order.bank}</div>{order.receipt && <a href={order.receipt} target="_blank" rel="noreferrer" className="inline-block mt-2 px-3 py-1 bg-indigo-900/50 text-indigo-300 text-xs font-bold rounded">Çekə Bax 🔍</a>}</div>
+                        <div><div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">ID / Tarix</div><div className="font-bold text-indigo-400 mt-1">{order.id}</div><div className="text-xs font-bold text-gray-400">{order.date}</div></div>
+                        <div><div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Müştəri</div><div className="font-black text-white mt-1">{order.userName} {order.userSurname}</div><div className="text-xs font-bold text-gray-400">{order.userEmail}</div><div className="text-xs font-bold text-gray-400">{order.userPhone}</div></div>
+                        <div><div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Məhsul / Məbləğ</div><div className="font-black text-white mt-1">{order.productName} ({order.duration})</div><div className="font-black text-emerald-400">{order.price} AZN</div></div>
+                        <div><div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Bank Çeki</div><div className="font-bold text-white mt-1">{order.bank}</div>{order.receipt && <a href={order.receipt} target="_blank" rel="noreferrer" className="inline-block mt-2 px-4 py-2 bg-indigo-900/50 text-indigo-300 text-[10px] font-black uppercase tracking-widest rounded-lg">Çekə Bax 🔍</a>}</div>
                       </div>
-                      <div className="flex lg:flex-col justify-end gap-3 min-w-[140px]">
+                      <div className="flex lg:flex-col justify-end gap-3 min-w-[150px]">
                         {order.status === "pending" ? (
                           <>
-                            <button onClick={() => setApprovingOrder(order)} className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-black text-xs uppercase tracking-wider">Təsdiqlə</button>
-                            <button onClick={() => rejectOrderAction(order)} className="w-full py-2 bg-red-900/50 text-red-400 hover:bg-red-800/60 rounded-lg font-black text-xs uppercase tracking-wider">Rədd Et</button>
+                            <button onClick={() => setApprovingOrder(order)} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg transition">Təsdiqlə</button>
+                            <button onClick={() => rejectOrderAction(order)} className="w-full py-3 bg-red-900/50 text-red-400 hover:bg-red-800/60 rounded-xl font-black text-xs uppercase tracking-wider transition">Rədd Et</button>
                           </>
                         ) : (
-                          <div className={`text-center py-2 px-4 rounded-lg font-black text-xs uppercase tracking-wider ${order.status === 'approved' ? 'bg-emerald-900/30 text-emerald-400' : 'bg-red-900/30 text-red-400'}`}>
+                          <div className={`text-center py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider ${order.status === 'approved' ? 'bg-emerald-900/30 text-emerald-400' : 'bg-red-900/30 text-red-400'}`}>
                             {order.status === 'approved' ? 'Təsdiqlənib' : 'Rədd Edilib'}
                           </div>
                         )}
@@ -868,24 +818,25 @@ export default function App() {
             {activeAdminTab === "products" && (
               <div className="space-y-6 animate-modal">
                 <div className="flex justify-between items-center mb-8">
-                  <h2 className="text-2xl font-black text-white">Məhsul Kataloqu</h2>
-                  <button onClick={() => setEditingProduct({ name: "", cat: "entertainment", color: "#6366f1", emoji: "📦", desc: "", packages: [{ id: "temp1", duration: "1 Ay", price: 10 }] })} className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg">+ Yeni Əlavə Et</button>
+                  <h2 className="text-3xl font-black text-white">Məhsul Kataloqu</h2>
+                  <button onClick={() => setEditingProduct({ name: "Yeni Məhsul", cat: "entertainment", color: "#6366f1", emoji: "📦", desc: "Açıqlama", accountType: "Rəsmi Hesab", rating: "5.0", sales: "0", features: ["Yeni xüsusiyyət"], packages: [{ id: "temp1", duration: "1 Ay", price: 10 }] })} className="glow-btn px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg">+ Yeni Əlavə Et</button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {products.map(p => (
-                    <div key={p.id} className="glass-card rounded-2xl p-6 flex flex-col justify-between">
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="p-3 bg-black/40 rounded-xl border border-white/10">{getOfficialLogo(p.name, p.emoji, p.color)}</div>
-                        <div><h4 className="font-black text-lg text-white">{p.name}</h4><span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{p.cat}</span></div>
+                    <div key={p.id} className="glass-card rounded-[2rem] p-6 flex flex-col justify-between border border-indigo-500/20 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl pointer-events-none opacity-20" style={{ backgroundColor: p.color }} />
+                      <div className="flex items-center gap-4 mb-6 relative z-10">
+                        <div className="p-3 bg-black/40 rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(p.name, p.emoji, p.color)}</div>
+                        <div><h4 className="font-black text-lg text-white">{p.name}</h4><span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{p.cat}</span></div>
                       </div>
-                      <div className="flex flex-wrap gap-2 mb-6">
+                      <div className="flex flex-wrap gap-2 mb-6 relative z-10">
                         {p.packages.map(pkg => (
-                          <span key={pkg.id} className="text-[10px] px-2.5 py-1 bg-indigo-900/40 border border-indigo-500/20 text-indigo-300 rounded-md font-black">{pkg.duration}: {pkg.price} AZN</span>
+                          <span key={pkg.id} className="text-[10px] px-2.5 py-1 bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 rounded-md font-black">{pkg.duration}: {pkg.price} AZN</span>
                         ))}
                       </div>
-                      <div className="flex gap-3 mt-auto pt-4 border-t border-indigo-950/50">
-                        <button onClick={() => setEditingProduct(p)} className="flex-1 py-2 bg-indigo-900/40 hover:bg-indigo-800/60 rounded-lg text-indigo-300 font-bold text-xs uppercase tracking-wider">Redaktə Et</button>
-                        <button onClick={() => handleDeleteProduct(p.id)} className="w-12 flex items-center justify-center bg-red-900/30 hover:bg-red-800/50 border border-red-900/50 rounded-lg text-red-400">🗑️</button>
+                      <div className="flex gap-3 mt-auto pt-5 border-t border-indigo-900/50 relative z-10">
+                        <button onClick={() => setEditingProduct({...p, features: p.features || []})} className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-white font-black text-xs uppercase tracking-wider transition shadow-lg">Tam Redaktə</button>
+                        <button onClick={() => handleDeleteProduct(p.id)} className="w-14 flex items-center justify-center bg-red-900/40 hover:bg-red-600 hover:text-white border border-red-500/30 rounded-xl text-red-400 transition">🗑️</button>
                       </div>
                     </div>
                   ))}
@@ -896,267 +847,37 @@ export default function App() {
         )}
       </div>
 
-      {/* DETAILED ORDER MODAL */}
-      {selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="glass-card w-full max-w-xl rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)]">
-            <button onClick={() => setSelectedProduct(null)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white hover:bg-indigo-900 transition flex items-center justify-center text-xl font-bold">&times;</button>
-            <div className="flex items-center gap-6 mb-8">
-              <div className="p-5 bg-black/40 rounded-3xl border border-white/10 shadow-xl">{getOfficialLogo(selectedProduct.name, selectedProduct.emoji, selectedProduct.color)}</div>
-              <div>
-                <span className="text-[10px] font-black text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1 rounded-full tracking-widest uppercase mb-2 inline-block">100% Zəmanət</span>
-                <h3 className="text-3xl font-black text-white tracking-tight">{selectedProduct.name}</h3>
-              </div>
-            </div>
-            <p className="text-sm font-medium text-gray-400 leading-relaxed mb-8 p-5 bg-indigo-950/20 rounded-2xl border border-indigo-900/30">{selectedProduct.desc}</p>
-            <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-widest mb-4">Paket Müddətini Seçin</h4>
-            <div className="grid grid-cols-3 gap-4 mb-10">
-              {selectedProduct.packages.map((pkg) => (
-                <button key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`p-5 rounded-2xl border-2 flex flex-col items-center justify-center gap-2 transition-all duration-300 ${selectedDuration?.id === pkg.id ? "bg-indigo-600/10 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.3)] transform scale-105" : "bg-indigo-950/20 border-transparent hover:border-indigo-900"}`}>
-                  <span className={`text-[11px] font-black uppercase tracking-wider ${selectedDuration?.id === pkg.id ? "text-indigo-400" : "text-gray-500"}`}>{pkg.duration}</span>
-                  <span className="text-2xl font-black text-white tracking-tight">{pkg.price} <span className="text-sm text-gray-400">AZN</span></span>
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-4">
-              <button onClick={() => setSelectedProduct(null)} className="w-1/3 py-4 rounded-xl bg-indigo-950/40 hover:bg-indigo-900/60 text-gray-400 hover:text-white font-black text-xs uppercase tracking-wider transition">Ləğv Et</button>
-              <button onClick={() => { addToCart(selectedProduct, selectedDuration); setSelectedProduct(null); }} className="glow-btn w-2/3 py-4 rounded-xl bg-indigo-600 text-white font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3">
-                <Icons.Cart /> Səbətə At
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* CHECKOUT MODAL WITH CARD SLIDER & FILE UPLOAD */}
-      {isCheckoutOpen && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto">
-          <div className="glass-card w-full max-w-2xl rounded-[2.5rem] p-6 md:p-10 animate-modal relative my-8 border border-indigo-500/30">
-            <button onClick={() => setIsCheckoutOpen(false)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white hover:bg-indigo-900 flex items-center justify-center text-xl font-bold transition">&times;</button>
-
-            <div className="text-center mb-8">
-              <h3 className="text-3xl font-black text-white mb-3">Ödəniş Mərhələsi</h3>
-              <p className="text-sm font-medium text-gray-400 max-w-md mx-auto">Aşağıdakı kartlardan birinə ödəniş edin, nömrəni kopyalamaq üçün toxunun və çeki yükləyin.</p>
-            </div>
-
-            {/* Slider Container aligned beautifully */}
-            <div className="flex overflow-x-auto gap-5 pb-6 snap-x no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-              {CARD_ACCOUNTS.map(acc => (
-                <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`min-w-[280px] sm:min-w-[320px] snap-center p-6 rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-500 bg-gradient-to-br ${acc.color} ${selectedBank.id === acc.id ? "ring-4 ring-white/50 scale-[1.02] shadow-[0_20px_40px_rgba(0,0,0,0.6)]" : "opacity-50 hover:opacity-90 scale-95"}`}>
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none" />
-                  <div className="flex justify-between items-center mb-10 relative z-10">
-                    <acc.logo />
-                    <span className="text-[9px] font-black uppercase tracking-widest bg-black/40 px-3 py-1.5 rounded-full text-white/90 backdrop-blur-md border border-white/20">{acc.holder}</span>
-                  </div>
-                  <div onClick={(e) => copyToClipboard(e, acc.num)} className="group inline-block cursor-pointer relative z-10">
-                    <div className="text-2xl font-black text-white tracking-widest mb-1 group-hover:text-white/80 transition-colors">{acc.num}</div>
-                    <div className="text-[10px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-y-1">
-                      <span>📋</span> Kopyalamaq üçün toxun
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <form onSubmit={handleCheckoutSubmit} className="space-y-8 mt-4 bg-indigo-950/20 p-6 rounded-3xl border border-indigo-900/30">
-              <div>
-                <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-4">Ödəniş Çeki (Cihazdan Yüklə)</label>
-                
-                {/* File Upload Zone */}
-                {!uploadedReceipt ? (
-                  <div onClick={() => fileInputRef.current?.click()} className="w-full h-40 rounded-2xl border-2 border-dashed border-indigo-500/40 bg-[#0c0c1d] flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-900/30 hover:border-indigo-400 transition group">
-                    <div className="w-12 h-12 rounded-full bg-indigo-950 flex items-center justify-center mb-3 group-hover:scale-110 transition border border-indigo-500/30">
-                      <span className="text-xl">📸</span>
-                    </div>
-                    <span className="text-sm text-indigo-300 font-bold">Çeki seçmək üçün toxunun</span>
-                    <span className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mt-2">PNG, JPG, JPEG</span>
-                    <input type="file" accept="image/*" ref={fileInputRef} onChange={(e) => handleImageUpload(e, setUploadedReceipt)} className="hidden" />
-                  </div>
-                ) : (
-                  <div className="relative w-full h-48 rounded-2xl border-2 border-emerald-500/50 overflow-hidden bg-black flex items-center justify-center group">
-                    <img src={uploadedReceipt} alt="Receipt" className="max-h-full object-contain" />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                       <button type="button" onClick={() => setUploadedReceipt(null)} className="px-6 py-3 bg-red-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition">Çeki Sil / Dəyiş</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="border-t border-indigo-900/50 pt-6 flex flex-col sm:flex-row justify-between items-center gap-6">
-                <div className="text-center sm:text-left">
-                  <span className="text-[11px] font-black text-gray-500 uppercase tracking-widest block mb-1">Ümumi Məbləğ</span>
-                  <span className="text-3xl font-black text-white tracking-tighter">{cart.reduce((sum, item) => sum + item.package.price, 0)} <span className="text-lg text-indigo-400">AZN</span></span>
-                </div>
-                <button type="submit" disabled={isEmailSending} className="glow-btn w-full sm:w-auto px-10 py-5 bg-indigo-600 text-white font-black text-sm uppercase tracking-widest rounded-2xl flex items-center justify-center gap-3">
-                  {isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Sifarişi Təsdiqlə"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* USER AUTH MODAL WITH ANIMATIONS */}
-      {authMode && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="glass-card w-full max-w-md rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-indigo-500/30">
-            <button onClick={() => setAuthMode(null)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white hover:bg-indigo-900 flex items-center justify-center text-xl font-bold transition">&times;</button>
-
-            {showOtpSuccess ? (
-              <div className="py-12 text-center space-y-6">
-                <div className="success-check">✓</div>
-                <h3 className="text-2xl font-black text-white tracking-tight">Kodu Göndərdik!</h3>
-                <p className="text-sm font-medium text-gray-400">E-mail qutunuzu yoxlayın.</p>
-              </div>
-            ) : authMode === "login" ? (
-              <div>
-                <h3 className="text-3xl font-black text-white mb-2 tracking-tight">Xoş Gəldiniz</h3>
-                <p className="text-xs font-medium text-gray-400 mb-8">Davam etmək üçün hesabınıza giriş edin.</p>
-                <form onSubmit={handleUserAuth} className="space-y-5">
-                  <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">E-poçt Ünvanı</label><input type="email" value={authForm.email} onChange={(e) => setAuthForm({...authForm, email: e.target.value})} className="w-full p-4 rounded-xl text-sm" required /></div>
-                  <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Şifrə</label><input type="password" value={authForm.pass} onChange={(e) => setAuthForm({...authForm, pass: e.target.value})} className="w-full p-4 rounded-xl text-sm" required /></div>
-                  <button type="submit" className="glow-btn w-full py-4 mt-4 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest">Giriş Et</button>
-                </form>
-                <div className="mt-8 pt-6 border-t border-indigo-950/50 text-center">
-                  <p className="text-xs font-bold text-gray-500">Hesabınız yoxdur? <span onClick={() => setAuthMode("register")} className="text-indigo-400 cursor-pointer hover:text-indigo-300">İndi Yarat</span></p>
-                </div>
-              </div>
-            ) : authMode === "register" ? (
-              <div>
-                <h3 className="text-3xl font-black text-white mb-2 tracking-tight">Qeydiyyat</h3>
-                <p className="text-xs font-medium text-gray-400 mb-8">Premium xidmətlərə qoşulmaq üçün məlumatları doldurun.</p>
-                <form onSubmit={handleUserAuth} className="space-y-5">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Ad</label><input type="text" value={authForm.name} onChange={(e) => setAuthForm({...authForm, name: e.target.value})} className="w-full p-4 rounded-xl text-sm" required /></div>
-                    <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Soyad</label><input type="text" value={authForm.surname} onChange={(e) => setAuthForm({...authForm, surname: e.target.value})} className="w-full p-4 rounded-xl text-sm" required /></div>
-                  </div>
-                  <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">E-poçt</label><input type="email" value={authForm.email} onChange={(e) => setAuthForm({...authForm, email: e.target.value})} className="w-full p-4 rounded-xl text-sm" required /></div>
-                  <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Şifrə təyin edin</label><input type="password" value={authForm.pass} onChange={(e) => setAuthForm({...authForm, pass: e.target.value})} className="w-full p-4 rounded-xl text-sm" required /></div>
-                  
-                  <button type="submit" disabled={isEmailSending} className="glow-btn w-full py-4 mt-4 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest flex justify-center items-center gap-3 transition">
-                    {isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Doğrulama Kodu Göndər 📩"}
-                  </button>
-                </form>
-                <div className="mt-8 pt-6 border-t border-indigo-950/50 text-center">
-                  <p className="text-xs font-bold text-gray-500">Artıq hesabınız var? <span onClick={() => setAuthMode("login")} className="text-indigo-400 cursor-pointer hover:text-indigo-300">Giriş edin</span></p>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <h3 className="text-3xl font-black text-white mb-2 tracking-tight text-center">Təsdiq Kodu</h3>
-                <p className="text-[11px] font-bold text-gray-400 mb-8 text-center uppercase tracking-widest">E-poçtunuza gələn 6 rəqəmli kodu daxil edin</p>
-                <form onSubmit={handleUserAuth} className="space-y-6">
-                  <div>
-                    <input type="text" value={authForm.otpInput} onChange={(e) => setAuthForm({...authForm, otpInput: e.target.value})} className="w-full p-5 rounded-2xl text-center text-3xl font-black tracking-[12px] bg-indigo-950/20 border-indigo-500/50 text-indigo-300 placeholder-indigo-900" placeholder="------" maxLength="6" required />
-                  </div>
-                  <button type="submit" className="glow-btn w-full py-5 bg-emerald-600 text-white rounded-xl font-black text-sm uppercase tracking-widest">Təsdiqlə və Daxil Ol</button>
-                </form>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ADMIN REVENUE LOG MODAL */}
-      {isAdminModalOpen && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="glass-card w-full max-w-md rounded-[2.5rem] p-8 md:p-10 animate-modal relative">
-            <button onClick={() => setIsAdminModalOpen(false)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-xl font-bold">&times;</button>
-            <div className="w-16 h-16 bg-red-950/40 border border-red-500/30 rounded-2xl flex items-center justify-center text-2xl mb-6 mx-auto shadow-lg">🛡️</div>
-            <h3 className="text-2xl font-black text-white mb-2 text-center">Admin Paneli</h3>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-8 text-center">Səlahiyyətli şəxs girişi</p>
-            <form onSubmit={handleAdminLogin} className="space-y-5">
-              <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">İstifadəçi Adı</label><input type="text" value={adminUsername} onChange={(e) => setAdminUsername(e.target.value)} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
-              <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Şifrə</label><input type="password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
-              <button type="submit" className="w-full py-4 mt-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.4)] transition">Sistemə Giriş</button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* APPROVING ORDER DETAILS MODAL (ADMIN ONLY) */}
-      {approvingOrder && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="glass-card w-full max-w-lg rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-emerald-500/30">
-            <button onClick={() => setApprovingOrder(null)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-xl font-bold">&times;</button>
-            <h3 className="text-2xl font-black text-white mb-2">Sifarişi Təsdiqlə</h3>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-8">Müştəri üçün abunəlik məlumatlarını daxil edin</p>
-            <form onSubmit={approveOrderAction} className="space-y-5 bg-[#0c0c1d] p-6 rounded-2xl border border-indigo-900/30">
-              <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Hesab E-maili / Giriş Adı</label><input type="text" value={accountEmail} onChange={(e) => setAccountEmail(e.target.value)} className="w-full p-4 rounded-xl text-sm font-bold text-emerald-300" required /></div>
-              <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Hesab Şifrəsi</label><input type="text" value={accountPass} onChange={(e) => setAccountPass(e.target.value)} className="w-full p-4 rounded-xl text-sm font-bold text-emerald-300" required /></div>
-              <div className="flex gap-4 pt-6">
-                <button type="button" onClick={() => setApprovingOrder(null)} className="w-1/3 py-4 bg-indigo-950/40 text-gray-400 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-indigo-900/60 transition">Ləğv</button>
-                <button type="submit" className="w-2/3 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)] transition">Göndər ✉️</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* EDITING PRODUCT MODAL (ADMIN ONLY) */}
-      {editingProduct && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="glass-card w-full max-w-lg rounded-[2.5rem] p-8 md:p-10 animate-modal relative">
-            <button onClick={() => setEditingProduct(null)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-xl font-bold">&times;</button>
-            <h3 className="text-2xl font-black text-white mb-8">{editingProduct.id ? "Məhsulu Redaktə Et" : "Yeni Məhsul Yarat"}</h3>
-
-            <form onSubmit={handleSaveProduct} className="space-y-5">
-              <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Məhsulun Adı</label><input type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full p-4 rounded-xl text-sm" required /></div>
-              <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Açıqlama</label><textarea rows="2" value={editingProduct.desc} onChange={(e) => setEditingProduct({...editingProduct, desc: e.target.value})} className="w-full p-4 rounded-xl text-sm" required /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Kateqoriya</label>
-                  <select value={editingProduct.cat} onChange={(e) => setEditingProduct({...editingProduct, cat: e.target.value})} className="w-full p-4 rounded-xl text-sm bg-[#0c0c1d] border-indigo-900/50">
-                    <option value="entertainment">Əyləncə</option>
-                    <option value="ai">Süni İntellekt</option>
-                    <option value="design">Dizayn</option>
-                  </select>
-                </div>
-                <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Logo Rəngi (Hex)</label><input type="text" value={editingProduct.color} onChange={(e) => setEditingProduct({...editingProduct, color: e.target.value})} className="w-full p-4 rounded-xl text-sm" /></div>
-              </div>
-
-              <div className="flex gap-4 pt-6">
-                <button type="button" onClick={() => setEditingProduct(null)} className="w-1/3 py-4 bg-indigo-950/40 text-gray-400 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-indigo-900/60 transition">Ləğv</button>
-                <button type="submit" className="w-2/3 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg transition">Saxla</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* CART DRAWER RIGHT SIDE */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-50 bg-[#030308]/60 backdrop-blur-sm flex justify-end">
-          <div className="glass-card w-full max-w-md h-full flex flex-col justify-between drawer-open rounded-none border-y-0 border-r-0 border-l border-indigo-500/30">
+        <div className="fixed inset-0 z-50 bg-[#030308]/80 backdrop-blur-sm flex justify-end">
+          <div className="glass-card w-full max-w-md h-full flex flex-col justify-between drawer-open rounded-none border-y-0 border-r-0 border-l border-indigo-500/30 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
             <div className="p-8 pb-4 h-full flex flex-col">
               <div className="flex justify-between items-center pb-6 border-b border-indigo-900/50 mb-6">
                 <h3 className="text-2xl font-black text-white flex items-center gap-3">
                   <div className="p-3 bg-indigo-600 rounded-xl text-white shadow-lg"><Icons.Cart /></div> Səbətiniz
                 </h3>
-                <button onClick={() => setIsCartOpen(false)} className="w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:bg-indigo-900 hover:text-white transition flex items-center justify-center text-xl font-bold">&times;</button>
+                <button onClick={() => setIsCartOpen(false)} className="w-10 h-10 rounded-full bg-indigo-950/80 text-gray-400 hover:bg-indigo-900 hover:text-white transition flex items-center justify-center text-xl font-bold">&times;</button>
               </div>
               
               {cart.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
-                  <div className="w-24 h-24 bg-indigo-950/40 rounded-full flex items-center justify-center border border-indigo-900/50">
-                    <span className="text-4xl opacity-50"><Icons.Cart /></span>
-                  </div>
-                  <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Səbətiniz boşdur</p>
+                  <div className="w-24 h-24 bg-indigo-950/40 rounded-full flex items-center justify-center border border-indigo-900/50 text-indigo-500"><Icons.Cart /></div>
+                  <p className="text-gray-400 font-black uppercase tracking-widest text-xs">Səbətiniz boşdur</p>
                 </div>
               ) : (
                 <div className="flex-1 overflow-y-auto space-y-4 pr-2 no-scrollbar">
                   {cart.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-4 rounded-2xl bg-indigo-950/20 border border-indigo-500/20 hover:border-indigo-500/50 transition-colors group">
+                    <div key={index} className="flex justify-between items-center p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 hover:border-indigo-400 transition-colors group">
                       <div className="flex items-center gap-4">
-                        <div className="p-2.5 bg-black/40 rounded-xl border border-white/5">{getOfficialLogo(item.product.name, item.product.emoji, item.product.color)}</div>
+                        <div className="p-2.5 bg-black/40 rounded-xl border border-white/10 shadow-lg">{getOfficialLogo(item.product.name, item.product.emoji, item.product.color)}</div>
                         <div>
                           <h4 className="text-sm font-black text-white mb-1">{item.product.name}</h4>
-                          <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400 bg-indigo-950/50 px-2 py-0.5 rounded">{item.package.duration}</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400 bg-indigo-950/80 px-2 py-0.5 rounded">{item.package.duration}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="font-black text-base text-white tracking-tight">{item.package.price} <span className="text-[10px] text-gray-500">AZN</span></span>
-                        <button onClick={() => removeFromCart(index)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-950/30 text-red-400 hover:bg-red-600 hover:text-white transition opacity-50 group-hover:opacity-100">&times;</button>
+                        <span className="font-black text-lg text-white tracking-tight">{item.package.price} <span className="text-[10px] text-gray-500">AZN</span></span>
+                        <button onClick={() => removeFromCart(index)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-900/40 text-red-400 hover:bg-red-600 hover:text-white transition">&times;</button>
                       </div>
                     </div>
                   ))}
@@ -1179,67 +900,252 @@ export default function App() {
         </div>
       )}
 
-      {/* FLOATING WHATSAPP BUTTON (Req 14) */}
-      <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="fixed bottom-8 right-8 z-40 bg-[#25D366] text-white p-4 rounded-full shadow-[0_10px_30px_rgba(37,211,102,0.4)] hover:scale-110 hover:-translate-y-2 transition-all duration-300 group flex items-center gap-0 hover:gap-3 overflow-hidden">
+      {/* CHECKOUT MODAL WITH CARD SLIDER & FILE UPLOAD */}
+      {isCheckoutOpen && (
+        <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto">
+          <div className="glass-card w-full max-w-2xl rounded-[2.5rem] p-6 md:p-10 animate-modal relative my-8 border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)]">
+            <button onClick={() => setIsCheckoutOpen(false)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white hover:bg-indigo-900 flex items-center justify-center text-xl font-bold transition">&times;</button>
+
+            <div className="text-center mb-8">
+              <h3 className="text-3xl font-black text-white mb-3 tracking-tight">Ödəniş Mərhələsi</h3>
+              <p className="text-sm font-medium text-gray-400 max-w-md mx-auto">Aşağıdakı kartlardan birinə ödəniş edin, nömrəni kopyalamaq üçün toxunun və çeki yükləyin.</p>
+            </div>
+
+            <div className="flex overflow-x-auto gap-5 pb-6 snap-x no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+              {CARD_ACCOUNTS.map(acc => (
+                <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`min-w-[280px] sm:min-w-[320px] snap-center p-6 rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-500 bg-gradient-to-br ${acc.color} ${selectedBank.id === acc.id ? "ring-4 ring-white/50 scale-[1.02] shadow-[0_20px_40px_rgba(0,0,0,0.6)]" : "opacity-50 hover:opacity-90 scale-95"}`}>
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none" />
+                  <div className="flex justify-between items-center mb-10 relative z-10">
+                    <acc.logo />
+                    <span className="text-[9px] font-black uppercase tracking-widest bg-black/40 px-3 py-1.5 rounded-full text-white/90 backdrop-blur-md border border-white/20">{acc.holder}</span>
+                  </div>
+                  <div onClick={(e) => copyToClipboard(e, acc.num)} className="group inline-block cursor-pointer relative z-10">
+                    <div className="text-2xl font-black text-white tracking-widest mb-1 group-hover:text-white/80 transition-colors">{acc.num}</div>
+                    <div className="text-[10px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-y-1">
+                      <span>📋</span> Kopyalamaq üçün toxun
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <form onSubmit={handleCheckoutSubmit} className="space-y-8 mt-4 bg-indigo-950/20 p-6 rounded-3xl border border-indigo-900/30">
+              <div>
+                <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-4">Ödəniş Çeki (Cihazdan Yüklə)</label>
+                {!uploadedReceipt ? (
+                  <div onClick={() => fileInputRef.current?.click()} className="w-full h-40 rounded-2xl border-2 border-dashed border-indigo-500/40 bg-[#0c0c1d] flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-900/30 hover:border-indigo-400 transition group shadow-inner">
+                    <div className="w-12 h-12 rounded-full bg-indigo-950 flex items-center justify-center mb-3 group-hover:scale-110 transition border border-indigo-500/30 shadow-lg text-xl">📸</div>
+                    <span className="text-sm text-indigo-300 font-bold">Çeki seçmək üçün toxunun</span>
+                    <span className="text-[10px] text-gray-500 font-black tracking-widest uppercase mt-2">PNG, JPG, JPEG</span>
+                    <input type="file" accept="image/*" ref={fileInputRef} onChange={(e) => handleImageUpload(e, setUploadedReceipt)} className="hidden" />
+                  </div>
+                ) : (
+                  <div className="relative w-full h-48 rounded-2xl border-2 border-emerald-500/50 overflow-hidden bg-black flex items-center justify-center group shadow-xl">
+                    <img src={uploadedReceipt} alt="Receipt" className="max-h-full object-contain" />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                       <button type="button" onClick={() => setUploadedReceipt(null)} className="px-6 py-3 bg-red-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition">Çeki Sil / Dəyiş</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-indigo-900/50 pt-6 flex flex-col sm:flex-row justify-between items-center gap-6">
+                <div className="text-center sm:text-left">
+                  <span className="text-[11px] font-black text-gray-500 uppercase tracking-widest block mb-1">Ümumi Məbləğ</span>
+                  <span className="text-3xl font-black text-white tracking-tighter">{cart.reduce((sum, item) => sum + item.package.price, 0)} <span className="text-lg text-indigo-400">AZN</span></span>
+                </div>
+                <button type="submit" disabled={isEmailSending} className="glow-btn w-full sm:w-auto px-10 py-5 bg-indigo-600 text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)] flex items-center justify-center gap-3">
+                  {isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Sifarişi Təsdiqlə"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* USER AUTH MODAL */}
+      {authMode && (
+        <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="glass-card w-full max-w-md rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)]">
+            <button onClick={() => setAuthMode(null)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white hover:bg-indigo-900 flex items-center justify-center text-xl font-bold transition">&times;</button>
+
+            {showOtpSuccess ? (
+              <div className="py-12 text-center space-y-6">
+                <div className="success-check">✓</div>
+                <h3 className="text-2xl font-black text-white tracking-tight">Kodu Göndərdik!</h3>
+                <p className="text-sm font-medium text-gray-400">E-mail qutunuzu yoxlayın.</p>
+              </div>
+            ) : authMode === "login" ? (
+              <div>
+                <h3 className="text-3xl font-black text-white mb-2 tracking-tight">Xoş Gəldiniz</h3>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-8">Hesabınıza giriş edin.</p>
+                <form onSubmit={handleUserAuth} className="space-y-5">
+                  <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">E-poçt Ünvanı</label><input type="email" value={authForm.email} onChange={(e) => setAuthForm({...authForm, email: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
+                  <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Şifrə</label><input type="password" value={authForm.pass} onChange={(e) => setAuthForm({...authForm, pass: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
+                  <button type="submit" className="glow-btn w-full py-4 mt-4 bg-indigo-600 text-white rounded-xl font-black text-sm uppercase tracking-widest">Giriş Et</button>
+                </form>
+                <div className="mt-8 pt-6 border-t border-indigo-950/50 text-center">
+                  <p className="text-xs font-black text-gray-500">Hesabınız yoxdur? <span onClick={() => setAuthMode("register")} className="text-indigo-400 cursor-pointer hover:text-indigo-300">İndi Yarat</span></p>
+                </div>
+              </div>
+            ) : authMode === "register" ? (
+              <div>
+                <h3 className="text-3xl font-black text-white mb-2 tracking-tight">Qeydiyyat</h3>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-8">Məlumatları doldurun.</p>
+                <form onSubmit={handleUserAuth} className="space-y-5">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Ad</label><input type="text" value={authForm.name} onChange={(e) => setAuthForm({...authForm, name: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
+                    <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Soyad</label><input type="text" value={authForm.surname} onChange={(e) => setAuthForm({...authForm, surname: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
+                  </div>
+                  <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">E-poçt</label><input type="email" value={authForm.email} onChange={(e) => setAuthForm({...authForm, email: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
+                  <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Şifrə təyin edin</label><input type="password" value={authForm.pass} onChange={(e) => setAuthForm({...authForm, pass: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
+                  
+                  <button type="submit" disabled={isEmailSending} className="glow-btn w-full py-4 mt-4 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest flex justify-center items-center gap-3 transition">
+                    {isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Kodu Göndər 📩"}
+                  </button>
+                </form>
+                <div className="mt-8 pt-6 border-t border-indigo-950/50 text-center">
+                  <p className="text-xs font-black text-gray-500">Artıq hesabınız var? <span onClick={() => setAuthMode("login")} className="text-indigo-400 cursor-pointer hover:text-indigo-300">Giriş edin</span></p>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h3 className="text-3xl font-black text-white mb-2 tracking-tight text-center">Təsdiq Kodu</h3>
+                <p className="text-[11px] font-black text-gray-500 mb-8 text-center uppercase tracking-widest">E-poçtunuza gələn 6 rəqəmli kodu yazın</p>
+                <form onSubmit={handleUserAuth} className="space-y-6">
+                  <div>
+                    <input type="text" value={authForm.otpInput} onChange={(e) => setAuthForm({...authForm, otpInput: e.target.value})} className="w-full p-5 rounded-2xl text-center text-3xl font-black tracking-[12px] bg-indigo-950/40 border-indigo-500/50 text-indigo-300 placeholder-indigo-900" placeholder="------" maxLength="6" required />
+                  </div>
+                  <button type="submit" className="glow-btn w-full py-5 bg-emerald-600 text-white rounded-xl font-black text-sm uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.4)]">Daxil Ol</button>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ADMIN REVENUE LOG MODAL */}
+      {isAdminModalOpen && (
+        <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="glass-card w-full max-w-md rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-red-500/30">
+            <button onClick={() => setIsAdminModalOpen(false)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-xl font-bold">&times;</button>
+            <div className="w-16 h-16 bg-red-900/40 border border-red-500/30 rounded-2xl flex items-center justify-center text-2xl mb-6 mx-auto shadow-lg">🛡️</div>
+            <h3 className="text-2xl font-black text-white mb-2 text-center tracking-tight">Admin Paneli</h3>
+            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-8 text-center">Səlahiyyətli şəxs girişi</p>
+            <form onSubmit={handleAdminLogin} className="space-y-5">
+              <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">İstifadəçi Adı</label><input type="text" value={adminUsername} onChange={(e) => setAdminUsername(e.target.value)} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
+              <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Şifrə</label><input type="password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
+              <button type="submit" className="w-full py-4 mt-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-black text-sm uppercase tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.4)] transition">Sistemə Giriş</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* APPROVING ORDER DETAILS MODAL (ADMIN ONLY) */}
+      {approvingOrder && (
+        <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="glass-card w-full max-w-lg rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-emerald-500/30">
+            <button onClick={() => setApprovingOrder(null)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-xl font-bold">&times;</button>
+            <h3 className="text-3xl font-black text-white mb-2 tracking-tight">Sifarişi Təsdiqlə</h3>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-8">Müştəri üçün abunəlik məlumatlarını daxil edin</p>
+            <form onSubmit={approveOrderAction} className="space-y-5 bg-[#0c0c1d] p-8 rounded-3xl border border-indigo-900/30 shadow-inner">
+              <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Hesab E-maili / Giriş Adı</label><input type="text" value={accountEmail} onChange={(e) => setAccountEmail(e.target.value)} className="w-full p-4 rounded-xl text-sm font-bold text-emerald-300" required /></div>
+              <div><label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Hesab Şifrəsi</label><input type="text" value={accountPass} onChange={(e) => setAccountPass(e.target.value)} className="w-full p-4 rounded-xl text-sm font-bold text-emerald-300" required /></div>
+              <div className="flex gap-4 pt-6">
+                <button type="button" onClick={() => setApprovingOrder(null)} className="w-1/3 py-4 bg-indigo-950/40 text-gray-400 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-indigo-900/60 transition">Ləğv</button>
+                <button type="submit" className="glow-btn w-2/3 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)] transition">Göndər ✉️</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ADVANCED EDITING PRODUCT MODAL (ADMIN ONLY) */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto">
+          <div className="glass-card w-full max-w-4xl rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-indigo-500/30 my-8">
+            <button onClick={() => setEditingProduct(null)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-xl font-bold">&times;</button>
+            <h3 className="text-3xl font-black text-white mb-8 tracking-tight">{editingProduct.id ? "Məhsul Redaktoru" : "Yeni Məhsul Yaradıcı"}</h3>
+
+            <form onSubmit={handleSaveProduct} className="space-y-8">
+              {/* Visuals & Basic Info */}
+              <div className="grid md:grid-cols-2 gap-6 bg-[#0c0c1d] p-6 rounded-3xl border border-indigo-900/30">
+                <div className="md:col-span-2"><label className="block text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2">Məhsulun Adı</label><input type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full p-4 rounded-xl text-lg font-black" required /></div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2">Kateqoriya</label>
+                  <select value={editingProduct.cat} onChange={(e) => setEditingProduct({...editingProduct, cat: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold bg-black">
+                    <option value="entertainment">Əyləncə</option><option value="ai">Süni İntellekt</option><option value="design">Dizayn</option>
+                  </select>
+                </div>
+                <div><label className="block text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2">Açar Rəngi (Hex Code)</label><input type="text" value={editingProduct.color} onChange={(e) => setEditingProduct({...editingProduct, color: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" /></div>
+                <div className="md:col-span-2"><label className="block text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2">Qısa Açıqlama (Siyahı üçün)</label><input type="text" value={editingProduct.desc} onChange={(e) => setEditingProduct({...editingProduct, desc: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
+              </div>
+
+              {/* Advanced Page Info */}
+              <div className="grid md:grid-cols-3 gap-6 bg-[#0c0c1d] p-6 rounded-3xl border border-indigo-900/30">
+                <div><label className="block text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-2">Hesab Növü</label><input type="text" placeholder="Məs: Ortaq Hesab" value={editingProduct.accountType} onChange={(e) => setEditingProduct({...editingProduct, accountType: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" /></div>
+                <div><label className="block text-[10px] font-black uppercase tracking-widest text-yellow-400 mb-2">Reytinq (Ulduz)</label><input type="text" placeholder="Məs: 4.9" value={editingProduct.rating} onChange={(e) => setEditingProduct({...editingProduct, rating: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" /></div>
+                <div><label className="block text-[10px] font-black uppercase tracking-widest text-pink-400 mb-2">Satış Sayı</label><input type="text" placeholder="Məs: 12.5k" value={editingProduct.sales} onChange={(e) => setEditingProduct({...editingProduct, sales: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" /></div>
+                <div className="md:col-span-3">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2">Məhsulun Geniş Xüsusiyyətləri (Hər sətirə 1 ədəd yazın)</label>
+                  <textarea rows="4" value={(editingProduct.features || []).join('\n')} onChange={(e) => setEditingProduct({...editingProduct, features: e.target.value.split('\n')})} className="w-full p-4 rounded-xl text-sm font-bold leading-relaxed" placeholder="4K Ultra HD&#10;7/24 Dəstək&#10;Rəsmi zəmanət"></textarea>
+                </div>
+              </div>
+
+              {/* Dynamic Packages Builder */}
+              <div className="bg-[#0c0c1d] p-6 rounded-3xl border border-indigo-900/30">
+                 <div className="flex justify-between items-center mb-6">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-indigo-400">Paketlər (Müddət və Qiymət)</label>
+                    <button type="button" onClick={handleAddPackage} className="px-4 py-2 bg-indigo-900/50 text-indigo-300 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition">+ Paket Əlavə Et</button>
+                 </div>
+                 <div className="space-y-3">
+                   {editingProduct.packages.map((pkg, i) => (
+                     <div key={i} className="flex items-center gap-4">
+                       <input type="text" value={pkg.duration} onChange={(e) => handleUpdatePackage(i, 'duration', e.target.value)} className="w-1/2 p-3 rounded-lg text-sm font-bold" placeholder="1 Ay" required />
+                       <input type="number" value={pkg.price} onChange={(e) => handleUpdatePackage(i, 'price', Number(e.target.value))} className="w-1/3 p-3 rounded-lg text-sm font-bold" placeholder="Qiymət (AZN)" required />
+                       <button type="button" onClick={() => handleRemovePackage(i)} className="w-10 h-10 bg-red-900/30 text-red-400 rounded-lg flex items-center justify-center font-bold hover:bg-red-600 hover:text-white transition">&times;</button>
+                     </div>
+                   ))}
+                 </div>
+              </div>
+
+              <div className="flex gap-4 pt-6 border-t border-indigo-900/50">
+                <button type="button" onClick={() => setEditingProduct(null)} className="w-1/3 py-5 bg-indigo-950/40 text-gray-400 font-black text-sm uppercase tracking-widest rounded-2xl hover:bg-indigo-900/60 transition">Ləğv Et</button>
+                <button type="submit" className="glow-btn w-2/3 py-5 bg-indigo-600 text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-lg transition">Məhsulu Yadda Saxla</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* FLOATING WHATSAPP BUTTON (Minimalist without text expansion) */}
+      <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="fixed bottom-6 right-6 z-40 bg-[#25D366] text-white p-4 rounded-full shadow-[0_10px_30px_rgba(37,211,102,0.4)] hover:scale-110 hover:-translate-y-1 transition-all duration-300">
         <Icons.WhatsApp />
-        <span className="font-black text-sm tracking-wider uppercase max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-300 whitespace-nowrap">Bizə Yazın</span>
       </a>
 
-      {/* FOOTER & CONTACT (Req 1, 4, 15) */}
-      <footer className="border-t border-indigo-900/50 bg-[#030308] mt-20 relative overflow-hidden" id="footer">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-50" />
-        
-        {/* Warranty Banner */}
-        <div className="bg-indigo-950/20 py-8 border-b border-indigo-900/30">
-          <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-center items-center gap-6 md:gap-12">
-             <div className="flex items-center gap-3"><div className="text-emerald-400"><Icons.Shield /></div><span className="font-black text-white text-sm uppercase tracking-widest">100% Rəsmi Zəmanət</span></div>
-             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/50 hidden md:block" />
-             <div className="flex items-center gap-3"><div className="text-indigo-400"><Icons.Mail /></div><span className="font-black text-white text-sm uppercase tracking-widest">Sürətli Çatdırılma</span></div>
-             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/50 hidden md:block" />
-             <div className="flex items-center gap-3"><div className="text-pink-400"><Icons.Headset /></div><span className="font-black text-white text-sm uppercase tracking-widest">Aktiv Dəstək</span></div>
-          </div>
+      {/* SIMPLE & MODERN FOOTER */}
+      <footer className="bg-[#030308] border-t border-indigo-900/30 pt-16 pb-8 mt-20" id="footer">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+           {/* Left Logo */}
+           <div className="flex items-center gap-4 opacity-50 hover:opacity-100 transition duration-300">
+              <img src="./Premium.png" alt="Premium Shop" className="h-8 object-contain grayscale hover:grayscale-0 transition" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+              <div className="hidden items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-900 flex items-center justify-center font-black text-white text-xs">PS</div>
+                <span className="font-extrabold text-lg tracking-tight text-white">Premium Shop</span>
+              </div>
+           </div>
+
+           {/* Contact Links */}
+           <div className="flex flex-col sm:flex-row items-center gap-6 text-[11px] font-black uppercase tracking-widest text-gray-500">
+             <a href="https://wa.me/994103136941" className="hover:text-[#25D366] transition">WhatsApp: +994 10 313 69 41</a>
+             <span className="hidden sm:inline opacity-30">|</span>
+             <a href="mailto:premiumshopazerbaycan@gmail.com" className="hover:text-indigo-400 transition">premiumshopazerbaycan@gmail.com</a>
+           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 py-16 md:py-20 grid md:grid-cols-2 gap-12">
-          {/* Brand Col */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-               <img 
-                  src="./Premium.png" 
-                  alt="Premium Shop" 
-                  className="h-12 object-contain"
-                  onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
-                />
-                <div className="hidden items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-black text-white text-xl">PS</div>
-                  <span className="font-extrabold text-2xl tracking-tight text-white">Premium <span className="text-indigo-400">Shop</span></span>
-                </div>
-            </div>
-            <p className="text-sm font-medium text-gray-400 leading-relaxed max-w-sm">Azərbaycanın ən güvənli rəqəmsal abunəlik satışı platforması. Gündəlik rəqəmsal ehtiyaclarınızı Premium keyfiyyətlə qarşılayın.</p>
-          </div>
-
-          {/* Contact Col */}
-          <div className="md:text-right space-y-6">
-            <h4 className="text-lg font-black text-white uppercase tracking-widest">Əlaqə Vasitələri</h4>
-            <div className="flex flex-col md:items-end gap-4">
-               <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 text-gray-400 hover:text-[#25D366] font-bold text-sm transition group">
-                 <div className="w-10 h-10 rounded-full bg-indigo-950/40 border border-indigo-900/50 flex items-center justify-center group-hover:border-[#25D366] group-hover:bg-[#25D366]/10 transition"><Icons.WhatsApp /></div>
-                 +994 10 313 69 41
-               </a>
-               <a href="mailto:premiumshopazerbaycan@gmail.com" className="inline-flex items-center gap-3 text-gray-400 hover:text-indigo-400 font-bold text-sm transition group">
-                 <div className="w-10 h-10 rounded-full bg-indigo-950/40 border border-indigo-900/50 flex items-center justify-center group-hover:border-indigo-400 group-hover:bg-indigo-400/10 transition"><Icons.Mail /></div>
-                 premiumshopazerbaycan@gmail.com
-               </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Copyright & Admin Link */}
-        <div className="border-t border-indigo-900/30 py-8 bg-[#020205]">
-          <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold uppercase tracking-widest text-gray-500">
-            <span>Premium Shop © 2026. Bütün Hüquqlar Qorunur.</span>
-            <span onClick={() => setIsAdminModalOpen(true)} className="cursor-pointer hover:text-indigo-400 transition flex items-center gap-2">🛡️ İdarəetmə (Admin)</span>
-          </div>
+        <div className="max-w-7xl mx-auto px-6 mt-12 flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-gray-600">
+           <span>© 2026 Premium Shop</span>
+           <button onClick={() => setIsAdminModalOpen(true)} className="hover:text-indigo-400 transition flex items-center gap-2">Səlahiyyətli İdarəçi</button>
         </div>
       </footer>
     </>
@@ -1253,7 +1159,7 @@ function Notif({ n }) {
              : n.type === "info" ? "bg-blue-950/90 border-blue-500 text-blue-100 shadow-[0_10px_40px_rgba(59,130,246,0.4)]" 
              : "bg-emerald-950/90 border-emerald-500 text-emerald-100 shadow-[0_10px_40px_rgba(16,185,129,0.4)]";
   return (
-    <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-[100] w-[90%] max-w-md animate-modal">
+    <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-[100] w-[90%] max-w-md animate-modal pointer-events-none">
       <div className={`p-5 rounded-2xl border-2 backdrop-blur-xl font-black text-sm uppercase tracking-wider text-center ${colors}`}>{n.msg}</div>
     </div>
   );
