@@ -76,7 +76,7 @@ const CSS = `
     transition: all 0.5s ease;
   }
   .hero-card:hover {
-    transform: scale(1.03);
+    transform: scale(1.02);
     border: 1px solid rgba(99,102,241,0.5);
     box-shadow: 0 25px 60px rgba(99,102,241,0.25);
   }
@@ -86,19 +86,19 @@ const CSS = `
   /* LED Light Background Animations */
   .led-blob {
     position: absolute;
-    filter: blur(90px);
+    filter: blur(100px);
     border-radius: 50%;
-    animation: floatLed 8s infinite alternate ease-in-out;
+    animation: floatLed 10s infinite alternate ease-in-out;
     pointer-events: none;
     z-index: 0;
   }
-  .led-1 { top: -10%; left: 10%; width: 400px; height: 400px; background: rgba(99, 102, 241, 0.25); animation-delay: 0s; }
-  .led-2 { top: 20%; right: -5%; width: 500px; height: 500px; background: rgba(236, 72, 153, 0.2); animation-delay: -3s; }
+  .led-1 { top: -10%; left: 5%; width: 400px; height: 400px; background: rgba(99, 102, 241, 0.25); animation-delay: 0s; }
+  .led-2 { top: 20%; right: -5%; width: 500px; height: 500px; background: rgba(236, 72, 153, 0.15); animation-delay: -3s; }
   .led-3 { bottom: -10%; left: 30%; width: 600px; height: 600px; background: rgba(139, 92, 246, 0.2); animation-delay: -6s; }
 
   @keyframes floatLed {
-    0% { transform: translate(0, 0) scale(1); opacity: 0.6; }
-    100% { transform: translate(30px, 40px) scale(1.1); opacity: 1; }
+    0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+    100% { transform: translate(40px, 50px) scale(1.1); opacity: 0.9; }
   }
 
   .page-transition { animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -188,7 +188,9 @@ const CATEGORIES = [
 
 const Icons = {
   Cart: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>,
-  Shield: () => <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>,
+  Shield: () => <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>,
+  Mail: () => <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>,
+  Headset: () => <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>,
   WhatsApp: () => <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>,
 };
 
@@ -215,7 +217,12 @@ export default function App() {
 
   const [orders, setOrders] = useState(() => {
     const local = localStorage.getItem("premium_shop_orders");
-    return local ? JSON.parse(local) : []; 
+    if(local) {
+      const parsed = JSON.parse(local);
+      // Nümunə sifarişin tam silinməsi
+      return parsed.filter(o => o.id !== "ORD-12845");
+    }
+    return []; 
   });
 
   const [page, setPage] = useState("home"); 
@@ -229,7 +236,7 @@ export default function App() {
   // UI state managers
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [viewedProduct, setViewedProduct] = useState(null); // Full Page Product View
+  const [viewedProduct, setViewedProduct] = useState(null); 
   const [selectedDuration, setSelectedDuration] = useState(null);
   
   const [authMode, setAuthMode] = useState(null); 
@@ -276,8 +283,7 @@ export default function App() {
 
   const copyToClipboard = (e, text) => {
     e.stopPropagation();
-    const el = document.createElement('textarea');
-    el.value = text;
+    const el = document.createElement('textarea'); el.value = text;
     document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
     showNotif("💳 Kart nömrəsi kopyalandı!", "success");
   };
@@ -312,26 +318,19 @@ export default function App() {
     if (authMode === "login") {
       if (!authForm.email || !authForm.pass) return showNotif("Zəhmət olmasa bütün sahələri doldurun", "error");
       setUser({ name: authForm.name || "Müştəri", surname: authForm.surname || "", email: authForm.email, phone: authForm.phone || "", profileImg: authForm.profileImg || "", gender: "Kişi" });
-      // Notification removed for clean UI
       setAuthMode(null);
     } else if (authMode === "register") {
       if (!authForm.name || !authForm.surname || !authForm.email || !authForm.pass) return showNotif("Bütün sahələri doldurun!", "error");
-
       const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
       setOtpCode(generatedCode);
-      
       const isSent = await sendEmailNotification({ to_email: authForm.email, to_name: authForm.name, otp_code: generatedCode, subject: "Premium Shop Doğrulama Kodu" }, EMAILJS_CONFIG.templateOtp);
-
       if (isSent) {
         setShowOtpSuccess(true);
         setTimeout(() => { setShowOtpSuccess(false); setAuthMode("otp"); }, 2000); 
-      } else {
-        showNotif("E-mail göndərilə bilmədi. İnterneti yoxlayın.", "error");
-      }
+      } else showNotif("E-mail göndərilə bilmədi. İnterneti yoxlayın.", "error");
     } else if (authMode === "otp") {
       if (authForm.otpInput === otpCode || authForm.otpInput === "1234") {
         setUser({ name: authForm.name, surname: authForm.surname, email: authForm.email, phone: authForm.phone, profileImg: authForm.profileImg, gender: "Kişi" });
-        // Notification removed for clean UI
         setAuthMode(null);
       } else showNotif("Yanlış təsdiq kodu daxil edilib!", "error");
     }
@@ -372,15 +371,12 @@ export default function App() {
     e.preventDefault();
     if (adminUsername === "karimllii" && adminPassword === "Karimli.777") {
       setIsAdminLoggedIn(true); localStorage.setItem("premium_shop_admin_active", "true"); setIsAdminModalOpen(false); setPage("admin_dashboard");
-      // Notification removed
     } else showNotif("Yanlış İstifadəçi adı və ya Şifrə!", "error");
   };
 
   const handleAdminLogout = () => { setIsAdminLoggedIn(false); localStorage.removeItem("premium_shop_admin_active"); setPage("home"); };
 
-  const handleAddPackage = () => {
-    setEditingProduct({...editingProduct, packages: [...editingProduct.packages, { id: "p" + Date.now(), duration: "Yeni Paket", price: 0 }]});
-  };
+  const handleAddPackage = () => setEditingProduct({...editingProduct, packages: [...editingProduct.packages, { id: "p" + Date.now(), duration: "Yeni Paket", price: 0 }]});
   const handleUpdatePackage = (index, field, value) => {
     const newPkgs = [...editingProduct.packages]; newPkgs[index][field] = value; setEditingProduct({...editingProduct, packages: newPkgs});
   };
@@ -416,20 +412,16 @@ export default function App() {
     showNotif("Sifariş rədd edildi və mail göndərildi.", "error");
   };
 
-  const openProductDetail = (product) => {
-    setViewedProduct(product); setSelectedDuration(product.packages[0]); setPage("product_detail");
-  };
+  const openProductDetail = (product) => { setViewedProduct(product); setSelectedDuration(product.packages[0]); setPage("product_detail"); };
 
   return (
     <>
       <style>{CSS}</style>
       <Notif n={notification} />
 
-      {/* FIXED HEADER */}
+      {/* HEADER */}
       <nav className="sticky top-0 z-50 bg-[#030308]/90 backdrop-blur-xl border-b border-indigo-950/60 px-6 py-4">
         <div className="max-w-[90rem] mx-auto flex items-center justify-between">
-          
-          {/* Logo Integration */}
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setPage("home")}>
             <div className="w-auto h-12 flex items-center justify-center transition-transform group-hover:scale-105">
               <img src="./Premium.png" alt="Premium Shop" className="h-full object-contain drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
@@ -439,18 +431,15 @@ export default function App() {
               </div>
             </div>
           </div>
-
           <div className="hidden md:flex items-center gap-8">
             <button onClick={() => setPage("home")} className={`font-bold text-[13px] uppercase tracking-wider transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
             <button onClick={() => setPage("categories")} className={`font-bold text-[13px] uppercase tracking-wider transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Bütün Abunəliklər</button>
           </div>
-
           <div className="flex items-center gap-4">
             <button onClick={() => setIsCartOpen(true)} className="relative p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-900/50 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
               <Icons.Cart />
               {cart.length > 0 && <span className="absolute -top-2 -right-2 bg-indigo-500 text-white font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(99,102,241,0.8)] border border-[#030308]">{cart.length}</span>}
             </button>
-
             {user ? (
               <button onClick={() => {setPage("dashboard"); setDashTab("profile");}} className="glass-card flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full border border-indigo-500/30 hover:border-indigo-400/60">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-sm text-white overflow-hidden shadow-inner">
@@ -465,20 +454,17 @@ export default function App() {
         </div>
       </nav>
 
-      {/* DYNAMIC PAGE RENDERER */}
+      {/* DYNAMIC PAGES */}
       <div key={page} className="page-transition min-h-screen relative overflow-hidden">
         
-        {/* ========================================================================= */}
-        {/* HOME PAGE - WIDE & ANIMATED WITH LED BACKGROUND */}
-        {/* ========================================================================= */}
         {page === "home" && (
           <main className="max-w-[90rem] mx-auto px-6 py-12 md:py-20 relative z-10">
-            {/* LED Light Blobs */}
+            {/* LED BACKGROUND */}
             <div className="led-blob led-1"></div>
             <div className="led-blob led-2"></div>
             <div className="led-blob led-3"></div>
 
-            {/* Hero Section */}
+            {/* HERO */}
             <div className="relative rounded-[2.5rem] overflow-hidden glass-card p-10 md:p-20 mb-24 animate-card border border-indigo-500/30 bg-black/40 shadow-[0_0_50px_rgba(99,102,241,0.1)]">
               <div className="relative z-10 grid md:grid-cols-2 gap-16 items-center">
                 <div className="space-y-8">
@@ -486,23 +472,15 @@ export default function App() {
                     <span className="relative flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span></span>
                     100% Güvənli Çatdırılma
                   </div>
-                  <h1 className="text-5xl sm:text-7xl font-black tracking-tighter text-white leading-[1.05] neon-text">
-                    Rəqəmsal Dünyanızı <br />
-                    <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 text-transparent bg-clip-text">Premium Edin!</span>
-                  </h1>
-                  <p className="text-gray-400 text-lg sm:text-xl max-w-xl leading-relaxed font-medium">
-                    Azərbaycanın ən etibarlı platformasında kartla rahatlıqla ödəyin, rəsmi abunəlik hesabınız e-mail ünvanınıza dərhal çatdırılsın.
-                  </p>
+                  <h1 className="text-5xl sm:text-7xl font-black tracking-tighter text-white leading-[1.05] neon-text">Rəqəmsal Dünyanızı <br /><span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 text-transparent bg-clip-text">Premium Edin!</span></h1>
+                  <p className="text-gray-400 text-lg sm:text-xl max-w-xl leading-relaxed font-medium">Azərbaycanın ən etibarlı platformasında kartla rahatlıqla ödəyin, rəsmi abunəlik hesabınız e-mail ünvanınıza dərhal çatdırılsın.</p>
                   <div className="flex flex-wrap gap-5 pt-4">
-                    <button onClick={() => setPage("categories")} className="glow-btn px-10 py-5 rounded-2xl bg-indigo-600 text-white font-black text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(99,102,241,0.4)] transition">
-                      Abunəliklərə Bax
-                    </button>
+                    <button onClick={() => setPage("categories")} className="glow-btn px-10 py-5 rounded-2xl bg-indigo-600 text-white font-black text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(99,102,241,0.4)] transition">Abunəliklərə Bax</button>
                     <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="glow-btn-green flex items-center justify-center gap-3 px-10 py-5 rounded-2xl bg-[#25D366]/20 border border-[#25D366]/50 text-[#25D366] font-black text-sm uppercase tracking-wider transition duration-300">
                       <Icons.WhatsApp /> WhatsApp Dəstək
                     </a>
                   </div>
                 </div>
-
                 <div className="relative hidden md:block">
                   <div className="w-full aspect-square rounded-[3rem] bg-gradient-to-tr from-indigo-900/30 to-purple-900/30 border border-indigo-500/20 flex items-center justify-center p-8 relative shadow-2xl overflow-hidden group">
                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center opacity-20 mix-blend-overlay group-hover:scale-110 transition-transform duration-1000" />
@@ -521,8 +499,8 @@ export default function App() {
               </div>
             </div>
 
-            {/* BIG 3 HOME CARDS - NO CATEGORY FILTERS HERE */}
-            <div className="mb-20 space-y-8 animate-card" style={{ animationDelay: '200ms' }}>
+            {/* TOP CARDS */}
+            <div className="mb-24 space-y-8 animate-card" style={{ animationDelay: '200ms' }}>
               <div className="text-center space-y-4 mb-16">
                 <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">Ən Çox Satılanlar</h2>
                 <div className="w-24 h-1.5 bg-indigo-600 mx-auto rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
@@ -531,25 +509,17 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {products.filter(p => p.popular).slice(0,3).map((product, index) => (
                   <div key={product.id} className="hero-card rounded-[2rem] p-8 flex flex-col justify-between relative overflow-hidden group cursor-pointer" onClick={() => openProductDetail(product)}>
-                    <div className="absolute top-0 right-0 w-48 h-48 rounded-full blur-3xl pointer-events-none opacity-20 transition-opacity group-hover:opacity-40" style={{ backgroundColor: product.color }} />
-                    
-                    <div>
-                      <div className="flex items-center justify-between mb-8">
-                        <div className="hero-card-img-wrap p-4 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 shadow-xl">
-                          {getOfficialLogo(product.name, product.emoji, product.color)}
-                        </div>
-                        <span className="text-[10px] font-black text-white bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20">
-                          Populyar
-                        </span>
-                      </div>
+                    <div className="flex items-center justify-between mb-8 relative z-10">
+                      <div className="p-4 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 shadow-xl">{getOfficialLogo(product.name, product.emoji, product.color)}</div>
+                      <span className="text-[10px] font-black text-indigo-300 bg-indigo-950/50 border border-indigo-500/30 px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">Populyar</span>
+                    </div>
+                    <div className="relative z-10">
                       <h3 className="text-3xl font-black text-white mb-3 tracking-tight">{product.name}</h3>
                       <p className="text-sm text-gray-400 font-medium leading-relaxed mb-8 min-h-[40px]">{product.desc}</p>
                     </div>
-
-                    <div className="pt-6 border-t border-white/10 mt-auto">
-                      <button className="w-full py-4 rounded-xl text-white font-black text-sm uppercase tracking-wider transition-all duration-300 shadow-lg relative overflow-hidden group/btn" style={{ backgroundColor: product.color }}>
-                        <span className="relative z-10 flex items-center justify-center gap-2">Ətraflı Bax <span>→</span></span>
-                        <div className="absolute inset-0 bg-black/20 transform scale-x-0 origin-left group-hover/btn:scale-x-100 transition-transform duration-300 ease-out" />
+                    <div className="pt-6 border-t border-white/10 mt-auto relative z-10">
+                      <button className="w-full py-4 rounded-xl text-white font-black text-sm uppercase tracking-wider transition-all duration-300 shadow-lg" style={{ backgroundColor: product.color }}>
+                        Ətraflı Bax →
                       </button>
                     </div>
                   </div>
@@ -561,12 +531,53 @@ export default function App() {
                 </button>
               </div>
             </div>
+
+            {/* HOW IT WORKS SECTION */}
+            <section className="mb-24 py-10 animate-card" style={{ animationDelay: '300ms' }}>
+              <div className="text-center space-y-4 mb-16">
+                <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">Sistem Necə İşləyir?</h2>
+                <div className="w-24 h-1.5 bg-indigo-600 mx-auto rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+              </div>
+              <div className="grid md:grid-cols-3 gap-8 relative">
+                 <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-indigo-500/10 via-indigo-500/50 to-indigo-500/10 z-0" />
+                 <div className="relative z-10 glass-card p-10 rounded-3xl text-center group hover:-translate-y-2 transition-all duration-500">
+                    <div className="w-20 h-20 mx-auto bg-[#0c0c1d] border border-indigo-500/30 rounded-2xl flex items-center justify-center text-3xl font-black text-indigo-400 mb-8 shadow-[0_0_20px_rgba(99,102,241,0.2)] group-hover:scale-110 transition-transform">1</div>
+                    <h3 className="text-xl font-black text-white mb-4 uppercase tracking-widest">Məhsulu Seçin</h3>
+                    <p className="text-sm text-gray-400 font-medium leading-relaxed">Kataloqdan istədiyiniz platformanı (məs: Netflix) və abunəlik müddətini seçərək səbətə əlavə edin.</p>
+                 </div>
+                 <div className="relative z-10 glass-card p-10 rounded-3xl text-center group hover:-translate-y-2 transition-all duration-500">
+                    <div className="w-20 h-20 mx-auto bg-[#0c0c1d] border border-emerald-500/30 rounded-2xl flex items-center justify-center text-3xl font-black text-emerald-400 mb-8 shadow-[0_0_20px_rgba(16,185,129,0.2)] group-hover:scale-110 transition-transform">2</div>
+                    <h3 className="text-xl font-black text-white mb-4 uppercase tracking-widest">Ödəniş Et</h3>
+                    <p className="text-sm text-gray-400 font-medium leading-relaxed">Sizə uyğun olan bankı seçin, göstərilən karta ödəniş edib qəbzin (çekin) şəklini sistemə yükləyin.</p>
+                 </div>
+                 <div className="relative z-10 glass-card p-10 rounded-3xl text-center group hover:-translate-y-2 transition-all duration-500">
+                    <div className="w-20 h-20 mx-auto bg-[#0c0c1d] border border-purple-500/30 rounded-2xl flex items-center justify-center text-3xl font-black text-purple-400 mb-8 shadow-[0_0_20px_rgba(168,85,247,0.2)] group-hover:scale-110 transition-transform">3</div>
+                    <h3 className="text-xl font-black text-white mb-4 uppercase tracking-widest">Təsdiq Al</h3>
+                    <p className="text-sm text-gray-400 font-medium leading-relaxed">Sifarişiniz təsdiqlənən kimi rəsmi hesab məlumatlarınız birbaşa e-mail ünvanınıza avtomatik göndəriləcək.</p>
+                 </div>
+              </div>
+            </section>
+
+            {/* FEATURES SECTION */}
+            <section className="bg-indigo-950/20 border border-indigo-500/20 rounded-[3rem] py-20 px-10 animate-card" style={{ animationDelay: '400ms' }}>
+              <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-16 text-center md:text-left">
+                <div className="space-y-6 flex flex-col items-center md:items-start group cursor-default">
+                  <div className="w-20 h-20 rounded-2xl bg-indigo-900/40 border border-indigo-500/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"><Icons.Shield /></div>
+                  <div><h3 className="text-2xl font-black text-white mb-3">Güvənli Ödəniş Sistemi</h3><p className="text-sm text-gray-400 font-medium leading-relaxed">ABB, Kapital, LEO və ya M10 vasitəsilə rahatlıqla ödəniş edib çeki yükləyin. Ödənişlər tam qorunur.</p></div>
+                </div>
+                <div className="space-y-6 flex flex-col items-center md:items-start group cursor-default">
+                  <div className="w-20 h-20 rounded-2xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"><Icons.Mail /></div>
+                  <div><h3 className="text-2xl font-black text-white mb-3">Sürətli E-mail Çatdırılma</h3><p className="text-sm text-gray-400 font-medium leading-relaxed">Sifarişiniz təsdiqləndiyi an bütün rəsmi giriş məlumatları dərhal qeydiyyatdan keçdiyiniz e-mail ünvanına göndərilir.</p></div>
+                </div>
+                <div className="space-y-6 flex flex-col items-center md:items-start group cursor-default">
+                  <div className="w-20 h-20 rounded-2xl bg-emerald-900/40 border border-emerald-500/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"><Icons.Headset /></div>
+                  <div><h3 className="text-2xl font-black text-white mb-3">7/24 Aktiv Dəstək</h3><p className="text-sm text-gray-400 font-medium leading-relaxed">Hər hansı bir çətinlik və ya sualınız olduqda WhatsApp dəstək xəttimizə yazaraq canlı rəhbərlik ala bilərsiniz.</p></div>
+                </div>
+              </div>
+            </section>
           </main>
         )}
 
-        {/* ========================================================================= */}
-        {/* ALL CATEGORIES PAGE */}
-        {/* ========================================================================= */}
         {page === "categories" && (
           <main className="max-w-[90rem] mx-auto px-6 py-12 animate-card relative z-10">
             <div className="mb-12 space-y-6">
@@ -591,26 +602,22 @@ export default function App() {
                     <h3 className="text-2xl font-black text-white mb-2">{product.name}</h3>
                     <p className="text-xs text-gray-400 font-medium leading-relaxed mb-6">{product.desc}</p>
                   </div>
-                  <button className="w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest text-white transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02]" style={{ backgroundColor: product.color }}>Ətraflı</button>
+                  <button className="w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest text-white transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02]" style={{ backgroundColor: product.color }}>Ətraflı Bax</button>
                 </div>
               ))}
             </div>
           </main>
         )}
 
-        {/* ========================================================================= */}
-        {/* SINGLE PRODUCT DETAIL PAGE (Req 8) */}
-        {/* ========================================================================= */}
         {page === "product_detail" && viewedProduct && (
-          <main className="max-w-6xl mx-auto px-6 py-12 animate-card relative z-10">
+          <main className="max-w-[90rem] mx-auto px-6 py-12 animate-card relative z-10">
             <button onClick={() => setPage("categories")} className="text-gray-400 hover:text-white font-bold text-sm uppercase tracking-widest mb-8 flex items-center gap-2 transition">
               ← Geriyə Qayıt
             </button>
             <div className="glass-card rounded-[3rem] p-8 md:p-12 border border-indigo-500/20 overflow-hidden relative">
                <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[150px] pointer-events-none opacity-20" style={{ backgroundColor: viewedProduct.color }} />
                
-               <div className="grid md:grid-cols-2 gap-12 relative z-10">
-                 {/* Left: Info */}
+               <div className="grid lg:grid-cols-2 gap-12 relative z-10">
                  <div className="space-y-8">
                     <div className="flex items-center gap-6">
                       <div className="p-6 bg-black/40 backdrop-blur-md rounded-3xl border border-white/10 shadow-2xl">{getOfficialLogo(viewedProduct.name, viewedProduct.emoji, viewedProduct.color)}</div>
@@ -620,19 +627,19 @@ export default function App() {
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-6 text-sm font-black">
+                    <div className="flex flex-wrap items-center gap-4 text-sm font-black">
                        <div className="flex items-center gap-2 bg-indigo-950/40 px-4 py-2 rounded-xl border border-indigo-900/50"><span className="text-yellow-400">⭐ {viewedProduct.rating || "5.0"}</span> <span className="text-white">Reytinq</span></div>
                        <div className="flex items-center gap-2 bg-indigo-950/40 px-4 py-2 rounded-xl border border-indigo-900/50"><span className="text-emerald-400">🔥 {viewedProduct.sales || "1k+"}</span> <span className="text-white">Satış</span></div>
+                       <div className="flex items-center gap-2 bg-[#0c0c1d] px-4 py-2 rounded-xl border border-indigo-500/30 text-indigo-300">Növ: {viewedProduct.accountType || "Rəsmi Hesab"}</div>
                     </div>
 
                     <div className="space-y-4">
                        <h3 className="text-lg font-black text-white uppercase tracking-widest">Məhsul Haqqında</h3>
                        <p className="text-gray-400 font-medium leading-relaxed">{viewedProduct.desc}</p>
-                       <div className="inline-block mt-2 px-4 py-2 bg-[#0c0c1d] border border-indigo-500/30 rounded-xl text-indigo-300 font-black text-xs uppercase tracking-widest">Növ: {viewedProduct.accountType || "Rəsmi Hesab"}</div>
                     </div>
 
                     <div className="space-y-4 pt-6 border-t border-white/10">
-                       <h3 className="text-lg font-black text-white uppercase tracking-widest">Xüsusiyyətlər</h3>
+                       <h3 className="text-lg font-black text-white uppercase tracking-widest">Üstünlüklər</h3>
                        <ul className="space-y-3">
                          {(viewedProduct.features || ["Rəsmi zəmanət", "7/24 Dəstək"]).map((feature, i) => (
                            <li key={i} className="flex items-center gap-3 text-sm font-bold text-gray-300"><span className="text-emerald-400">✓</span> {feature}</li>
@@ -641,11 +648,10 @@ export default function App() {
                     </div>
                  </div>
 
-                 {/* Right: Pricing & Packages */}
                  <div className="bg-black/30 backdrop-blur-md rounded-[2rem] p-8 border border-white/5 flex flex-col justify-between">
                     <div>
                       <h3 className="text-xl font-black text-white uppercase tracking-widest mb-6 text-center">Müddəti Seçin</h3>
-                      <div className="grid gap-4 mb-8">
+                      <div className="grid sm:grid-cols-2 gap-4 mb-8">
                         {viewedProduct.packages.map((pkg) => (
                           <div key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`cursor-pointer p-5 rounded-2xl border-2 flex items-center justify-between transition-all duration-300 ${selectedDuration?.id === pkg.id ? "bg-indigo-600/20 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.3)] transform scale-[1.02]" : "bg-[#0c0c1d] border-transparent hover:border-indigo-900/50"}`}>
                             <span className={`text-sm font-black uppercase tracking-wider ${selectedDuration?.id === pkg.id ? "text-indigo-300" : "text-gray-400"}`}>{pkg.duration}</span>
@@ -667,9 +673,6 @@ export default function App() {
           </main>
         )}
 
-        {/* ========================================================================= */}
-        {/* CUSTOMER DASHBOARD WITH EDITABLE PROFILE (Req 4) */}
-        {/* ========================================================================= */}
         {page === "dashboard" && (
           <main className="max-w-6xl mx-auto px-6 py-12 animate-card relative z-10">
             <h1 className="text-4xl font-black text-white mb-8 tracking-tight">Şəxsi Kabinet</h1>
@@ -770,9 +773,7 @@ export default function App() {
           </main>
         )}
 
-        {/* ========================================================================= */}
-        {/* ADVANCED ADMINISTRATIVE DASHBOARD (Req 7) */}
-        {/* ========================================================================= */}
+        {/* ADMINISTRATIVE DASHBOARD SCREEN */}
         {page === "admin_dashboard" && isAdminLoggedIn && (
           <main className="max-w-[90rem] mx-auto px-6 py-12 relative z-10">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
@@ -1068,7 +1069,6 @@ export default function App() {
             <h3 className="text-3xl font-black text-white mb-8 tracking-tight">{editingProduct.id ? "Məhsul Redaktoru" : "Yeni Məhsul Yaradıcı"}</h3>
 
             <form onSubmit={handleSaveProduct} className="space-y-8">
-              {/* Visuals & Basic Info */}
               <div className="grid md:grid-cols-2 gap-6 bg-[#0c0c1d] p-6 rounded-3xl border border-indigo-900/30">
                 <div className="md:col-span-2"><label className="block text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2">Məhsulun Adı</label><input type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full p-4 rounded-xl text-lg font-black" required /></div>
                 <div>
@@ -1081,7 +1081,6 @@ export default function App() {
                 <div className="md:col-span-2"><label className="block text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2">Qısa Açıqlama (Siyahı üçün)</label><input type="text" value={editingProduct.desc} onChange={(e) => setEditingProduct({...editingProduct, desc: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" required /></div>
               </div>
 
-              {/* Advanced Page Info */}
               <div className="grid md:grid-cols-3 gap-6 bg-[#0c0c1d] p-6 rounded-3xl border border-indigo-900/30">
                 <div><label className="block text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-2">Hesab Növü</label><input type="text" placeholder="Məs: Ortaq Hesab" value={editingProduct.accountType} onChange={(e) => setEditingProduct({...editingProduct, accountType: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" /></div>
                 <div><label className="block text-[10px] font-black uppercase tracking-widest text-yellow-400 mb-2">Reytinq (Ulduz)</label><input type="text" placeholder="Məs: 4.9" value={editingProduct.rating} onChange={(e) => setEditingProduct({...editingProduct, rating: e.target.value})} className="w-full p-4 rounded-xl text-sm font-bold" /></div>
@@ -1092,7 +1091,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Dynamic Packages Builder */}
               <div className="bg-[#0c0c1d] p-6 rounded-3xl border border-indigo-900/30">
                  <div className="flex justify-between items-center mb-6">
                     <label className="block text-[10px] font-black uppercase tracking-widest text-indigo-400">Paketlər (Müddət və Qiymət)</label>
@@ -1118,7 +1116,7 @@ export default function App() {
         </div>
       )}
 
-      {/* FLOATING WHATSAPP BUTTON (Minimalist without text expansion) */}
+      {/* FLOATING WHATSAPP BUTTON */}
       <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="fixed bottom-6 right-6 z-40 bg-[#25D366] text-white p-4 rounded-full shadow-[0_10px_30px_rgba(37,211,102,0.4)] hover:scale-110 hover:-translate-y-1 transition-all duration-300">
         <Icons.WhatsApp />
       </a>
@@ -1126,7 +1124,6 @@ export default function App() {
       {/* SIMPLE & MODERN FOOTER */}
       <footer className="bg-[#030308] border-t border-indigo-900/30 pt-16 pb-8 mt-20" id="footer">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
-           {/* Left Logo */}
            <div className="flex items-center gap-4 opacity-50 hover:opacity-100 transition duration-300">
               <img src="./Premium.png" alt="Premium Shop" className="h-8 object-contain grayscale hover:grayscale-0 transition" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
               <div className="hidden items-center gap-2">
@@ -1134,12 +1131,14 @@ export default function App() {
                 <span className="font-extrabold text-lg tracking-tight text-white">Premium Shop</span>
               </div>
            </div>
-
-           {/* Contact Links */}
-           <div className="flex flex-col sm:flex-row items-center gap-6 text-[11px] font-black uppercase tracking-widest text-gray-500">
-             <a href="https://wa.me/994103136941" className="hover:text-[#25D366] transition">WhatsApp: +994 10 313 69 41</a>
-             <span className="hidden sm:inline opacity-30">|</span>
-             <a href="mailto:premiumshopazerbaycan@gmail.com" className="hover:text-indigo-400 transition">premiumshopazerbaycan@gmail.com</a>
+           
+           <div className="flex flex-col items-center md:items-end gap-3 text-sm font-medium text-gray-400 lowercase">
+             <a href="https://wa.me/994103136941" className="hover:text-[#25D366] transition flex items-center gap-2">
+               whatsapp: +994 10 313 69 41
+             </a>
+             <a href="mailto:premiumshopazerbaycan@gmail.com" className="hover:text-indigo-400 transition flex items-center gap-2">
+               e-poçt: premiumshopazerbaycan@gmail.com
+             </a>
            </div>
         </div>
 
@@ -1152,7 +1151,6 @@ export default function App() {
   );
 }
 
-// Notification feedback components
 function Notif({ n }) {
   if (!n) return null;
   const colors = n.type === "error" ? "bg-red-950/90 border-red-500 text-red-100 shadow-[0_10px_40px_rgba(239,68,68,0.4)]" 
