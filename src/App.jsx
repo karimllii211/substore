@@ -88,7 +88,7 @@ const DEFAULT_PRODUCTS = [
   { id: 5, name: "Canva Pro", cat: "design", color: "#8B5CF6", emoji: "🎨", desc: "Milyonlarla premium şablon · AI dizayn köməkçisi", accountType: "Fərdi (Davətnamə)", rating: "4.7", sales: "8.8k", features: ["Bütün Premium şablonlar açıqdır", "Arxa plan silmə xüsusiyyəti", "Magic Studio (AI) alətləri", "Şəxsi mailinizə dəvətnamə göndərilir"], customLogo: "", packages: [{ id: "p12", duration: "1 Ay", price: 9 }, { id: "p13", duration: "3 Ay", price: 24 }, { id: "p14", duration: "1 İl", price: 85 }], popular: true }
 ];
 
-// Loqoları "public" papkasından çəkən vahid dizayn
+// Qeyd 2: Public papkasındakı şəkillərin birbaşa oxunması
 const renderBankLogo = (src, altName) => (
   <div className="h-10 sm:h-14 flex items-center justify-start">
     <img src={src} alt={altName} className="max-h-full max-w-full object-contain drop-shadow-md" onError={(e) => {
@@ -100,10 +100,10 @@ const renderBankLogo = (src, altName) => (
 );
 
 const BankLogos = {
-  ABB: () => renderBankLogo("./abb.png", "ABB Bank"),
-  Kapital: () => renderBankLogo("./kapital.png", "Kapital Bank"),
-  LEO: () => renderBankLogo("./leo.png", "LEO Bank"),
-  M10: () => renderBankLogo("./m10.png", "M10")
+  ABB: () => renderBankLogo("/abb.png", "ABB Bank"),
+  Kapital: () => renderBankLogo("/kapital.png", "Kapital Bank"),
+  LEO: () => renderBankLogo("/leo.png", "LEO Bank"),
+  M10: () => renderBankLogo("/m10.png", "M10")
 };
 
 const CARD_ACCOUNTS = [
@@ -154,10 +154,7 @@ export default function App() {
     onValue(productsRef, (snapshot) => {
       const data = snapshot.val();
       if(data) setProducts(Object.keys(data).map(key => ({...data[key], firebaseKey: key})));
-      else {
-        // İlk dəfə yüklənmə zamanı DB boşdursa default məhsulları əlavə et
-        DEFAULT_PRODUCTS.forEach(p => push(ref(db, 'products'), p));
-      }
+      else DEFAULT_PRODUCTS.forEach(p => push(ref(db, 'products'), p));
     });
 
     const ordersRef = ref(db, 'orders');
@@ -238,7 +235,6 @@ export default function App() {
     const file = e.target.files[0];
     if (file) {
       if (!file.type.startsWith('image/')) return showNotif("Yalnız şəkil yükləyin!", "error");
-      
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = (event) => {
@@ -362,7 +358,6 @@ export default function App() {
       productName: item.product.name, duration: item.package.duration, price: item.package.price, bank: selectedBank.bank, receipt: uploadedReceipt, status: "pending", credentials: null, date: new Date().toLocaleDateString("az-AZ")
     }));
 
-    // Bütün Sifarişləri birbaşa mərkəzi Firebase bazasına ötürürük (Admin dərhal görəcək)
     for (const o of generatedOrders) { push(ref(db, 'orders'), o); }
 
     setCart([]); setPage("dashboard"); setDashTab("orders");
@@ -429,16 +424,15 @@ export default function App() {
       <Notif n={notification} />
 
       {/* COMPACT & NEAT MOBILE-FRIENDLY HEADER */}
-      <nav className="sticky top-0 z-50 bg-[#030308]/90 backdrop-blur-xl border-b border-indigo-950/60 px-4 py-3 w-full">
-        <div className="max-w-[90rem] mx-auto flex items-center justify-between gap-2 sm:gap-4 w-full">
-           {/* Logo Section */}
+      <nav className="sticky top-0 z-50 bg-[#030308]/90 backdrop-blur-xl border-b border-indigo-950/60 px-4 sm:px-6 py-3 sm:py-4 w-full">
+        <div className="max-w-[90rem] mx-auto flex items-center justify-between w-full">
+           {/* Left Logo Section & Menu */}
            <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
              <div className="cursor-pointer flex-shrink-0" onClick={() => setPage("home")}>
-                <img src="./Premium.png" alt="PS" className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-full border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.3)] bg-black" onError={(e)=>{e.target.style.display='none'; e.target.nextSibling.style.display='flex'}} />
-                <div className="hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 items-center justify-center font-black text-white text-base sm:text-lg border-2 border-[#030308]">PS</div>
+                <img src="/Premium.png" alt="PS" className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-full border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.3)] bg-black" onError={(e)=>{e.target.style.display='none'; e.target.nextSibling.style.display='flex'}} />
+                <div className="hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 items-center justify-center font-black text-white text-lg border-2 border-[#030308]">PS</div>
              </div>
 
-             {/* Menu Links */}
              <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto no-scrollbar pt-1">
                 <button onClick={() => setPage("home")} className={`font-black text-xs sm:text-sm whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana səhifə</button>
                 <button onClick={() => setPage("categories")} className={`font-black text-xs sm:text-sm whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
@@ -449,17 +443,17 @@ export default function App() {
            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <button onClick={() => setIsCartOpen(true)} className="relative p-2 rounded-full bg-indigo-950/40 border border-indigo-500/30 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
                 <Icons.Cart />
-                {cart.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-indigo-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-[#030308]">{cart.length}</span>}
+                {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-indigo-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-[#030308]">{cart.length}</span>}
               </button>
               {user ? (
-                <button onClick={() => {setPage("dashboard"); setDashTab("profile");}} className="glass-card flex items-center gap-2 pl-1 pr-2 sm:pr-3 py-1 rounded-full border border-indigo-500/30">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-[10px] sm:text-xs text-white overflow-hidden shadow-inner">
+                <button onClick={() => {setPage("dashboard"); setDashTab("profile");}} className="glass-card flex items-center gap-2 pl-1 pr-2 sm:pr-3 py-1 rounded-full border border-indigo-500/30 hover:border-indigo-400/60">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white overflow-hidden shadow-inner">
                     {user.profileImg ? <img src={user.profileImg} alt="User" className="w-full h-full object-cover" /> : user.name[0].toUpperCase()}
                   </div>
                   <span className="font-bold text-[10px] sm:text-xs text-white hidden sm:inline">{user.name}</span>
                 </button>
               ) : (
-                <button onClick={() => setAuthMode("login")} className="glow-btn px-4 sm:px-6 py-2 rounded-full bg-indigo-600 text-white font-black text-[10px] sm:text-xs tracking-wide uppercase whitespace-nowrap">
+                <button onClick={() => setAuthMode("login")} className="glow-btn px-4 sm:px-6 py-2 rounded-full bg-indigo-600 text-white font-black text-[10px] sm:text-xs tracking-wide whitespace-nowrap uppercase">
                   <span className="sm:hidden">Giriş</span>
                   <span className="hidden sm:inline">Giriş / Qeydiyyat</span>
                 </button>
@@ -469,7 +463,7 @@ export default function App() {
       </nav>
 
       {/* DYNAMIC PAGES */}
-      <div key={page} className="page-transition flex-1 relative w-full">
+      <div className="page-transition flex-1 relative w-full">
         
         {page === "home" && (
           <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-16 relative z-10 w-full overflow-hidden">
@@ -567,7 +561,6 @@ export default function App() {
               </div>
             </section>
 
-            {/* CENTERED FEATURES SECTION */}
             <section className="bg-indigo-950/20 border border-indigo-500/20 rounded-[2rem] sm:rounded-[3rem] py-12 sm:py-20 px-6 sm:px-10 animate-card w-full" style={{ animationDelay: '400ms' }}>
               <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-10 sm:gap-16 text-center">
                 <div className="space-y-4 sm:space-y-6 flex flex-col items-center">
@@ -610,7 +603,7 @@ export default function App() {
                     <h3 className="text-xl sm:text-2xl font-black text-white mb-2">{product.name}</h3>
                     <p className="text-[11px] sm:text-xs text-gray-400 font-medium leading-relaxed mb-5 sm:mb-6">{product.desc}</p>
                   </div>
-                  <button className="w-full py-3 sm:py-3.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest text-white transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02]" style={{ backgroundColor: product.color }}>Ətrafl Bax</button>
+                  <button className="w-full py-3 sm:py-3.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest text-white transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02]" style={{ backgroundColor: product.color }}>Ətraflı Bax</button>
                 </div>
               ))}
             </div>
@@ -691,15 +684,16 @@ export default function App() {
                 <p className="text-[11px] sm:text-sm font-medium text-gray-400 max-w-md mx-auto">Aşağıdakı kartlardan birinə ödəniş edin, nömrəni kopyalamaq üçün toxunun və çeki yükləyin.</p>
               </div>
 
+              {/* Kvadrat, Səliqəli Kart Slideri */}
               <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 sm:pb-6 snap-x no-scrollbar w-full">
                 {CARD_ACCOUNTS.map(acc => (
-                  <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-60 h-40 sm:w-72 sm:h-44 snap-center p-6 rounded-[1.5rem] sm:rounded-[2rem] cursor-pointer relative overflow-hidden transition-all duration-300 bg-gradient-to-br flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-4 ring-white/50 scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.4)]" : "opacity-60 hover:opacity-100 scale-95"}`}>
+                  <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-48 h-48 sm:w-56 sm:h-56 snap-center p-5 sm:p-6 rounded-[1.5rem] sm:rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-300 bg-gradient-to-br flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-4 ring-white/50 scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.4)]" : "opacity-60 hover:opacity-100 scale-95"}`}>
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl pointer-events-none" />
-                    <div className="relative z-10 h-10 sm:h-12"><acc.logo /></div>
+                    <div className="relative z-10 w-full"><acc.logo /></div>
                     <div className="relative z-10 mt-auto">
                       <div onClick={(e) => copyToClipboard(e, acc.num)} className="group cursor-pointer">
-                        <div className="text-xl sm:text-2xl font-black text-white tracking-widest mb-1 group-hover:text-white/80 transition-colors">{acc.num}</div>
-                        <div className="text-[10px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="text-lg sm:text-xl font-black text-white tracking-widest mb-1 group-hover:text-white/80 transition-colors">{acc.num}</div>
+                        <div className="text-[9px] sm:text-[10px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <span>📋</span> Kopyala
                         </div>
                       </div>
@@ -960,7 +954,7 @@ export default function App() {
                   <span className="text-[10px] sm:text-xs font-black text-gray-500 uppercase tracking-widest">Ümumi Məbləğ</span>
                   <span className="text-2xl sm:text-3xl font-black text-white tracking-tighter">{cart.reduce((sum, item) => sum + item.package.price, 0)} <span className="text-sm sm:text-lg text-indigo-400">AZN</span></span>
                 </div>
-                <button onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} className="glow-btn w-full py-4 sm:py-5 bg-indigo-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)]">
+                <button onClick={() => { setIsCartOpen(false); setPage("checkout"); }} className="glow-btn w-full py-4 sm:py-5 bg-indigo-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)]">
                   Ödənişə Keç
                 </button>
               </div>
@@ -1104,7 +1098,7 @@ export default function App() {
                 <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Adı</label><input type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-base sm:text-lg font-black" required /></div>
                 
                 <div>
-                  <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Xüsusi Loqo (Cihazdan Yüklə)</label>
+                  <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Loqosu (Cihazdan Yüklə)</label>
                   <div className="flex items-center gap-4">
                     {editingProduct.customLogo && <img src={editingProduct.customLogo} className="w-10 h-10 rounded-lg object-contain bg-black p-1" alt="logo" />}
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="px-4 py-3 sm:py-4 bg-indigo-900/50 hover:bg-indigo-600 text-white rounded-xl text-xs sm:text-sm font-bold w-full transition">Şəkil Seç</button>
@@ -1122,7 +1116,7 @@ export default function App() {
                 <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-pink-400 mb-1 sm:mb-2">Satış Sayı</label><input type="text" placeholder="Məs: 12.5k" value={editingProduct.sales || ''} onChange={(e) => setEditingProduct({...editingProduct, sales: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" /></div>
                 <div className="md:col-span-3">
                   <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Geniş Xüsusiyyətləri (Hər sətirə 1 ədəd yazın)</label>
-                  <textarea rows="3" sm:rows="4" value={(editingProduct.features || []).join('\n')} onChange={(e) => setEditingProduct({...editingProduct, features: e.target.value.split('\n')})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold leading-relaxed" placeholder="4K Ultra HD&#10;7/24 Dəstək"></textarea>
+                  <textarea rows="3" value={(editingProduct.features || []).join('\n')} onChange={(e) => setEditingProduct({...editingProduct, features: e.target.value.split('\n')})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold leading-relaxed" placeholder="4K Ultra HD&#10;7/24 Dəstək"></textarea>
                 </div>
               </div>
 
@@ -1156,7 +1150,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col items-center sm:items-start md:flex-row justify-between gap-6">
            {/* Left Logo */}
            <div className="flex items-center gap-3 opacity-50 hover:opacity-100 transition duration-300 cursor-pointer" onClick={() => setPage("home")}>
-              <img src="./Premium.png" alt="Premium Shop" className="h-6 sm:h-8 w-6 sm:w-8 object-cover rounded-full border border-indigo-500/30" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+              <img src="/Premium.png" alt="Premium Shop" className="h-6 sm:h-8 w-6 sm:w-8 object-cover rounded-full border border-indigo-500/30" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
               <div className="hidden items-center gap-2">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-indigo-900 flex items-center justify-center font-black text-white text-[10px] sm:text-xs">PS</div>
               </div>
