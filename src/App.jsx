@@ -89,10 +89,30 @@ const DEFAULT_PRODUCTS = [
 ];
 
 const BankLogos = {
-  ABB: () => <svg viewBox="0 0 100 30" className="h-6" fill="#fff"><text x="0" y="24" fontFamily="Arial" fontWeight="900" fontSize="26" letterSpacing="-1">ABB</text></svg>,
-  Kapital: () => <svg viewBox="0 0 150 30" className="h-6" fill="#fff"><path d="M12 2L15 9H22L16 14L18 21L12 17L6 21L8 14L2 9H9L12 2Z" fill="#fff"/><text x="28" y="20" fontFamily="Arial" fontWeight="bold" fontSize="18">Kapital Bank</text></svg>,
-  LEO: () => <svg viewBox="0 0 100 30" className="h-6" fill="#fff"><text x="0" y="22" fontFamily="Arial" fontWeight="900" fontSize="24" letterSpacing="1">leo</text><circle cx="50" cy="14" r="4" fill="#fbbf24"/></svg>,
-  M10: () => <svg viewBox="0 0 100 30" className="h-6" fill="#fff"><rect width="36" height="24" rx="8" fill="#fff"/><text x="4" y="18" fill="#0d9488" fontFamily="Arial" fontWeight="900" fontSize="16">m10</text></svg>
+  ABB: () => (
+    <>
+      <img src="./abb.png" alt="ABB" className="h-8 sm:h-12 object-contain drop-shadow-md" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
+      <span className="hidden text-white font-black text-xl tracking-tight">ABB Bank</span>
+    </>
+  ),
+  Kapital: () => (
+    <>
+      <img src="./kapital.png" alt="Kapital Bank" className="h-8 sm:h-12 object-contain drop-shadow-md" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
+      <span className="hidden text-white font-black text-xl tracking-tight">Kapital Bank</span>
+    </>
+  ),
+  LEO: () => (
+    <>
+      <img src="./leo.png" alt="LEO Bank" className="h-8 sm:h-12 object-contain drop-shadow-md" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
+      <span className="hidden text-white font-black text-xl tracking-tight">LEO Bank</span>
+    </>
+  ),
+  M10: () => (
+    <>
+      <img src="./m10.png" alt="M10" className="h-8 sm:h-12 object-contain drop-shadow-md" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
+      <span className="hidden text-white font-black text-xl tracking-tight">M10</span>
+    </>
+  )
 };
 
 const CARD_ACCOUNTS = [
@@ -419,36 +439,39 @@ export default function App() {
       <Notif n={notification} />
 
       {/* COMPACT MOBILE-FRIENDLY HEADER */}
-      <nav className="sticky top-0 z-50 bg-[#030308]/90 backdrop-blur-xl border-b border-indigo-950/60 px-4 py-3 w-full">
-        <div className="max-w-[90rem] mx-auto flex items-center justify-between w-full">
-          <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
+      <nav className="sticky top-0 z-50 bg-[#030308]/90 backdrop-blur-xl border-b border-indigo-950/60 px-2 sm:px-4 py-2 sm:py-3 w-full">
+        <div className="max-w-[90rem] mx-auto flex items-center justify-between w-full gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-6 flex-1 min-w-0">
             <div className="cursor-pointer flex-shrink-0" onClick={() => setPage("home")}>
-              <img src="./Premium.png" alt="Premium Shop" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.3)] object-cover bg-black" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+              <img src="./Premium.png" alt="Premium Shop" className="w-9 h-9 sm:w-12 sm:h-12 rounded-full border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.3)] object-cover bg-black" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
               <div className="hidden items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(99,102,241,0.5)] border-2 border-[#030308]">PS</div>
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-black text-white text-base sm:text-lg shadow-[0_0_15px_rgba(99,102,241,0.5)] border-2 border-[#030308]">PS</div>
               </div>
             </div>
             
-            <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto no-scrollbar pt-1">
-              <button onClick={() => setPage("home")} className={`font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
-              <button onClick={() => setPage("categories")} className={`font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
+            <div className="flex items-center gap-2 sm:gap-5 overflow-x-auto no-scrollbar pt-1">
+              <button onClick={() => setPage("home")} className={`font-black text-xs sm:text-sm whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana səhifə</button>
+              <button onClick={() => setPage("categories")} className={`font-black text-xs sm:text-sm whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <button onClick={() => setIsCartOpen(true)} className="relative p-2 rounded-full bg-indigo-950/40 border border-indigo-900/50 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <button onClick={() => setIsCartOpen(true)} className="relative p-1.5 sm:p-2 rounded-full bg-indigo-950/40 border border-indigo-900/50 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner flex items-center justify-center">
               <Icons.Cart />
-              {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-indigo-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(99,102,241,0.8)] border border-[#030308]">{cart.length}</span>}
+              {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-indigo-500 text-white font-black text-[8px] sm:text-[10px] w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(99,102,241,0.8)] border border-[#030308]">{cart.length}</span>}
             </button>
             {user ? (
-              <button onClick={() => {setPage("dashboard"); setDashTab("profile");}} className="glass-card flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border border-indigo-500/30 hover:border-indigo-400/60">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-xs text-white overflow-hidden shadow-inner">
+              <button onClick={() => {setPage("dashboard"); setDashTab("profile");}} className="glass-card flex items-center gap-1.5 sm:gap-2 pl-1 pr-2 sm:pr-3 py-1 rounded-full border border-indigo-500/30 hover:border-indigo-400/60">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-xs text-white overflow-hidden shadow-inner">
                   {user.profileImg ? <img src={user.profileImg} alt="User" className="w-full h-full object-cover" /> : user.name[0].toUpperCase()}
                 </div>
-                <span className="font-bold text-[10px] sm:text-xs text-white hidden sm:inline">{user.name}</span>
+                <span className="font-bold text-[9px] sm:text-xs text-white hidden sm:inline">{user.name}</span>
               </button>
             ) : (
-              <button onClick={() => setAuthMode("login")} className="glow-btn px-4 sm:px-6 py-2 rounded-full bg-indigo-600 text-white text-[10px] sm:text-xs font-extrabold tracking-wide uppercase">Giriş / Qeydiyyat</button>
+              <button onClick={() => setAuthMode("login")} className="glow-btn px-3 sm:px-6 py-1.5 sm:py-2 rounded-full bg-indigo-600 text-white text-[10px] sm:text-xs font-extrabold tracking-wide">
+                <span className="sm:hidden">Giriş</span>
+                <span className="hidden sm:inline">Giriş / Qeydiyyat</span>
+              </button>
             )}
           </div>
         </div>
