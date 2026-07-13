@@ -354,20 +354,15 @@ export default function App() {
   // ==========================================
   // PEŞƏKAR VƏ ZƏMANƏTLİ EMAIL GÖNDƏRMƏ METODU
   // ==========================================
-  const sendEmailNotification = async (toEmail, toName, subject, messageHtml, selectedTemplateId) => {
+  const sendEmailNotification = async (templateParams, selectedTemplateId) => {
     setIsEmailSending(true);
     try {
       const payload = {
         service_id: EMAILJS_CONFIG.serviceId,
-        template_id: selectedTemplateId, // Dinamik olaraq təyin olunan Template ID (otpcode və ya orderdone)
+        template_id: selectedTemplateId, // Dinamik Template ID (otpcode və ya orderdone)
         user_id: EMAILJS_CONFIG.publicKey,
         accessToken: EMAILJS_CONFIG.privateKey, 
-        template_params: {
-          to_email: toEmail,
-          to_name: toName,
-          subject: subject,
-          message_html: messageHtml
-        }
+        template_params: templateParams // Şablonun içindəki bütün parametrlər bura ötürülür
       };
 
       const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
@@ -424,22 +419,15 @@ export default function App() {
       setOtpCode(generatedCode);
       setAuthMode("otp");
 
-      // Dinamik JavaScript dəyişənləri ilə zəmanətli HTML şablonu
-      const emailBody = `
-        <div style="background-color: #030308; color: #f8fafc; padding: 40px; font-family: sans-serif; border-radius: 12px; max-width: 500px; margin: auto; border: 1px solid #1e1b4b;">
-          <h2 style="color: #6366f1; text-align: center;">Premium Shop Doğrulama Kodu</h2>
-          <p>Hörmətli <strong>${authForm.name} ${authForm.surname}</strong>,</p>
-          <p>Premium Shop platformasında qeydiyyatı tamamlamaq üçün birdəfəlik təsdiq kodunuz:</p>
-          <div style="background-color: #0c0c1d; color: #ffffff; padding: 15px; border-radius: 8px; text-align: center; font-size: 28px; font-weight: bold; letter-spacing: 5px; border: 1px dashed #6366f1; margin: 20px 0;">
-            ${generatedCode}
-          </div>
-          <p style="font-size: 12px; color: #64748b; text-align: center;">Əgər bu qeydiyyatı siz etməmisinizsə, bu məktubu saymaya bilərsiniz.</p>
-        </div>
-      `;
+      // Bütün lazımi parametrlər EmailJS-ə birbaşa ötürülür!
+      // Buna görə şablondakı {{otp_code}} artıq mükəmməl dolacaq.
+      const isSent = await sendEmailNotification({
+        to_email: authForm.email,
+        to_name: authForm.name,
+        otp_code: generatedCode, // OTP kodu EmailJS-ə xüsusi dəyişən kimi göndərilir
+        subject: "Premium Shop Doğrulama Kodu"
+      }, EMAILJS_CONFIG.templateOtp); // "otpcode" şablonu istifadə edilir
 
-      showNotif("Təsdiq kodu e-poçt ünvanınıza göndərilir...", "info");
-      // OTP kodları üçün 'otpcode' şablonundan istifadə edirik
-      const isSent = await sendEmailNotification(authForm.email, authForm.name, "Premium Shop Qeydiyyat Təsdiqi", emailBody, EMAILJS_CONFIG.templateOtp);
       if (isSent) {
         showNotif(`Doğrulama kodu ${authForm.email} ünvanına göndərildi!`, "success");
       }
@@ -515,38 +503,33 @@ export default function App() {
 
     // SİFARİŞİN QƏBUL EDİLMƏSİ MAİLLƏRİ
     for (const order of generatedOrders) {
-      // 1. Müştəriyə təsdiqləmə maili
-      const customerEmailBody = `
-        <div style="background-color: #030308; color: #f8fafc; padding: 40px; font-family: sans-serif; border-radius: 12px; max-width: 500px; margin: auto; border: 1px solid #1e1b4b;">
-          <h2 style="color: #eab308; text-align: center;">Sifarişiniz Gözləmədədir ⏳</h2>
-          <p>Salam, Sayın <strong>${order.userName}</strong>,</p>
-          <p>Sizin <strong>#${order.id}</strong> nömrəli sifarişiniz uğurla sistemə yükləndi. Yüklədiyiniz çek admin tərəfindən yoxlanılaraq təsdiqlənəcək.</p>
-          <hr style="border-color: #1e1b4b; margin: 20px 0;"/>
-          <p><strong>Məhsul:</strong> ${order.productName} (${order.duration})</p>
-          <p><strong>Ödənilən Məbləğ:</strong> ${order.price} AZN</p>
-          <p><strong>Ödəniş Metodu:</strong> ${order.bank}</p>
-          <p style="font-size: 12px; color: #64748b; margin-top: 20px;">Sifariş təsdiq edildiyi an abunəlik məlumatlarınız bu e-mail ünvanına göndəriləcək.</p>
-        </div>
-      `;
-      // Sifarişlər üçün 'orderdone' şablonundan istifadə edirik
-      await sendEmailNotification(order.userEmail, order.userName, `Sifariş Qəbul Edildi #${order.id}`, customerEmailBody, EMAILJS_CONFIG.templateOrder);
+      // 1. Müştəriyə təsdiqləmə maili ("orderdone" şablonu vasitəsilə)
+      await sendEmailNotification({
+        to_email: order.userEmail,
+        to_name: order.userName,
+        order_id: order.id,
+        product_name: order.productName,
+        duration: order.duration,
+        price: order.price,
+        bank_name: order.bank,
+        subject: `Sifariş Qəbul Edildi #${order.id}`
+      }, EMAILJS_CONFIG.templateOrder);
 
       // 2. Adminə bildiriş maili
-      const adminEmailBody = `
-        <div style="background-color: #030308; color: #f8fafc; padding: 40px; font-family: sans-serif; border-radius: 12px; max-width: 500px; margin: auto; border: 1px solid #dc2626;">
-          <h2 style="color: #dc2626; text-align: center;">🚨 YENİ SİFARİŞ ALINDI!</h2>
-          <p>Admin, yeni bir ödəniş çeki yükləndi və yoxlama gözləyir.</p>
-          <hr style="border-color: #1e1b4b; margin: 20px 0;"/>
-          <p><strong>Sifariş ID:</strong> #${order.id}</p>
-          <p><strong>Müştəri:</strong> ${order.userName} ${order.userSurname} (${order.userEmail})</p>
-          <p><strong>Telefon:</strong> ${order.userPhone}</p>
-          <p><strong>Məhsul:</strong> ${order.productName} (${order.duration})</p>
-          <p><strong>Məbləğ:</strong> ${order.price} AZN</p>
-          <p><strong>Seçilən Bank:</strong> ${order.bank}</p>
-          <p style="color: #f59e0b; font-weight: bold;">Zəhmət olmasa dərhal idarəetmə panelinə daxil olub çeki və məlumatları təsdiqləyin.</p>
-        </div>
-      `;
-      await sendEmailNotification(EMAILJS_CONFIG.adminEmail, "Admin", `Yeni Sifariş Bildirişi #${order.id}`, adminEmailBody, EMAILJS_CONFIG.templateOrder);
+      await sendEmailNotification({
+        to_email: EMAILJS_CONFIG.adminEmail,
+        to_name: "Admin",
+        order_id: order.id,
+        user_name: order.userName,
+        user_surname: order.userSurname,
+        user_email: order.userEmail,
+        user_phone: order.userPhone,
+        product_name: order.productName,
+        duration: order.duration,
+        price: order.price,
+        bank_name: order.bank,
+        subject: `🚨 YENİ SİFARİŞ ALINDI #${order.id}`
+      }, EMAILJS_CONFIG.templateOrder);
     }
   };
 
@@ -606,26 +589,18 @@ export default function App() {
 
     // SİFARİŞİN TƏSDİQLƏNMƏSİ VƏ HESABIN GÖNDƏRİLMƏSİ MAİLİ
     const orderDetails = approvingOrder;
-    const approvalEmailBody = `
-      <div style="background-color: #030308; color: #f8fafc; padding: 40px; font-family: sans-serif; border-radius: 12px; max-width: 500px; margin: auto; border: 1px solid #10b981;">
-        <h2 style="color: #10b981; text-align: center;">Sifarişiniz Təsdiqləndi! 🎉</h2>
-        <p>Salam, <strong>${orderDetails.userName}</strong>,</p>
-        <p>Gözəl xəbər! Sizin ödənişiniz təsdiqləndi və rəqəmsal abunəliyiniz aktiv edildi.</p>
-        
-        <div style="background-color: #0c0c1d; padding: 20px; border-radius: 8px; border: 1px solid #10b981; margin: 20px 0;">
-          <h3 style="color: #10b981; margin-top: 0; border-bottom: 1px solid #1e1b4b; padding-bottom: 8px;">Giriş Məlumatlarınız</h3>
-          <p style="margin: 8px 0;"><strong>Məhsul:</strong> ${orderDetails.productName} (${orderDetails.duration})</p>
-          <p style="margin: 8px 0;"><strong>Giriş (E-mail):</strong> <code style="color: #6366f1; font-size: 14px; font-weight: bold;">${accountEmail}</code></p>
-          <p style="margin: 8px 0;"><strong>Şifrə (Password):</strong> <code style="color: #6366f1; font-size: 14px; font-weight: bold;">${accountPass}</code></p>
-        </div>
+    await sendEmailNotification({
+      to_email: orderDetails.userEmail,
+      to_name: orderDetails.userName,
+      order_id: orderDetails.id,
+      product_name: orderDetails.productName,
+      duration: orderDetails.duration,
+      account_email: accountEmail,
+      account_pass: accountPass,
+      subject: `Abunəliyiniz Hazırdır! #${orderDetails.id}`
+    }, EMAILJS_CONFIG.templateOrder);
 
-        <p style="font-size: 12px; color: #64748b;">Hər hansı bir çətinlik və ya sual yaranarsa, bizimlə dərhal WhatsApp üzərindən əlaqə saxlaya bilərsiniz.</p>
-      </div>
-    `;
-
-    await sendEmailNotification(orderDetails.userEmail, orderDetails.userName, `Abunəliyiniz Hazırdır! #${orderDetails.id}`, approvalEmailBody, EMAILJS_CONFIG.templateOrder);
     showNotif("Hesab məlumatları müştərinin e-mailinə uğurla göndərildi!", "success");
-
     setApprovingOrder(null);
     setAccountEmail("");
     setAccountPass("");
@@ -636,18 +611,14 @@ export default function App() {
     setOrders(updatedOrders);
     showNotif("Sifariş rədd edildi. Müştəriyə məlumat maili göndərilir...", "error");
 
-    const rejectionEmailBody = `
-      <div style="background-color: #030308; color: #f8fafc; padding: 40px; font-family: sans-serif; border-radius: 12px; max-width: 500px; margin: auto; border: 1px solid #ef4444;">
-        <h2 style="color: #ef4444; text-align: center;">Sifarişiniz Təsdiqlənmədi ❌</h2>
-        <p>Salam, <strong>${order.userName}</strong>,</p>
-        <p>Təəssüf ki, göndərdiyiniz ödəniş çeki admin tərəfindən təsdiqlənmədi.</p>
-        <p><strong>Sifariş ID:</strong> #${order.id}</p>
-        <p><strong>Məhsul:</strong> ${order.productName} (${order.duration})</p>
-        <p>Mümkün səbəblər: Çekin köhnə olması, məbləğin yanlışlığı və ya köçürmənin baş tutmaması.</p>
-        <p style="color: #ef4444; font-weight: bold;">Yenidən düzgün çek yükləyərək sifariş edə bilər və ya rəsmi dəstək xəttimizə yaza bilərsiniz.</p>
-      </div>
-    `;
-    await sendEmailNotification(order.userEmail, order.userName, `Sifariş Təsdiqlənmədi #${order.id}`, rejectionEmailBody, EMAILJS_CONFIG.templateOrder);
+    await sendEmailNotification({
+      to_email: order.userEmail,
+      to_name: order.userName,
+      order_id: order.id,
+      product_name: order.productName,
+      duration: order.duration,
+      subject: `Sifariş Təsdiqlənmədi ❌ #${order.id}`
+    }, EMAILJS_CONFIG.templateOrder);
   };
 
   return (
