@@ -195,11 +195,10 @@ const CATEGORIES = [
 ];
 
 const Icons = {
-  Cart: () => <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>,
+  Cart: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>,
   Shield: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>,
   Mail: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>,
   Headset: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>,
-  WhatsApp: () => <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>,
 };
 
 const getOfficialLogo = (name, customEmoji, color, customLogo) => {
@@ -213,6 +212,36 @@ const getOfficialLogo = (name, customEmoji, color, customLogo) => {
   if (lower.includes("chatgpt") || lower.includes("gpt")) return <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#10A37F"}><path d="M22.2819 9.8211 20.3374 8.7001c.2185-.562.3336-1.168.3336-1.7831 0-2.4578-2.0001-4.458-4.4578-4.458-.6151 0-1.2211.1151-1.7831.3336L14.1799.3499C13.5658.1189 12.8988 0 12.2318 0c-2.4578 0-4.458 2.0001-4.458 4.4578 0 .6151.1151 1.2211.3336 1.7831L6.1558 7.3789C5.5938 7.1604 4.9878 7.0453 4.3727 7.0453c-2.4578 0-4.458 2.0001-4.458 4.4578 0 .6151.1151 1.2211.3336 1.7831L1.1009 14.8291c-.2185.562-.3336 1.168-.3336 1.7831 0 2.4578 2.0001 4.458 4.4578 4.458.6151 0 1.2211-.1151 1.7831-.3336l1.9445 1.121c.562.2185 1.168.3336 1.7831.3336 2.4578 0 4.458-2.0001 4.458-4.4578 0-.6151-.1151-1.2211-.3336-1.7831l1.9445-1.121c.562-.2185 1.168-.3336 1.7831-.3336 2.4578 0 4.458-2.0001 4.458-4.4578 0-.6151-.1151-1.2211-.3336-1.7831zM12 16.5c-2.4853 0-4.5-2.0147-4.5-4.5S9.5147 7.5 12 7.5s4.5 2.0147 4.5 4.5-2.0147 4.5-4.5 4.5z"/></svg>;
   if (lower.includes("canva")) return <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#8B5CF6"}><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm6.652 14.28c-.19.34-.43.64-.72.9-.62.59-1.47.82-2.31.82H6.96l5.77-9.98h4.69c.84 0 1.69.23 2.31.82.29.26.53.56.72.9.23.4.35.83.35 1.28 0 .45-.12.89-.35 1.28z"/></svg>;
   return <span className="text-4xl p-2 bg-indigo-950/30 rounded-xl border border-indigo-900/20">{customEmoji || '🌐'}</span>;
+};
+
+// =========================================================================
+// ŞƏKİL SIKIŞDIRICI (EKRAN AĞARMASININ QARŞISINI ALMAQ ÜÇÜN)
+// =========================================================================
+const compressImage = (file, callback) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = (event) => {
+    const img = new Image();
+    img.src = event.target.result;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const MAX_WIDTH = 800; 
+      const MAX_HEIGHT = 800;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+      } else {
+        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      callback(canvas.toDataURL('image/jpeg', 0.6)); 
+    };
+  };
 };
 
 export default function App() {
@@ -254,7 +283,7 @@ export default function App() {
   const [viewedProduct, setViewedProduct] = useState(null); 
   const [selectedDuration, setSelectedDuration] = useState(null);
   
-  const [authMode, setAuthMode] = useState(null); // login, register, otp, forgot, forgot_otp, reset_pass
+  const [authMode, setAuthMode] = useState(null); 
   const [authForm, setAuthForm] = useState({ name: "", surname: "", phone: "", email: "", pass: "", otpInput: "", profileImg: "" });
   const [otpCode, setOtpCode] = useState(null);
   const [selectedBank, setSelectedBank] = useState(CARD_ACCOUNTS[0]);
@@ -281,12 +310,21 @@ export default function App() {
   const [accountPass, setAccountPass] = useState("");
 
   const fileInputRef = useRef(null);
+  const adminProductFileInputRef = useRef(null);
 
-  useEffect(() => { localStorage.setItem("premium_shop_products", JSON.stringify(products)); }, [products]);
-  useEffect(() => { localStorage.setItem("premium_shop_users_db", JSON.stringify(registeredUsers)); }, [registeredUsers]);
+  const safeSetLocalStorage = (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn("Storage is full or disabled", e);
+    }
+  };
+
+  useEffect(() => { safeSetLocalStorage("premium_shop_products", JSON.stringify(products)); }, [products]);
+  useEffect(() => { safeSetLocalStorage("premium_shop_users_db", JSON.stringify(registeredUsers)); }, [registeredUsers]);
   
   useEffect(() => { 
-    localStorage.setItem("premium_shop_orders", JSON.stringify(orders)); 
+    safeSetLocalStorage("premium_shop_orders", JSON.stringify(orders)); 
     window.dispatchEvent(new Event("local_orders_updated"));
   }, [orders]);
 
@@ -305,7 +343,7 @@ export default function App() {
 
   useEffect(() => { 
     if (user) {
-      localStorage.setItem("premium_shop_current_user", JSON.stringify(user));
+      safeSetLocalStorage("premium_shop_current_user", JSON.stringify(user));
       setProfileEdit({ name: user.name, surname: user.surname, email: user.email, phone: user.phone || "", profileImg: user.profileImg || "", gender: user.gender || "Kişi" });
     } else localStorage.removeItem("premium_shop_current_user");
   }, [user]);
@@ -326,9 +364,7 @@ export default function App() {
     const file = e.target.files[0];
     if (file) {
       if (!file.type.startsWith('image/')) return showNotif("Yalnız şəkil yükləyin!", "error");
-      const reader = new FileReader();
-      reader.onloadend = () => setter(reader.result);
-      reader.readAsDataURL(file);
+      compressImage(file, setter); // Sıxışdırıb yaddaşa veririk ki çökməsin
     }
   };
 
@@ -496,13 +532,13 @@ export default function App() {
             </div>
             
             <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto no-scrollbar pt-1">
-              <button onClick={() => setPage("home")} className={`font-black text-[10px] sm:text-[11px] uppercase tracking-wider whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
-              <button onClick={() => setPage("categories")} className={`font-black text-[10px] sm:text-[11px] uppercase tracking-wider whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
+              <button onClick={() => setPage("home")} className={`font-bold text-[12px] sm:text-[14px] tracking-wide whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
+              <button onClick={() => setPage("categories")} className={`font-bold text-[12px] sm:text-[14px] tracking-wide whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
             </div>
           </div>
 
           <div className="flex items-center gap-3 flex-shrink-0">
-            <button onClick={() => setIsCartOpen(true)} className="relative p-2 rounded-full bg-indigo-950/40 border border-indigo-900/50 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
+            <button onClick={() => setIsCartOpen(true)} className="relative p-1.5 sm:p-2.5 rounded-full bg-indigo-950/40 border border-indigo-900/50 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
               <Icons.Cart />
               {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-indigo-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(99,102,241,0.8)] border border-[#030308]">{cart.length}</span>}
             </button>
@@ -541,9 +577,6 @@ export default function App() {
                   <p className="text-gray-400 text-sm sm:text-lg lg:text-xl max-w-xl leading-relaxed font-medium">Azərbaycanın ən etibarlı platformasında kartla rahatlıqla ödəyin, rəsmi abunəlik hesabınız e-mail ünvanınıza dərhal çatdırılsın.</p>
                   <div className="flex flex-col sm:flex-row gap-4 pt-2">
                     <button onClick={() => setPage("categories")} className="glow-btn w-full sm:w-auto px-8 py-4 sm:py-5 rounded-2xl bg-indigo-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(99,102,241,0.4)] transition text-center">Abunəliklərə Bax</button>
-                    <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="glow-btn-green w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 sm:py-5 rounded-2xl bg-[#25D366]/20 border border-[#25D366]/50 text-[#25D366] font-black text-xs sm:text-sm uppercase tracking-wider transition duration-300">
-                      WhatsApp Dəstək
-                    </a>
                   </div>
                 </div>
                 <div className="relative hidden lg:block">
@@ -561,39 +594,6 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* TOP CARDS */}
-            <div className="mb-16 sm:mb-24 space-y-8 animate-card" style={{ animationDelay: '200ms' }}>
-              <div className="text-center space-y-4 mb-10 sm:mb-16">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Ən Çox Satılanlar</h2>
-                <div className="w-16 sm:w-24 h-1.5 bg-indigo-600 mx-auto rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                {products.filter(p => p.popular).slice(0,3).map((product, index) => (
-                  <div key={product.id} className="hero-card rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer" onClick={() => openProductDetail(product)}>
-                    <div className="flex items-center justify-between mb-6 sm:mb-8 relative z-10">
-                      <div className="p-3 sm:p-4 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product.name, product.emoji, product.color, product.customLogo)}</div>
-                      <span className="text-[9px] font-black text-white bg-white/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20">Populyar</span>
-                    </div>
-                    <div className="relative z-10">
-                      <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 sm:mb-3 tracking-tight">{product.name}</h3>
-                      <p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed mb-6 sm:mb-8 min-h-[40px]">{product.desc}</p>
-                    </div>
-                    <div className="pt-5 sm:pt-6 border-t border-white/10 mt-auto relative z-10">
-                      <button className="w-full py-3 sm:py-4 rounded-xl text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-300 shadow-lg" style={{ backgroundColor: product.color }}>
-                        Ətraflı Bax →
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="text-center mt-8 sm:mt-12">
-                <button onClick={() => setPage("categories")} className="inline-flex items-center gap-2 sm:gap-3 font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest text-xs sm:text-sm hover:gap-4 sm:hover:gap-5 transition-all">
-                  Bütün Məhsulları Kəşf Et <span className="text-base sm:text-lg">→</span>
-                </button>
               </div>
             </div>
 
@@ -626,16 +626,16 @@ export default function App() {
             {/* CENTERED FEATURES SECTION */}
             <section className="bg-indigo-950/20 border border-indigo-500/20 rounded-[2rem] sm:rounded-[3rem] py-12 sm:py-20 px-6 sm:px-10 animate-card w-full" style={{ animationDelay: '400ms' }}>
               <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-10 sm:gap-16 text-center">
-                <div className="space-y-4 sm:space-y-6 flex flex-col items-center">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-indigo-500/30 flex items-center justify-center shadow-lg"><Icons.Shield /></div>
+                <div className="space-y-4 sm:space-y-6 flex flex-col items-center group">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-indigo-500/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><Icons.Shield /></div>
                   <div><h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">Güvənli Ödəniş</h3><p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">ABB, Kapital, LEO və ya M10 vasitəsilə rahatlıqla ödəniş edib çeki yükləyin. Ödənişlər tam qorunur.</p></div>
                 </div>
-                <div className="space-y-4 sm:space-y-6 flex flex-col items-center">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-purple-500/30 flex items-center justify-center shadow-lg"><Icons.Mail /></div>
+                <div className="space-y-4 sm:space-y-6 flex flex-col items-center group">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-purple-500/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><Icons.Mail /></div>
                   <div><h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">Sürətli Çatdırılma</h3><p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">Sifarişiniz təsdiqləndiyi an bütün rəsmi giriş məlumatları dərhal e-mail ünvanınıza göndərilir.</p></div>
                 </div>
-                <div className="space-y-4 sm:space-y-6 flex flex-col items-center">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-emerald-500/30 flex items-center justify-center shadow-lg"><Icons.Headset /></div>
+                <div className="space-y-4 sm:space-y-6 flex flex-col items-center group">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-emerald-500/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><Icons.Headset /></div>
                   <div><h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">7/24 Aktiv Dəstək</h3><p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">Hər hansı bir çətinlik və ya sualınız olduqda WhatsApp dəstək xəttimizə yazaraq canlı rəhbərlik ala bilərsiniz.</p></div>
                 </div>
               </div>
@@ -1159,8 +1159,9 @@ export default function App() {
               <div className="grid md:grid-cols-2 gap-4 sm:gap-6 bg-[#0c0c1d] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-900/30">
                 <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Adı</label><input type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-base sm:text-lg font-black" required /></div>
                 <div>
-                  <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Xüsusi Loqo (Şəkil Linki)</label>
-                  <input type="text" value={editingProduct.customLogo || ''} onChange={(e) => setEditingProduct({...editingProduct, customLogo: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold bg-black" placeholder="https://..." />
+                  <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Xüsusi Loqo (Cihazdan Yüklə)</label>
+                  <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, (res) => setEditingProduct({...editingProduct, customLogo: res}))} className="w-full p-2 rounded-xl text-xs bg-black text-gray-400 border border-indigo-900/50" />
+                  {editingProduct.customLogo && <img src={editingProduct.customLogo} alt="preview" className="h-10 mt-2 rounded-md object-cover" />}
                 </div>
                 <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Açar Rəngi (Hex Code)</label><input type="text" value={editingProduct.color} onChange={(e) => setEditingProduct({...editingProduct, color: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold bg-black" /></div>
                 <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Qısa Açıqlama</label><input type="text" value={editingProduct.desc} onChange={(e) => setEditingProduct({...editingProduct, desc: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
