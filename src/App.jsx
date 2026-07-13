@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue, push, update, remove } from 'firebase/database';
 
 // =========================================================================
-// ⚠️ FIREBASE REALTIME DATABASE KONFİQURASİYASI (Sizin Şəkildən)
+// ⚠️ FIREBASE REALTIME DATABASE KONFİQURASİYASI
 // =========================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyBQGR-rN7qXlTa0KaCiDALLPOM5NOgfqwU",
@@ -15,7 +15,6 @@ const firebaseConfig = {
   appId: "1:410724874477:web:e65784b697a99e14ebf4e4"
 };
 
-// Verilənlər Bazasını Başladırıq
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
@@ -33,28 +32,35 @@ const EMAILJS_CONFIG = {
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+  
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
   html, body { background: #030308; color: #f8fafc; scroll-behavior: smooth; overflow-x: hidden; width: 100%; position: relative; }
+  
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: #030308; }
   ::-webkit-scrollbar-thumb { background: #1e1b4b; border-radius: 8px; }
   ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  
   .glow-btn { position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
   .glow-btn:hover { box-shadow: 0 0 35px rgba(99, 102, 241, 0.5); transform: translateY(-2px) scale(1.02); }
   .glow-btn-green { box-shadow: 0 0 20px rgba(37, 211, 102, 0.2); }
   .glow-btn-green:hover { box-shadow: 0 0 35px rgba(37, 211, 102, 0.4); transform: translateY(-2px) scale(1.02); }
+  
   .glass-card { background: rgba(10, 10, 22, 0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(99, 102, 241, 0.15); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
   .glass-card:hover { border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2); }
   .hero-card { background: linear-gradient(145deg, rgba(20,20,35,0.8) 0%, rgba(10,10,18,0.9) 100%); border: 1px solid rgba(255,255,255,0.05); transition: all 0.4s ease; }
   .hero-card:hover { transform: scale(1.02); border: 1px solid rgba(99,102,241,0.5); box-shadow: 0 20px 40px rgba(99,102,241,0.25); }
+  
   .neon-text { text-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
+
   .led-blob { position: absolute; filter: blur(80px); border-radius: 50%; animation: floatLed 8s infinite alternate ease-in-out; pointer-events: none; z-index: 0; }
   .led-1 { top: -5%; left: 0%; width: 250px; height: 250px; background: rgba(99, 102, 241, 0.3); animation-delay: 0s; }
   .led-2 { top: 30%; right: -5%; width: 300px; height: 300px; background: rgba(236, 72, 153, 0.2); animation-delay: -3s; }
   .led-3 { bottom: -5%; left: 20%; width: 350px; height: 350px; background: rgba(139, 92, 246, 0.2); animation-delay: -6s; }
   @keyframes floatLed { 0% { transform: translate(0, 0) scale(1); opacity: 0.5; } 100% { transform: translate(20px, 30px) scale(1.1); opacity: 0.8; } }
+
   .page-transition { animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   @keyframes slideUpFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
   .drawer-open { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -63,10 +69,12 @@ const CSS = `
   @keyframes modalZoom { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
   @keyframes toastSlide { from { transform: translateY(100px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
   .animate-toast { animation: toastSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
   .spinner { width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .success-check { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #10b981; color: white; font-size: 30px; margin: 0 auto; animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; box-shadow: 0 0 25px rgba(16, 185, 129, 0.4); }
   @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 70% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+  
   input, select, textarea { background-color: #0c0c1d !important; color: #ffffff !important; border: 1px solid rgba(99, 102, 241, 0.2) !important; transition: all 0.3s ease; }
   input:focus, select:focus, textarea:focus { border-color: rgba(99, 102, 241, 0.8) !important; outline: none !important; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
   input::placeholder { color: #64748b !important; }
@@ -172,7 +180,7 @@ export default function App() {
   const [authMode, setAuthMode] = useState(null); 
   const [authForm, setAuthForm] = useState({ name: "", surname: "", phone: "", email: "", pass: "", otpInput: "", profileImg: "" });
   const [otpCode, setOtpCode] = useState(null);
-  const [forgotUserKey, setForgotUserKey] = useState(null); // Şifrə yeniləmə zamanı user ID saxlanılır
+  const [forgotUserKey, setForgotUserKey] = useState(null);
 
   const [selectedBank, setSelectedBank] = useState(CARD_ACCOUNTS[0]);
   const [uploadedReceipt, setUploadedReceipt] = useState(null);
@@ -215,12 +223,12 @@ export default function App() {
     showNotif("Kart nömrəsi kopyalandı", "success");
   };
 
+  // Image compressor for Firebase memory limits (Prevents White Screen Crash)
   const handleImageUpload = (e, setter) => {
     const file = e.target.files[0];
     if (file) {
       if (!file.type.startsWith('image/')) return showNotif("Yalnız şəkil yükləyin!", "error");
       
-      // Xüsusi Şəkil Sıxıcı (Crash problemlərinin həlli)
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = (event) => {
@@ -228,14 +236,13 @@ export default function App() {
         img.src = event.target.result;
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 800; // Genişliyi məhdudlaşdırırıq
+          const MAX_WIDTH = 800; 
           const scaleSize = MAX_WIDTH / img.width;
           canvas.width = MAX_WIDTH;
           canvas.height = img.height * scaleSize;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          // Keyfiyyəti 0.6 (60%) təyin edərək fayl ölçüsünü kəskin salırıq ki, çökməsin
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% quality
           setter(compressedDataUrl);
         };
       };
@@ -416,14 +423,12 @@ export default function App() {
         <div className="max-w-[90rem] mx-auto flex items-center justify-between w-full">
           <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
             <div className="cursor-pointer flex-shrink-0" onClick={() => setPage("home")}>
-              {/* Circular premium logo implementation */}
               <img src="./Premium.png" alt="Premium Shop" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.3)] object-cover bg-black" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
               <div className="hidden items-center gap-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(99,102,241,0.5)] border-2 border-[#030308]">PS</div>
               </div>
             </div>
             
-            {/* Menu Items aligned left next to logo */}
             <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto no-scrollbar pt-1">
               <button onClick={() => setPage("home")} className={`font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
               <button onClick={() => setPage("categories")} className={`font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
@@ -470,9 +475,6 @@ export default function App() {
                   <p className="text-gray-400 text-sm sm:text-lg lg:text-xl max-w-xl leading-relaxed font-medium">Azərbaycanın ən etibarlı platformasında kartla rahatlıqla ödəyin, rəsmi abunəlik hesabınız e-mail ünvanınıza dərhal çatdırılsın.</p>
                   <div className="flex flex-col sm:flex-row gap-4 pt-2">
                     <button onClick={() => setPage("categories")} className="glow-btn w-full sm:w-auto px-8 py-4 sm:py-5 rounded-2xl bg-indigo-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(99,102,241,0.4)] transition text-center">Abunəliklərə Bax</button>
-                    <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="glow-btn-green w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 sm:py-5 rounded-2xl bg-[#25D366]/20 border border-[#25D366]/50 text-[#25D366] font-black text-xs sm:text-sm uppercase tracking-wider transition duration-300">
-                       WhatsApp Dəstək
-                    </a>
                   </div>
                 </div>
                 <div className="relative hidden lg:block">
@@ -891,7 +893,7 @@ export default function App() {
         </div>
       )}
 
-      {/* CHECKOUT MODAL WITH SQUARE CARD SLIDER & COMPRESSED FILE UPLOAD */}
+      {/* CHECKOUT MODAL WITH SQUARE CARD SLIDER & FILE UPLOAD */}
       {isCheckoutOpen && (
         <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="glass-card w-full max-w-2xl rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-10 animate-modal relative my-4 sm:my-8 border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)] w-full">
@@ -902,6 +904,7 @@ export default function App() {
               <p className="text-[11px] sm:text-sm font-medium text-gray-400 max-w-md mx-auto">Aşağıdakı kartlardan birinə ödəniş edin, nömrəni kopyalamaq üçün toxunun və çeki yükləyin.</p>
             </div>
 
+            {/* SQUARE CARDS SLIDER COMPACT */}
             <div className="flex overflow-x-auto gap-3 sm:gap-4 pb-4 sm:pb-6 snap-x no-scrollbar -mx-2 sm:mx-0 px-2 sm:px-0 w-full">
               {CARD_ACCOUNTS.map(acc => (
                 <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-44 h-44 sm:w-52 sm:h-52 snap-center p-5 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] cursor-pointer relative overflow-hidden transition-all duration-300 bg-gradient-to-br flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-2 sm:ring-4 ring-white/50 scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.4)]" : "opacity-60 hover:opacity-100 scale-95"}`}>
@@ -1044,7 +1047,7 @@ export default function App() {
       {isAdminModalOpen && (
         <div className="fixed inset-0 z-50 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
           <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-red-500/30">
-            <button onClick={() => setIsAdminModalOpen(false)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
+            <button onClick={() => setIsAdminModalOpen(false)} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-900/40 border border-red-500/30 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 mx-auto shadow-lg">🛡️</div>
             <h3 className="text-xl sm:text-2xl font-black text-white mb-1 sm:mb-2 text-center tracking-tight">Admin Paneli</h3>
             <p className="text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-6 sm:mb-8 text-center">Səlahiyyətli şəxs girişi</p>
@@ -1087,7 +1090,6 @@ export default function App() {
               <div className="grid md:grid-cols-2 gap-4 sm:gap-6 bg-[#0c0c1d] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-900/30">
                 <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Adı</label><input type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-base sm:text-lg font-black" required /></div>
                 
-                {/* Loqonun Birbaşa Faylla Yüklənməsi İmkanı (Tələb 3) */}
                 <div>
                   <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Loqosu (Cihazdan Yüklə)</label>
                   <div className="flex items-center gap-4">
