@@ -88,29 +88,31 @@ const DEFAULT_PRODUCTS = [
   { id: 5, name: "Canva Pro", cat: "design", color: "#8B5CF6", emoji: "🎨", desc: "Milyonlarla premium şablon · AI dizayn köməkçisi", accountType: "Fərdi (Davətnamə)", rating: "4.7", sales: "8.8k", features: ["Bütün Premium şablonlar açıqdır", "Arxa plan silmə xüsusiyyəti", "Magic Studio (AI) alətləri", "Şəxsi mailinizə dəvətnamə göndərilir"], customLogo: "", packages: [{ id: "p12", duration: "1 Ay", price: 9 }, { id: "p13", duration: "3 Ay", price: 24 }, { id: "p14", duration: "1 İl", price: 85 }], popular: true }
 ];
 
-// Orijinal şəkil adları ilə loqo funksiyası
-const renderBankLogo = (src, altName) => (
-  <div className="h-10 sm:h-14 flex items-center justify-start">
-    <img src={src} alt={altName} className="max-h-full max-w-full object-contain drop-shadow-md" onError={(e) => {
-      e.target.style.display = 'none';
-      if(e.target.nextSibling) e.target.nextSibling.style.display = 'block';
-    }} />
-    <span className="hidden text-white font-black text-lg tracking-tight">{altName}</span>
+// Qeyd 2: Public papkasındakı şəkillərin birbaşa oxunması
+const renderBankLogo = (src, altName, whiteWrapper = false) => (
+  <div className="h-10 sm:h-12 flex items-center justify-start">
+    <div className={`h-full flex items-center justify-center ${whiteWrapper ? 'bg-white px-3 py-1.5 rounded-xl shadow-md' : ''}`}>
+      <img src={src} alt={altName} className="max-h-full max-w-full object-contain" onError={(e) => {
+        e.target.style.display = 'none';
+        if(e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+      }} />
+    </div>
+    <span className="hidden text-white font-black text-lg tracking-tight ml-2">{altName}</span>
   </div>
 );
 
 const BankLogos = {
-  ABB: () => renderBankLogo("/ABB_Logo.png", "ABB Bank"),
-  Kapital: () => renderBankLogo("/Kapital_Bank_RGB_logo_2023.png", "Kapital Bank"),
-  LEO: () => renderBankLogo("/Leobank_logo.png", "LEO Bank"),
-  M10: () => renderBankLogo("/68ec08076d49b88753ef79fa_44fe3826e45d85409568b81412f0a2ba_m10_cover.png", "M10")
+  ABB: () => renderBankLogo("/ABB_Logo.png", "ABB Bank", true),
+  Kapital: () => renderBankLogo("/Kapital_Bank_RGB_logo_2023.png", "Kapital Bank", true),
+  LEO: () => renderBankLogo("/Leobank_logo.png", "LEO Bank", false),
+  M10: () => renderBankLogo("/68ec08076d49b88753ef79fa_44fe3826e45d85409568b81412f0a2ba_m10_cover.png", "M10", false)
 };
 
 const CARD_ACCOUNTS = [
   { id: "kapital", bank: "Kapital Bank", logo: BankLogos.Kapital, num: "4169 7388 1861 3451", color: "from-red-600 to-red-800" },
   { id: "abb", bank: "ABB", logo: BankLogos.ABB, num: "5522 0093 7234 8144", color: "from-blue-600 to-blue-800" },
-  { id: "leo", bank: "LEO Bank", logo: BankLogos.LEO, num: "4098 5844 6496 5191", color: "from-zinc-800 to-black" },
-  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "from-teal-500 to-teal-700" }
+  { id: "leo", bank: "LEO Bank", logo: BankLogos.LEO, num: "4098 5844 6496 5191", color: "from-black to-black border border-white/10" },
+  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "from-[#02D68F] to-[#02D68F]" }
 ];
 
 const CATEGORIES = [
