@@ -61,17 +61,29 @@ const CSS = `
   .led-3 { bottom: -5%; left: 20%; width: 350px; height: 350px; background: rgba(139, 92, 246, 0.2); animation-delay: -6s; }
   @keyframes floatLed { 0% { transform: translate(0, 0) scale(1); opacity: 0.5; } 100% { transform: translate(20px, 30px) scale(1.1); opacity: 0.8; } }
 
-  .page-transition { animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  @keyframes slideUpFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-  .drawer-open { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .page-transition { animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  @keyframes slideUpFade { 
+    from { opacity: 0; transform: translateY(20px) scale(0.98); filter: blur(4px); } 
+    to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } 
+  }
+  
+  .animate-card { opacity: 0; animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  
+  .drawer-open { animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
-  .animate-modal { animation: modalZoom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  @keyframes modalZoom { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  
+  .animate-modal { animation: modalZoom 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  @keyframes modalZoom { 
+    from { opacity: 0; transform: scale(0.92); filter: blur(2px); } 
+    to { opacity: 1; transform: scale(1); filter: blur(0); } 
+  }
+  
   @keyframes toastSlide { from { transform: translateY(100px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
   .animate-toast { animation: toastSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
   .spinner { width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  
   .success-check { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #10b981; color: white; font-size: 30px; margin: 0 auto; animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; box-shadow: 0 0 25px rgba(16, 185, 129, 0.4); }
   @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 70% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
   
@@ -88,31 +100,29 @@ const DEFAULT_PRODUCTS = [
   { id: 5, name: "Canva Pro", cat: "design", color: "#8B5CF6", emoji: "🎨", desc: "Milyonlarla premium şablon · AI dizayn köməkçisi", accountType: "Fərdi (Davətnamə)", rating: "4.7", sales: "8.8k", features: ["Bütün Premium şablonlar açıqdır", "Arxa plan silmə xüsusiyyəti", "Magic Studio (AI) alətləri", "Şəxsi mailinizə dəvətnamə göndərilir"], customLogo: "", packages: [{ id: "p12", duration: "1 Ay", price: 9 }, { id: "p13", duration: "3 Ay", price: 24 }, { id: "p14", duration: "1 İl", price: 85 }], popular: true }
 ];
 
-// Qeyd 2: Public papkasındakı şəkillərin birbaşa oxunması
-const renderBankLogo = (src, altName, whiteWrapper = false) => (
+// Qeyd 2: Public papkasındakı şəkillərin oxunması & Rənglərin silinməsi (Multiply Blend)
+const renderBankLogo = (src, altName, applyMultiply) => (
   <div className="h-10 sm:h-12 flex items-center justify-start">
-    <div className={`h-full flex items-center justify-center ${whiteWrapper ? 'bg-white px-3 py-1.5 rounded-xl shadow-md' : ''}`}>
-      <img src={src} alt={altName} className="max-h-full max-w-full object-contain" onError={(e) => {
-        e.target.style.display = 'none';
-        if(e.target.nextSibling) e.target.nextSibling.style.display = 'block';
-      }} />
-    </div>
-    <span className="hidden text-white font-black text-lg tracking-tight ml-2">{altName}</span>
+    <img src={src} alt={altName} className={`max-h-full max-w-full object-contain ${applyMultiply ? 'mix-blend-multiply' : ''}`} onError={(e) => {
+      e.target.style.display = 'none';
+      if(e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+    }} />
+    <span className="hidden text-white font-black text-lg tracking-tight">{altName}</span>
   </div>
 );
 
 const BankLogos = {
-  ABB: () => renderBankLogo("/ABB_Logo.png", "ABB Bank", true),
-  Kapital: () => renderBankLogo("/Kapital_Bank_RGB_logo_2023.png", "Kapital Bank", true),
-  LEO: () => renderBankLogo("/Leobank_logo.png", "LEO Bank", false),
-  M10: () => renderBankLogo("/68ec08076d49b88753ef79fa_44fe3826e45d85409568b81412f0a2ba_m10_cover.png", "M10", false)
+  ABB: () => renderBankLogo("/abb.png", "ABB Bank", true), // Multiply ilə ağ fon silinir
+  Kapital: () => renderBankLogo("/kapital.png", "Kapital Bank", true), // Multiply ilə ağ fon silinir
+  LEO: () => renderBankLogo("/leo.png", "LEO Bank", false), // Qara kartda ağ yazı olduğu üçün multiply edilmir
+  M10: () => renderBankLogo("/m10.png", "M10", true) // Multiply ilə şəklin fonu M10 yaşılına birləşir
 };
 
 const CARD_ACCOUNTS = [
-  { id: "kapital", bank: "Kapital Bank", logo: BankLogos.Kapital, num: "4169 7388 1861 3451", color: "from-red-600 to-red-800" },
-  { id: "abb", bank: "ABB", logo: BankLogos.ABB, num: "5522 0093 7234 8144", color: "from-blue-600 to-blue-800" },
-  { id: "leo", bank: "LEO Bank", logo: BankLogos.LEO, num: "4098 5844 6496 5191", color: "from-black to-black border border-white/10" },
-  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "from-[#02D68F] to-[#02D68F]" }
+  { id: "kapital", bank: "Kapital Bank", logo: BankLogos.Kapital, num: "4169 7388 1861 3451", color: "bg-white", textColor: "text-gray-500", numColor: "text-gray-900 group-hover:text-black" },
+  { id: "abb", bank: "ABB", logo: BankLogos.ABB, num: "5522 0093 7234 8144", color: "bg-gradient-to-br from-white to-[#f0f4f8]", textColor: "text-blue-400", numColor: "text-blue-900 group-hover:text-blue-700" },
+  { id: "leo", bank: "LEO Bank", logo: BankLogos.LEO, num: "4098 5844 6496 5191", color: "bg-black border border-gray-800", textColor: "text-gray-400", numColor: "text-white group-hover:text-gray-300" },
+  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "bg-[#02D68F]", textColor: "text-black/60", numColor: "text-black group-hover:text-black/80" }
 ];
 
 const CATEGORIES = [
@@ -176,13 +186,7 @@ export default function App() {
 
   const [page, setPage] = useState("home"); 
   const [selectedCat, setSelectedCat] = useState("all");
-  
-  // Cart State (İndi LocalStorage ilə sinxron işləyir)
-  const [cart, setCart] = useState(() => {
-    const localCart = localStorage.getItem("premium_shop_cart");
-    return localCart ? JSON.parse(localCart) : [];
-  });
-
+  const [cart, setCart] = useState([]);
   const [user, setUser] = useState(() => {
     const local = localStorage.getItem("premium_shop_current_user");
     return local ? JSON.parse(local) : null;
@@ -226,11 +230,6 @@ export default function App() {
     } else localStorage.removeItem("premium_shop_current_user");
   }, [user]);
 
-  // Səbət dəyişəndə onu yaddaşa yaz
-  useEffect(() => {
-    localStorage.setItem("premium_shop_cart", JSON.stringify(cart));
-  }, [cart]);
-
   const showNotif = (msg, type = "success") => {
     setNotification({ msg, type });
     setTimeout(() => setNotification(null), 3500);
@@ -243,7 +242,7 @@ export default function App() {
     showNotif("Kart nömrəsi kopyalandı", "success");
   };
 
-  // Image compressor for Firebase memory limits (Prevents White Screen Crash)
+  // Image compressor for Firebase memory limits
   const handleImageUpload = (e, setter) => {
     const file = e.target.files[0];
     if (file) {
@@ -438,35 +437,35 @@ export default function App() {
 
       {/* COMPACT & NEAT MOBILE-FRIENDLY HEADER */}
       <nav className="sticky top-0 z-50 bg-[#030308]/90 backdrop-blur-xl border-b border-indigo-950/60 px-4 sm:px-6 py-3 sm:py-4 w-full">
-        <div className="max-w-[90rem] mx-auto flex items-center justify-between w-full">
-           {/* Left Logo Section & Menu */}
-           <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
-             <div className="cursor-pointer flex-shrink-0" onClick={() => setPage("home")}>
-                <img src="/Premium.png" alt="PS" className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-full border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.3)] bg-black" onError={(e)=>{e.target.style.display='none'; e.target.nextSibling.style.display='flex'}} />
-                <div className="hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 items-center justify-center font-black text-white text-lg border-2 border-[#030308]">PS</div>
-             </div>
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+           {/* Logo Section */}
+           <div className="flex items-center gap-3 cursor-pointer flex-shrink-0" onClick={() => setPage("home")}>
+              <img src="/Premium.png" alt="PS" className="w-10 h-10 object-contain rounded-full border border-indigo-500/30" onError={(e)=>{e.target.style.display='none'; e.target.nextSibling.style.display='flex'}} />
+              <div className="hidden w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 items-center justify-center font-black text-white text-lg">PS</div>
+              <span className="hidden sm:block font-black text-xl text-white tracking-tight">Premium Shop</span>
+           </div>
 
-             <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto no-scrollbar pt-1">
-                <button onClick={() => setPage("home")} className={`font-black text-xs sm:text-sm whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana səhifə</button>
-                <button onClick={() => setPage("categories")} className={`font-black text-xs sm:text-sm whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
-             </div>
+           {/* Menu Links */}
+           <div className="flex flex-1 justify-center gap-3 sm:gap-6 overflow-x-auto no-scrollbar">
+              <button onClick={() => setPage("home")} className={`font-black text-xs sm:text-sm uppercase tracking-wider transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
+              <button onClick={() => setPage("categories")} className={`font-black text-xs sm:text-sm uppercase tracking-wider transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
            </div>
 
            {/* Actions Section */}
-           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              <button onClick={() => setIsCartOpen(true)} className="relative p-2 rounded-full bg-indigo-950/40 border border-indigo-500/30 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
+           <div className="flex items-center gap-3 flex-shrink-0">
+              <button onClick={() => setIsCartOpen(true)} className="relative p-2.5 rounded-full bg-indigo-950/40 border border-indigo-500/30 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
                 <Icons.Cart />
-                {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-indigo-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-[#030308]">{cart.length}</span>}
+                {cart.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-indigo-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-[#030308]">{cart.length}</span>}
               </button>
               {user ? (
-                <button onClick={() => {setPage("dashboard"); setDashTab("profile");}} className="glass-card flex items-center gap-2 pl-1 pr-2 sm:pr-3 py-1 rounded-full border border-indigo-500/30 hover:border-indigo-400/60">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white overflow-hidden shadow-inner">
+                <button onClick={() => {setPage("dashboard"); setDashTab("profile");}} className="glass-card flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border border-indigo-500/30">
+                  <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white overflow-hidden shadow-inner">
                     {user.profileImg ? <img src={user.profileImg} alt="User" className="w-full h-full object-cover" /> : user.name[0].toUpperCase()}
                   </div>
-                  <span className="font-bold text-[10px] sm:text-xs text-white hidden sm:inline">{user.name}</span>
+                  <span className="font-bold text-xs text-white hidden sm:inline">{user.name}</span>
                 </button>
               ) : (
-                <button onClick={() => setAuthMode("login")} className="glow-btn px-4 sm:px-6 py-2 rounded-full bg-indigo-600 text-white font-black text-[10px] sm:text-xs tracking-wide whitespace-nowrap uppercase">
+                <button onClick={() => setAuthMode("login")} className="glow-btn px-4 sm:px-6 py-2 rounded-full bg-indigo-600 text-white font-black text-xs uppercase tracking-widest whitespace-nowrap">
                   <span className="sm:hidden">Giriş</span>
                   <span className="hidden sm:inline">Giriş / Qeydiyyat</span>
                 </button>
@@ -475,8 +474,8 @@ export default function App() {
         </div>
       </nav>
 
-      {/* DYNAMIC PAGES */}
-      <div className="page-transition flex-1 relative w-full">
+      {/* DYNAMIC PAGES WITH IMPROVED ANIMATIONS */}
+      <div key={page} className="page-transition flex-1 relative w-full">
         
         {page === "home" && (
           <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-16 relative z-10 w-full overflow-hidden">
@@ -484,7 +483,7 @@ export default function App() {
             <div className="led-blob led-2 hidden md:block"></div>
             <div className="led-blob led-3 hidden md:block"></div>
 
-            <div className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden glass-card p-6 sm:p-12 lg:p-20 mb-16 sm:mb-24 animate-card border border-indigo-500/30 bg-black/40 w-full">
+            <div className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden glass-card p-6 sm:p-12 lg:p-20 mb-16 sm:mb-24 animate-card border border-indigo-500/30 bg-black/40 w-full" style={{ animationDelay: '50ms' }}>
               <div className="relative z-10 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                 <div className="space-y-6 sm:space-y-8">
                   <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-inner backdrop-blur-md">
@@ -515,8 +514,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* TOP CARDS */}
-            <div className="mb-16 sm:mb-24 space-y-8 animate-card" style={{ animationDelay: '200ms' }}>
+            <div className="mb-16 sm:mb-24 space-y-8 animate-card" style={{ animationDelay: '150ms' }}>
               <div className="text-center space-y-4 mb-10 sm:mb-16">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Ən Çox Satılanlar</h2>
                 <div className="w-16 sm:w-24 h-1.5 bg-indigo-600 mx-auto rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
@@ -524,7 +522,7 @@ export default function App() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                 {products.filter(p => p.popular).slice(0,3).map((product, index) => (
-                  <div key={product.id} className="hero-card rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer" onClick={() => openProductDetail(product)}>
+                  <div key={product.id} className="hero-card rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer animate-card" style={{ animationDelay: `${250 + (index * 100)}ms` }} onClick={() => openProductDetail(product)}>
                     <div className="flex items-center justify-between mb-6 sm:mb-8 relative z-10">
                       <div className="p-3 sm:p-4 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product.name, product.emoji, product.color, product.customLogo)}</div>
                       <span className="text-[9px] font-black text-white bg-white/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20">Populyar</span>
@@ -541,32 +539,31 @@ export default function App() {
                   </div>
                 ))}
               </div>
-              <div className="text-center mt-8 sm:mt-12">
+              <div className="text-center mt-8 sm:mt-12 animate-card" style={{ animationDelay: '550ms' }}>
                 <button onClick={() => setPage("categories")} className="inline-flex items-center gap-2 sm:gap-3 font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest text-xs sm:text-sm hover:gap-4 sm:hover:gap-5 transition-all">
                   Bütün Məhsulları Kəşf Et <span className="text-base sm:text-lg">→</span>
                 </button>
               </div>
             </div>
 
-            {/* HOW IT WORKS SECTION */}
-            <section className="mb-16 sm:mb-24 py-8 sm:py-10 animate-card w-full" style={{ animationDelay: '300ms' }}>
+            <section className="mb-16 sm:mb-24 py-8 sm:py-10 animate-card w-full" style={{ animationDelay: '400ms' }}>
               <div className="text-center space-y-4 mb-10 sm:mb-16">
                 <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Sistem Necə İşləyir?</h2>
                 <div className="w-16 sm:w-24 h-1.5 bg-indigo-600 mx-auto rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
               </div>
               <div className="grid md:grid-cols-3 gap-6 sm:gap-8 relative">
                  <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-indigo-500/10 via-indigo-500/50 to-indigo-500/10 z-0" />
-                 <div className="relative z-10 glass-card p-6 sm:p-10 rounded-[1.5rem] sm:rounded-3xl text-center group">
+                 <div className="relative z-10 glass-card p-6 sm:p-10 rounded-[1.5rem] sm:rounded-3xl text-center group animate-card" style={{ animationDelay: '500ms' }}>
                     <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-[#0c0c1d] border border-indigo-500/30 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-black text-indigo-400 mb-6 sm:mb-8 shadow-[0_0_20px_rgba(99,102,241,0.2)]">1</div>
                     <h3 className="text-lg sm:text-xl font-black text-white mb-3 sm:mb-4 uppercase tracking-widest">Məhsulu Seçin</h3>
                     <p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">Kataloqdan istədiyiniz platformanı və abunəlik müddətini seçərək səbətə əlavə edin.</p>
                  </div>
-                 <div className="relative z-10 glass-card p-6 sm:p-10 rounded-[1.5rem] sm:rounded-3xl text-center group">
+                 <div className="relative z-10 glass-card p-6 sm:p-10 rounded-[1.5rem] sm:rounded-3xl text-center group animate-card" style={{ animationDelay: '600ms' }}>
                     <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-[#0c0c1d] border border-emerald-500/30 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-black text-emerald-400 mb-6 sm:mb-8 shadow-[0_0_20px_rgba(16,185,129,0.2)]">2</div>
                     <h3 className="text-lg sm:text-xl font-black text-white mb-3 sm:mb-4 uppercase tracking-widest">Ödəniş Et</h3>
                     <p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">Sizə uyğun olan bankı seçin, göstərilən karta ödəniş edib qəbzin (çekin) şəklini sistemə yükləyin.</p>
                  </div>
-                 <div className="relative z-10 glass-card p-6 sm:p-10 rounded-[1.5rem] sm:rounded-3xl text-center group">
+                 <div className="relative z-10 glass-card p-6 sm:p-10 rounded-[1.5rem] sm:rounded-3xl text-center group animate-card" style={{ animationDelay: '700ms' }}>
                     <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-[#0c0c1d] border border-purple-500/30 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-black text-purple-400 mb-6 sm:mb-8 shadow-[0_0_20px_rgba(168,85,247,0.2)]">3</div>
                     <h3 className="text-lg sm:text-xl font-black text-white mb-3 sm:mb-4 uppercase tracking-widest">Təsdiq Al</h3>
                     <p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">Sifarişiniz təsdiqlənən kimi rəsmi hesab məlumatlarınız birbaşa e-mail ünvanınıza avtomatik göndəriləcək.</p>
@@ -574,7 +571,7 @@ export default function App() {
               </div>
             </section>
 
-            <section className="bg-indigo-950/20 border border-indigo-500/20 rounded-[2rem] sm:rounded-[3rem] py-12 sm:py-20 px-6 sm:px-10 animate-card w-full" style={{ animationDelay: '400ms' }}>
+            <section className="bg-indigo-950/20 border border-indigo-500/20 rounded-[2rem] sm:rounded-[3rem] py-12 sm:py-20 px-6 sm:px-10 animate-card w-full" style={{ animationDelay: '600ms' }}>
               <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-10 sm:gap-16 text-center">
                 <div className="space-y-4 sm:space-y-6 flex flex-col items-center">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0c0c1d] border border-indigo-500/30 flex items-center justify-center shadow-lg"><Icons.Shield /></div>
@@ -630,7 +627,7 @@ export default function App() {
             </button>
             <div className="glass-card rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border border-indigo-500/20 overflow-hidden relative">
                <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 relative z-10">
-                 <div className="space-y-6 sm:space-y-8">
+                 <div className="space-y-6 sm:space-y-8 animate-card" style={{ animationDelay: '100ms' }}>
                     <div className="flex items-center gap-4 sm:gap-6">
                       <div className="p-4 sm:p-6 bg-[#0c0c1d] rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl">{getOfficialLogo(viewedProduct.name, viewedProduct.emoji, viewedProduct.color, viewedProduct.customLogo)}</div>
                       <div>
@@ -654,18 +651,18 @@ export default function App() {
                        <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-widest">Üstünlüklər</h3>
                        <ul className="space-y-2 sm:space-y-3">
                          {(viewedProduct.features || ["Rəsmi zəmanət", "7/24 Dəstək"]).map((feature, i) => (
-                           <li key={i} className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold text-gray-300"><span className="text-emerald-400">✓</span> {feature}</li>
+                           <li key={i} className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold text-gray-300 animate-card" style={{ animationDelay: `${200 + (i * 50)}ms` }}><span className="text-emerald-400">✓</span> {feature}</li>
                          ))}
                        </ul>
                     </div>
                  </div>
 
-                 <div className="bg-[#0c0c1d] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 border border-indigo-900/30 flex flex-col justify-between mt-6 lg:mt-0">
+                 <div className="bg-[#0c0c1d] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 border border-indigo-900/30 flex flex-col justify-between mt-6 lg:mt-0 animate-card" style={{ animationDelay: '300ms' }}>
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-widest mb-4 sm:mb-6 text-center">Müddəti Seçin</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-                        {viewedProduct.packages.map((pkg) => (
-                          <div key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`cursor-pointer p-4 sm:p-5 rounded-xl sm:rounded-2xl border-2 flex items-center justify-between transition-all duration-300 ${selectedDuration?.id === pkg.id ? "bg-indigo-600/20 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.3)] transform scale-[1.02]" : "bg-black border-transparent hover:border-indigo-900/50"}`}>
+                        {viewedProduct.packages.map((pkg, i) => (
+                          <div key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`cursor-pointer p-4 sm:p-5 rounded-xl sm:rounded-2xl border-2 flex items-center justify-between transition-all duration-300 animate-card ${selectedDuration?.id === pkg.id ? "bg-indigo-600/20 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.3)] transform scale-[1.02]" : "bg-black border-transparent hover:border-indigo-900/50"}`} style={{ animationDelay: `${400 + (i * 100)}ms` }}>
                             <span className={`text-xs sm:text-sm font-black uppercase tracking-wider ${selectedDuration?.id === pkg.id ? "text-indigo-300" : "text-gray-400"}`}>{pkg.duration}</span>
                             <span className="text-xl sm:text-2xl font-black text-white tracking-tight">{pkg.price} <span className="text-[10px] sm:text-sm text-gray-500">AZN</span></span>
                           </div>
@@ -697,16 +694,16 @@ export default function App() {
                 <p className="text-[11px] sm:text-sm font-medium text-gray-400 max-w-md mx-auto">Aşağıdakı kartlardan birinə ödəniş edin, nömrəni kopyalamaq üçün toxunun və çeki yükləyin.</p>
               </div>
 
-              {/* Kvadrat, Səliqəli Kart Slideri */}
-              <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 sm:pb-6 snap-x no-scrollbar w-full">
+              {/* MODERN, TAM UYĞUNLAŞMIŞ KARTLAR SLIDERİ */}
+              <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 sm:pb-6 snap-x no-scrollbar w-full animate-card" style={{ animationDelay: '100ms' }}>
                 {CARD_ACCOUNTS.map(acc => (
-                  <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-48 h-48 sm:w-56 sm:h-56 snap-center p-5 sm:p-6 rounded-[1.5rem] sm:rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-300 bg-gradient-to-br flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-4 ring-white/50 scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.4)]" : "opacity-60 hover:opacity-100 scale-95"}`}>
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl pointer-events-none" />
+                  <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-56 h-40 sm:w-64 sm:h-44 snap-center p-5 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-4 ring-indigo-500 scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.4)]" : "opacity-80 hover:opacity-100 scale-95"}`}>
+                    <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full -mr-8 -mt-8 sm:-mr-10 sm:-mt-10 blur-xl pointer-events-none" />
                     <div className="relative z-10 w-full"><acc.logo /></div>
                     <div className="relative z-10 mt-auto">
                       <div onClick={(e) => copyToClipboard(e, acc.num)} className="group cursor-pointer">
-                        <div className="text-lg sm:text-xl font-black text-white tracking-widest mb-1 group-hover:text-white/80 transition-colors">{acc.num}</div>
-                        <div className="text-[9px] sm:text-[10px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className={`text-lg sm:text-xl font-black tracking-widest mb-1 transition-colors ${acc.numColor || 'text-white group-hover:text-white/80'}`}>{acc.num}</div>
+                        <div className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${acc.textColor || 'text-white/60'}`}>
                           <span>📋</span> Kopyala
                         </div>
                       </div>
@@ -715,7 +712,7 @@ export default function App() {
                 ))}
               </div>
 
-              <form onSubmit={handleCheckoutSubmit} className="space-y-6 sm:space-y-8 mt-2 sm:mt-4 bg-[#0c0c1d] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-900/30">
+              <form onSubmit={handleCheckoutSubmit} className="space-y-6 sm:space-y-8 mt-2 sm:mt-4 bg-[#0c0c1d] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-900/30 animate-card" style={{ animationDelay: '200ms' }}>
                 <div>
                   <label className="block text-[9px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 sm:mb-4">Ödəniş Çeki (Cihazdan Yüklə)</label>
                   {!uploadedReceipt ? (
@@ -751,9 +748,9 @@ export default function App() {
 
         {page === "dashboard" && (
           <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 animate-card relative z-10 w-full">
-            <h1 className="text-3xl sm:text-4xl font-black text-white mb-6 sm:mb-8 tracking-tight">Şəxsi Kabinet</h1>
+            <h1 className="text-3xl sm:text-4xl font-black text-white mb-6 sm:mb-8 tracking-tight animate-card">Şəxsi Kabinet</h1>
             
-            <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-3 sm:pb-4 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
+            <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-3 sm:pb-4 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full animate-card" style={{ animationDelay: '100ms' }}>
               <button onClick={() => setDashTab("profile")} className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "profile" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>Hesab Məlumatları</button>
               <button onClick={() => setDashTab("orders")} className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>
                 Sifarişlərim {orders.filter(o => o.userEmail === user?.email).length > 0 && <span className="ml-1 sm:ml-2 bg-white/20 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs">{orders.filter(o => o.userEmail === user?.email).length}</span>}
@@ -762,7 +759,7 @@ export default function App() {
 
             <div className="flex flex-col lg:flex-row gap-8 sm:gap-10">
               {dashTab === "profile" && (
-                <div key="profile-tab" className="w-full animate-modal">
+                <div key="profileTab" className="w-full max-w-2xl animate-card">
                   <div className="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 border border-indigo-500/20">
                     <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mb-8 sm:mb-10">
                       <div className="relative group">
@@ -802,7 +799,7 @@ export default function App() {
               )}
 
               {dashTab === "orders" && (
-                <div key="orders-tab" className="w-full animate-modal">
+                <div key="ordersTab" className="w-full animate-card">
                   {orders.filter(o => o.userEmail === user?.email).length === 0 ? (
                     <div className="glass-card rounded-[2rem] p-10 sm:p-16 text-center space-y-4 sm:space-y-6 border border-indigo-500/20">
                       <div className="w-16 h-16 sm:w-24 sm:h-24 bg-[#0c0c1d] rounded-full flex items-center justify-center mx-auto border border-indigo-500/30">
@@ -852,18 +849,18 @@ export default function App() {
         {/* ADMINISTRATIVE DASHBOARD SCREEN */}
         {page === "admin_dashboard" && isAdminLoggedIn && (
           <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12 animate-card">
               <div><h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">İdarəetmə Paneli</h1><p className="text-xs sm:text-sm font-bold text-indigo-400 mt-1 sm:mt-2 uppercase tracking-widest">Səlahiyyətli İdarəçi</p></div>
               <button onClick={handleAdminLogout} className="px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-red-900/40 border border-red-500/30 text-red-400 font-black text-xs sm:text-sm uppercase tracking-wider hover:bg-red-800/50 transition shadow-lg w-full sm:w-auto">Sistemdən Çıxış</button>
             </div>
 
-            <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-4 sm:pb-6 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
+            <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-4 sm:pb-6 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full animate-card" style={{ animationDelay: '100ms' }}>
               <button onClick={() => setActiveAdminTab("orders")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({orders.length})</button>
               <button onClick={() => setActiveAdminTab("products")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({products.length})</button>
             </div>
 
             {activeAdminTab === "orders" && (
-              <div key="admin-orders-tab" className="space-y-4 sm:space-y-6 animate-modal w-full">
+              <div key="adminOrders" className="space-y-4 sm:space-y-6 animate-card w-full">
                 {orders.length === 0 && <div className="text-center py-12 sm:py-20 text-gray-500 font-bold text-base sm:text-lg">Sistemdə heç bir sifariş yoxdur.</div>}
                 <div className="grid gap-4 w-full">
                   {orders.slice().reverse().map((order) => (
@@ -893,7 +890,7 @@ export default function App() {
             )}
 
             {activeAdminTab === "products" && (
-              <div key="admin-products-tab" className="space-y-4 sm:space-y-6 animate-modal w-full">
+              <div key="adminProducts" className="space-y-4 sm:space-y-6 animate-card w-full">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
                   <h2 className="text-2xl sm:text-3xl font-black text-white">Məhsul Kataloqu</h2>
                   <button onClick={() => setEditingProduct({ name: "Yeni Məhsul", cat: "entertainment", color: "#6366f1", emoji: "📦", desc: "Açıqlama", accountType: "Rəsmi Hesab", rating: "5.0", sales: "0", features: ["Yeni xüsusiyyət"], customLogo: "", packages: [{ id: "temp1", duration: "1 Ay", price: 10 }] })} className="glow-btn w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-indigo-600 text-white rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg">+ Yeni Əlavə Et</button>
@@ -943,7 +940,7 @@ export default function App() {
               ) : (
                 <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 pr-1 sm:pr-2 no-scrollbar">
                   {cart.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0c0c1d] border border-indigo-500/30 hover:border-indigo-400 transition-colors group">
+                    <div key={index} className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0c0c1d] border border-indigo-500/30 hover:border-indigo-400 transition-colors group animate-card" style={{ animationDelay: `${index * 50}ms` }}>
                       <div className="flex items-center gap-3 sm:gap-4">
                         <div className="p-2 sm:p-2.5 bg-black/40 rounded-lg sm:rounded-xl border border-white/10 shadow-lg">{getOfficialLogo(item.product.name, item.product.emoji, item.product.color, item.product.customLogo)}</div>
                         <div>
@@ -989,7 +986,7 @@ export default function App() {
                 <p className="text-xs sm:text-sm font-medium text-gray-400">E-mail qutunuzu yoxlayın.</p>
               </div>
             ) : authMode === "login" ? (
-              <div>
+              <div className="animate-card">
                 <h3 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight">Xoş Gəldiniz</h3>
                 <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 sm:mb-8">Hesabınıza giriş edin.</p>
                 <form onSubmit={handleUserAuth} className="space-y-4 sm:space-y-5">
@@ -1005,7 +1002,7 @@ export default function App() {
                 </div>
               </div>
             ) : authMode === "register" ? (
-              <div>
+              <div className="animate-card">
                 <h3 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight">Qeydiyyat</h3>
                 <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 sm:mb-8">Məlumatları doldurun.</p>
                 <form onSubmit={handleUserAuth} className="space-y-4 sm:space-y-5">
@@ -1025,7 +1022,7 @@ export default function App() {
                 </div>
               </div>
             ) : authMode === "forgot" ? (
-              <div>
+              <div className="animate-card">
                 <h3 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight">Şifrəni Yenilə</h3>
                 <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 sm:mb-8">Hesabınızın e-poçtunu yazın.</p>
                 <form onSubmit={handleUserAuth} className="space-y-4 sm:space-y-5">
@@ -1039,7 +1036,7 @@ export default function App() {
                 </div>
               </div>
             ) : authMode === "reset_pass" ? (
-              <div>
+              <div className="animate-card">
                 <h3 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight">Yeni Şifrə</h3>
                 <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 sm:mb-8">Hesabınız üçün yeni şifrə təyin edin.</p>
                 <form onSubmit={handleUserAuth} className="space-y-4 sm:space-y-5">
@@ -1048,7 +1045,7 @@ export default function App() {
                 </form>
               </div>
             ) : (
-              <div>
+              <div className="animate-card">
                 <h3 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight text-center">Təsdiq Kodu</h3>
                 <p className="text-[9px] sm:text-[11px] font-black text-gray-500 mb-6 sm:mb-8 text-center uppercase tracking-widest">E-poçtunuza gələn 6 rəqəmli kodu yazın</p>
                 <form onSubmit={handleUserAuth} className="space-y-5 sm:space-y-6">
@@ -1129,7 +1126,7 @@ export default function App() {
                 <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-pink-400 mb-1 sm:mb-2">Satış Sayı</label><input type="text" placeholder="Məs: 12.5k" value={editingProduct.sales || ''} onChange={(e) => setEditingProduct({...editingProduct, sales: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" /></div>
                 <div className="md:col-span-3">
                   <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Geniş Xüsusiyyətləri (Hər sətirə 1 ədəd yazın)</label>
-                  <textarea rows="3" value={(editingProduct.features || []).join('\n')} onChange={(e) => setEditingProduct({...editingProduct, features: e.target.value.split('\n')})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold leading-relaxed" placeholder="4K Ultra HD&#10;7/24 Dəstək"></textarea>
+                  <textarea rows="3" sm:rows="4" value={(editingProduct.features || []).join('\n')} onChange={(e) => setEditingProduct({...editingProduct, features: e.target.value.split('\n')})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold leading-relaxed" placeholder="4K Ultra HD&#10;7/24 Dəstək"></textarea>
                 </div>
               </div>
 
