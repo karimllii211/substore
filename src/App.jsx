@@ -101,28 +101,28 @@ const DEFAULT_PRODUCTS = [
 ];
 
 // Qeyd 2: Public papkasındakı şəkillərin oxunması & Rənglərin silinməsi (Multiply Blend)
-const renderBankLogo = (src, altName, applyMultiply) => (
-  <div className="h-10 sm:h-12 flex items-center justify-start">
-    <img src={src} alt={altName} className={`max-h-full max-w-full object-contain ${applyMultiply ? 'mix-blend-multiply' : ''}`} onError={(e) => {
+const renderBankLogo = (src, altName, applyMultiply, applyDarken) => (
+  <div className="h-16 sm:h-20 flex items-center justify-center w-full">
+    <img src={src} alt={altName} className={`max-h-full max-w-full object-contain ${applyMultiply ? 'mix-blend-multiply' : ''} ${applyDarken ? 'brightness-0' : ''}`} onError={(e) => {
       e.target.style.display = 'none';
       if(e.target.nextSibling) e.target.nextSibling.style.display = 'block';
     }} />
-    <span className="hidden text-white font-black text-lg tracking-tight">{altName}</span>
+    <span className="hidden text-gray-900 font-black text-xl tracking-tight">{altName}</span>
   </div>
 );
 
 const BankLogos = {
-  ABB: () => renderBankLogo("/abb.png", "ABB Bank", true), // Multiply ilə ağ fon silinir
-  Kapital: () => renderBankLogo("/kapital.png", "Kapital Bank", true), // Multiply ilə ağ fon silinir
-  LEO: () => renderBankLogo("/leo.png", "LEO Bank", false), // Qara kartda ağ yazı olduğu üçün multiply edilmir
-  M10: () => renderBankLogo("/m10.png", "M10", true) // Multiply ilə şəklin fonu M10 yaşılına birləşir
+  ABB: () => renderBankLogo("/abb.png", "ABB Bank", true, false), // Multiply ilə ağ fon silinir
+  Kapital: () => renderBankLogo("/kapital.png", "Kapital Bank", true, false), // Multiply ilə ağ fon silinir
+  LEO: () => renderBankLogo("/leo.png", "LEO Bank", false, true), // Ağ yazı qara rəngə çevrilir (brightness-0)
+  M10: () => renderBankLogo("/m10.png", "M10", true, false) 
 };
 
 const CARD_ACCOUNTS = [
-  { id: "kapital", bank: "Kapital Bank", logo: BankLogos.Kapital, num: "4169 7388 1861 3451", color: "bg-white", textColor: "text-gray-500", numColor: "text-gray-900 group-hover:text-black" },
-  { id: "abb", bank: "ABB", logo: BankLogos.ABB, num: "5522 0093 7234 8144", color: "bg-gradient-to-br from-white to-[#f0f4f8]", textColor: "text-blue-400", numColor: "text-blue-900 group-hover:text-blue-700" },
-  { id: "leo", bank: "LEO Bank", logo: BankLogos.LEO, num: "4098 5844 6496 5191", color: "bg-black border border-gray-800", textColor: "text-gray-400", numColor: "text-white group-hover:text-gray-300" },
-  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "bg-[#02D68F]", textColor: "text-black/60", numColor: "text-black group-hover:text-black/80" }
+  { id: "kapital", bank: "Kapital Bank", logo: BankLogos.Kapital, num: "4169 7388 1861 3451", color: "bg-white border-[3px] sm:border-[4px] border-[#E31837]", textColor: "text-[#E31837]", numColor: "text-gray-900 group-hover:text-[#E31837]" },
+  { id: "abb", bank: "ABB", logo: BankLogos.ABB, num: "5522 0093 7234 8144", color: "bg-white border-[3px] sm:border-[4px] border-[#0055A6]", textColor: "text-[#0055A6]", numColor: "text-gray-900 group-hover:text-[#0055A6]" },
+  { id: "leo", bank: "LEO Bank", logo: BankLogos.LEO, num: "4098 5844 6496 5191", color: "bg-white border-[3px] sm:border-[4px] border-[#000000]", textColor: "text-[#000000]", numColor: "text-gray-900 group-hover:text-black" },
+  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "bg-white border-[3px] sm:border-[4px] border-[#02D68F]", textColor: "text-[#02D68F]", numColor: "text-gray-900 group-hover:text-[#02D68F]" }
 ];
 
 const CATEGORIES = [
@@ -697,13 +697,16 @@ export default function App() {
               {/* MODERN, TAM UYĞUNLAŞMIŞ KARTLAR SLIDERİ */}
               <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 sm:pb-6 snap-x no-scrollbar w-full animate-card" style={{ animationDelay: '100ms' }}>
                 {CARD_ACCOUNTS.map(acc => (
-                  <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-56 h-40 sm:w-64 sm:h-44 snap-center p-5 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-4 ring-indigo-500 scale-[1.02] shadow-[0_10px_30px_rgba(0,0,0,0.4)]" : "opacity-80 hover:opacity-100 scale-95"}`}>
-                    <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full -mr-8 -mt-8 sm:-mr-10 sm:-mt-10 blur-xl pointer-events-none" />
-                    <div className="relative z-10 w-full"><acc.logo /></div>
-                    <div className="relative z-10 mt-auto">
+                  <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-60 h-44 sm:w-64 sm:h-48 snap-center p-3 sm:p-4 rounded-[1.5rem] sm:rounded-[2rem] cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col items-center justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-4 ring-offset-2 ring-offset-[#030308] ring-white/30 scale-[1.02] shadow-[0_15px_35px_rgba(255,255,255,0.15)]" : "opacity-70 hover:opacity-100 scale-95"}`}>
+                    
+                    <div className="relative z-10 w-full flex-1 flex items-center justify-center mt-2">
+                      <acc.logo />
+                    </div>
+                    
+                    <div className="relative z-10 mt-auto w-full text-center border-t-2 border-gray-100 pt-3 pb-1">
                       <div onClick={(e) => copyToClipboard(e, acc.num)} className="group cursor-pointer">
-                        <div className={`text-lg sm:text-xl font-black tracking-widest mb-1 transition-colors ${acc.numColor || 'text-white group-hover:text-white/80'}`}>{acc.num}</div>
-                        <div className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${acc.textColor || 'text-white/60'}`}>
+                        <div className={`text-lg sm:text-xl font-black tracking-widest mb-1 transition-colors ${acc.numColor}`}>{acc.num}</div>
+                        <div className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${acc.textColor}`}>
                           <span>📋</span> Kopyala
                         </div>
                       </div>
