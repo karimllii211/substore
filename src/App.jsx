@@ -762,7 +762,7 @@ export default function App() {
 
             <div className="flex flex-col lg:flex-row gap-8 sm:gap-10">
               {dashTab === "profile" && (
-                <div className="w-full max-w-2xl animate-modal">
+                <div key="profile-tab" className="w-full animate-modal">
                   <div className="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 border border-indigo-500/20">
                     <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mb-8 sm:mb-10">
                       <div className="relative group">
@@ -802,7 +802,7 @@ export default function App() {
               )}
 
               {dashTab === "orders" && (
-                <div className="w-full animate-modal">
+                <div key="orders-tab" className="w-full animate-modal">
                   {orders.filter(o => o.userEmail === user?.email).length === 0 ? (
                     <div className="glass-card rounded-[2rem] p-10 sm:p-16 text-center space-y-4 sm:space-y-6 border border-indigo-500/20">
                       <div className="w-16 h-16 sm:w-24 sm:h-24 bg-[#0c0c1d] rounded-full flex items-center justify-center mx-auto border border-indigo-500/30">
@@ -863,7 +863,7 @@ export default function App() {
             </div>
 
             {activeAdminTab === "orders" && (
-              <div className="space-y-4 sm:space-y-6 animate-modal w-full">
+              <div key="admin-orders-tab" className="space-y-4 sm:space-y-6 animate-modal w-full">
                 {orders.length === 0 && <div className="text-center py-12 sm:py-20 text-gray-500 font-bold text-base sm:text-lg">Sistemdə heç bir sifariş yoxdur.</div>}
                 <div className="grid gap-4 w-full">
                   {orders.slice().reverse().map((order) => (
@@ -893,7 +893,7 @@ export default function App() {
             )}
 
             {activeAdminTab === "products" && (
-              <div className="space-y-4 sm:space-y-6 animate-modal w-full">
+              <div key="admin-products-tab" className="space-y-4 sm:space-y-6 animate-modal w-full">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
                   <h2 className="text-2xl sm:text-3xl font-black text-white">Məhsul Kataloqu</h2>
                   <button onClick={() => setEditingProduct({ name: "Yeni Məhsul", cat: "entertainment", color: "#6366f1", emoji: "📦", desc: "Açıqlama", accountType: "Rəsmi Hesab", rating: "5.0", sales: "0", features: ["Yeni xüsusiyyət"], customLogo: "", packages: [{ id: "temp1", duration: "1 Ay", price: 10 }] })} className="glow-btn w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-indigo-600 text-white rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg">+ Yeni Əlavə Et</button>
