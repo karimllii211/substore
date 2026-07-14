@@ -88,7 +88,7 @@ const DEFAULT_PRODUCTS = [
   { id: 5, name: "Canva Pro", cat: "design", color: "#8B5CF6", emoji: "🎨", desc: "Milyonlarla premium şablon · AI dizayn köməkçisi", accountType: "Fərdi (Davətnamə)", rating: "4.7", sales: "8.8k", features: ["Bütün Premium şablonlar açıqdır", "Arxa plan silmə xüsusiyyəti", "Magic Studio (AI) alətləri", "Şəxsi mailinizə dəvətnamə göndərilir"], customLogo: "", packages: [{ id: "p12", duration: "1 Ay", price: 9 }, { id: "p13", duration: "3 Ay", price: 24 }, { id: "p14", duration: "1 İl", price: 85 }], popular: true }
 ];
 
-// Qeyd 2: Public papkasındakı şəkillərin birbaşa oxunması
+// Orijinal şəkil adları ilə loqo funksiyası
 const renderBankLogo = (src, altName) => (
   <div className="h-10 sm:h-14 flex items-center justify-start">
     <img src={src} alt={altName} className="max-h-full max-w-full object-contain drop-shadow-md" onError={(e) => {
@@ -100,10 +100,10 @@ const renderBankLogo = (src, altName) => (
 );
 
 const BankLogos = {
-  ABB: () => renderBankLogo("/abb.png", "ABB Bank"),
-  Kapital: () => renderBankLogo("/kapital.png", "Kapital Bank"),
-  LEO: () => renderBankLogo("/leo.png", "LEO Bank"),
-  M10: () => renderBankLogo("/m10.png", "M10")
+  ABB: () => renderBankLogo("/ABB_Logo.png", "ABB Bank"),
+  Kapital: () => renderBankLogo("/Kapital_Bank_RGB_logo_2023.png", "Kapital Bank"),
+  LEO: () => renderBankLogo("/Leobank_logo.png", "LEO Bank"),
+  M10: () => renderBankLogo("/68ec08076d49b88753ef79fa_44fe3826e45d85409568b81412f0a2ba_m10_cover.png", "M10")
 };
 
 const CARD_ACCOUNTS = [
@@ -174,7 +174,13 @@ export default function App() {
 
   const [page, setPage] = useState("home"); 
   const [selectedCat, setSelectedCat] = useState("all");
-  const [cart, setCart] = useState([]);
+  
+  // Cart State (İndi LocalStorage ilə sinxron işləyir)
+  const [cart, setCart] = useState(() => {
+    const localCart = localStorage.getItem("premium_shop_cart");
+    return localCart ? JSON.parse(localCart) : [];
+  });
+
   const [user, setUser] = useState(() => {
     const local = localStorage.getItem("premium_shop_current_user");
     return local ? JSON.parse(local) : null;
@@ -217,6 +223,11 @@ export default function App() {
       setProfileEdit({ name: user.name, surname: user.surname, email: user.email, phone: user.phone || "", profileImg: user.profileImg || "", gender: user.gender || "Kişi" });
     } else localStorage.removeItem("premium_shop_current_user");
   }, [user]);
+
+  // Səbət dəyişəndə onu yaddaşa yaz
+  useEffect(() => {
+    localStorage.setItem("premium_shop_cart", JSON.stringify(cart));
+  }, [cart]);
 
   const showNotif = (msg, type = "success") => {
     setNotification({ msg, type });
