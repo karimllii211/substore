@@ -431,12 +431,12 @@ export default function App() {
       <style>{CSS}</style>
       <Notif n={notification} />
 
-      {/* COMPACT, CENTERED & NEAT HEADER */}
+      {/* COMPACT, EDGE-TO-EDGE HEADER */}
       <nav className="sticky top-0 z-50 bg-[#030308]/90 backdrop-blur-xl border-b border-indigo-950/60 py-3 sm:py-4 w-full">
-        {/* max-w-5xl istifadə edərək elementləri ekranda biraz daha mərkəzə doğru yığırıq */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between w-full">
+        {/* Tam ekran genişliyi və künclərə çəkilmiş nizam */}
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-20 flex items-center justify-between">
            
-           {/* Left Logo Section & Menu (Bir az içəriyə çəkilmiş, böyük loqo) */}
+           {/* Left Logo Section & Menu */}
            <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
              <div className="cursor-pointer flex-shrink-0 flex items-center gap-3" onClick={() => setPage("home")}>
                 <img src="/Premium.png" alt="PS" className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-full border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.3)] bg-black" onError={(e)=>{e.target.style.display='none'; e.target.nextSibling.style.display='flex'}} />
@@ -450,7 +450,7 @@ export default function App() {
              </div>
            </div>
 
-           {/* Actions Section (Səbət və İstifadəçi profil bölməsi bir qədər içəridə) */}
+           {/* Actions Section */}
            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <button onClick={() => setIsCartOpen(true)} className="relative p-2.5 rounded-full bg-indigo-950/40 border border-indigo-500/30 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
                 <Icons.Cart />
