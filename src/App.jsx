@@ -93,33 +93,35 @@ const CSS = `
 `;
 
 const DEFAULT_PRODUCTS = [
-  { id: 1, name: "Netflix Premium", cat: "entertainment", color: "#E50914", emoji: "🎬", desc: "4K Ultra HD · 4 Ekran · Eyni anda rəsmi izləmə", accountType: "Ortaq Hesab", rating: "4.9", sales: "12.5k", features: ["4K Ultra HD Filmlər və Seriallar", "Bütün cihazlarda kəsintisiz dəstək", "Eyni anda 1 cihazdan giriş", "100% Rəsmi və qapanmayan hesab", "7/24 Texniki dəstək"], customLogo: "", packages: [{ id: "p1", duration: "1 Ay", price: 8 }, { id: "p2", duration: "3 Ay", price: 22 }, { id: "p3", duration: "1 İl", price: 80 }], popular: true },
-  { id: 2, name: "Spotify Premium", cat: "entertainment", color: "#1DB954", emoji: "🎵", desc: "Reklamsız musiqi · Çevrimdışı yükləmə · Ultra səs keyfiyyəti", accountType: "Fərdi Hesab (Öz mailinə)", rating: "5.0", sales: "18.2k", features: ["Reklamsız kəsintisiz musiqi", "Mahnıları oflayn yükləmə imkanı", "Ən yüksək səs keyfiyyəti", "Öz şəxsi hesabınıza aktivləşmə"], customLogo: "", packages: [{ id: "p4", duration: "1 Ay", price: 5 }, { id: "p5", duration: "3 Ay", price: 13 }, { id: "p6", duration: "1 İl", price: 48 }], popular: true },
-  { id: 3, name: "YouTube Premium", cat: "entertainment", color: "#FF0000", emoji: "📺", desc: "Reklamsız video çarxlar · Arxa fonda işləmə · Premium Music", accountType: "Fərdi Hesab", rating: "4.8", sales: "9.1k", features: ["Reklamsız videolar", "Ekran sönülü ikən (arxa fonda) işləmə", "YouTube Music Premium daxildir", "Oflayn izləmə üçün yükləmə"], customLogo: "", packages: [{ id: "p7", duration: "1 Ay", price: 6 }, { id: "p8", duration: "3 Ay", price: 16 }, { id: "p9", duration: "1 İl", price: 55 }], popular: true },
+  { id: 1, name: "Netflix Premium", cat: "entertainment", color: "#E50914", emoji: "🎬", desc: "Həftəsonu planı hazırdır... Saatlarla gözləməyə son! Anında Premium əldə et.", accountType: "Ortaq Hesab", rating: "4.9", sales: "12.5k", features: ["4K Ultra HD Filmlər və Seriallar", "Bütün cihazlarda kəsintisiz dəstək", "Eyni anda 1 cihazdan giriş", "100% Rəsmi və qapanmayan hesab", "7/24 Texniki dəstək"], customLogo: "", packages: [{ id: "p1", duration: "1 Ay", price: 8 }, { id: "p2", duration: "3 Ay", price: 22 }, { id: "p3", duration: "1 İl", price: 80 }], popular: true },
+  { id: 2, name: "Spotify Premium", cat: "entertainment", color: "#1DB954", emoji: "🎵", desc: "Tam ən sevdiyin mahnıda reklam çıxır? Avtomatik ödənişlə reklamsız həyata keç!", accountType: "Fərdi Hesab (Öz mailinə)", rating: "5.0", sales: "18.2k", features: ["Reklamsız kəsintisiz musiqi", "Mahnıları oflayn yükləmə imkanı", "Ən yüksək səs keyfiyyəti", "Öz şəxsi hesabınıza aktivləşmə"], customLogo: "", packages: [{ id: "p4", duration: "1 Ay", price: 5 }, { id: "p5", duration: "3 Ay", price: 13 }, { id: "p6", duration: "1 İl", price: 48 }], popular: true },
+  { id: 3, name: "YouTube Premium", cat: "entertainment", color: "#FF0000", emoji: "📺", desc: "Videonu yarıda kəsən reklamlara dözmə! Özünü musiqiyə və videolara burax.", accountType: "Fərdi Hesab", rating: "4.8", sales: "9.1k", features: ["Reklamsız videolar", "Ekran sönülü ikən (arxa fonda) işləmə", "YouTube Music Premium daxildir", "Oflayn izləmə üçün yükləmə"], customLogo: "", packages: [{ id: "p7", duration: "1 Ay", price: 6 }, { id: "p8", duration: "3 Ay", price: 16 }, { id: "p9", duration: "1 İl", price: 55 }], popular: true },
   { id: 4, name: "ChatGPT Plus", cat: "ai", color: "#10A37F", emoji: "🤖", desc: "Rəsmi GPT-4o girişi · DALL-E 3 şəkilyaratma · Sürətli analiz", accountType: "Ortaq Hesab", rating: "4.9", sales: "5.4k", features: ["Ən ağıllı GPT-4o modelinə giriş", "DALL-E 3 ilə şəkil yaratma", "Sənəd və data analizi (Code Interpreter)", "Premium sürət və kəsintisiz server"], customLogo: "", packages: [{ id: "p10", duration: "1 Ay", price: 25 }, { id: "p11", duration: "3 Ay", price: 68 }], popular: true },
   { id: 5, name: "Canva Pro", cat: "design", color: "#8B5CF6", emoji: "🎨", desc: "Milyonlarla premium şablon · AI dizayn köməkçisi", accountType: "Fərdi (Davətnamə)", rating: "4.7", sales: "8.8k", features: ["Bütün Premium şablonlar açıqdır", "Arxa plan silmə xüsusiyyəti", "Magic Studio (AI) alətləri", "Şəxsi mailinizə dəvətnamə göndərilir"], customLogo: "", packages: [{ id: "p12", duration: "1 Ay", price: 9 }, { id: "p13", duration: "3 Ay", price: 24 }, { id: "p14", duration: "1 İl", price: 85 }], popular: true }
 ];
 
-// Qeyd: İçi ağ, kənarları rəngli, loqosu ortada kart nizamı
-const renderBankLogo = (src, altName, extraClass = "") => (
-  <img src={src} alt={altName} className={`max-h-12 sm:max-h-16 max-w-[120px] sm:max-w-[160px] object-contain drop-shadow-sm ${extraClass}`} onError={(e) => {
-    e.target.style.display = 'none';
-    if(e.target.nextSibling) e.target.nextSibling.style.display = 'block';
-  }} />
+const renderBankLogo = (src, altName, applyMultiply) => (
+  <div className="h-10 sm:h-12 flex items-center justify-start">
+    <img src={src} alt={altName} className={`max-h-full max-w-full object-contain ${applyMultiply ? 'mix-blend-multiply' : ''}`} onError={(e) => {
+      e.target.style.display = 'none';
+      if(e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+    }} />
+    <span className="hidden text-white font-black text-lg tracking-tight">{altName}</span>
+  </div>
 );
 
 const BankLogos = {
-  ABB: () => renderBankLogo("/abb.png", "ABB Bank", "mix-blend-multiply"),
-  Kapital: () => renderBankLogo("/kapital.png", "Kapital Bank", "mix-blend-multiply"),
-  LEO: () => renderBankLogo("/leo.png", "LEO Bank", "invert"), // Ağ loqonu qara edir
-  M10: () => renderBankLogo("/m10.png", "M10", "mix-blend-multiply")
+  ABB: () => renderBankLogo("/abb.png", "ABB Bank", true),
+  Kapital: () => renderBankLogo("/kapital.png", "Kapital Bank", true),
+  LEO: () => renderBankLogo("/leo.png", "LEO Bank", false),
+  M10: () => renderBankLogo("/m10.png", "M10", true)
 };
 
 const CARD_ACCOUNTS = [
-  { id: "kapital", bank: "Kapital Bank", logo: BankLogos.Kapital, num: "4169 7388 1861 3451", color: "bg-white border-4 border-[#dc2626]", numColor: "text-gray-900" },
-  { id: "abb", bank: "ABB", logo: BankLogos.ABB, num: "5522 0093 7234 8144", color: "bg-white border-4 border-[#2563eb]", numColor: "text-blue-900" },
-  { id: "leo", bank: "LEO Bank", logo: BankLogos.LEO, num: "4098 5844 6496 5191", color: "bg-white border-4 border-black", numColor: "text-gray-900" },
-  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "bg-white border-4 border-[#02D68F]", numColor: "text-gray-900" }
+  { id: "kapital", bank: "Kapital Bank", logo: BankLogos.Kapital, num: "4169 7388 1861 3451", color: "bg-white border-4 border-[#dc2626]", textColor: "text-gray-500", numColor: "text-gray-900 group-hover:text-black" },
+  { id: "abb", bank: "ABB", logo: BankLogos.ABB, num: "5522 0093 7234 8144", color: "bg-gradient-to-br from-white to-[#f0f4f8] border-4 border-[#2563eb]", textColor: "text-blue-400", numColor: "text-blue-900 group-hover:text-blue-700" },
+  { id: "leo", bank: "LEO Bank", logo: BankLogos.LEO, num: "4098 5844 6496 5191", color: "bg-black border-4 border-gray-800", textColor: "text-gray-400", numColor: "text-white group-hover:text-gray-300" },
+  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "bg-[#02D68F] border-4 border-[#02a06b]", textColor: "text-black/60", numColor: "text-black group-hover:text-black/80" }
 ];
 
 const CATEGORIES = [
@@ -220,9 +222,24 @@ export default function App() {
   const [accountPass, setAccountPass] = useState("");
   const fileInputRef = useRef(null);
 
+  // Profile şəklini Firebase-dən real-time sinxronizasiya etmək (Çıxış edəndə şəklin itməməsi üçün)
+  useEffect(() => {
+    if (user && registeredUsers.length > 0) {
+      const freshUser = registeredUsers.find(u => u.firebaseKey === user.firebaseKey);
+      if (freshUser && freshUser.profileImg !== user.profileImg) {
+        setUser({ ...user, profileImg: freshUser.profileImg });
+      }
+    }
+  }, [registeredUsers]);
+
   useEffect(() => { 
     if (user) {
-      localStorage.setItem("premium_shop_current_user", JSON.stringify(user));
+      try {
+         localStorage.setItem("premium_shop_current_user", JSON.stringify(user));
+      } catch (e) {
+         const safeUser = { ...user, profileImg: "" };
+         localStorage.setItem("premium_shop_current_user", JSON.stringify(safeUser));
+      }
       setProfileEdit({ name: user.name, surname: user.surname, email: user.email, phone: user.phone || "", profileImg: user.profileImg || "", gender: user.gender || "Kişi" });
     } else localStorage.removeItem("premium_shop_current_user");
   }, [user]);
@@ -239,6 +256,7 @@ export default function App() {
     showNotif("Kart nömrəsi kopyalandı", "success");
   };
 
+  // Ultra-sıxılmış şəkil yükləmə (Crash ehtimalı 0)
   const handleImageUpload = (e, setter) => {
     const file = e.target.files[0];
     if (file) {
@@ -250,13 +268,13 @@ export default function App() {
         img.src = event.target.result;
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 800; 
+          const MAX_WIDTH = 300; 
           const scaleSize = MAX_WIDTH / img.width;
           canvas.width = MAX_WIDTH;
           canvas.height = img.height * scaleSize;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6); 
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.3); // 30% quality for strict DB limits
           setter(compressedDataUrl);
         };
       };
@@ -431,40 +449,39 @@ export default function App() {
       <style>{CSS}</style>
       <Notif n={notification} />
 
-      {/* COMPACT, EDGE-TO-EDGE HEADER */}
+      {/* HEADER TAM KÜNCLƏRƏ ÇƏKİLDİ */}
       <nav className="sticky top-0 z-50 bg-[#030308]/90 backdrop-blur-xl border-b border-indigo-950/60 py-3 sm:py-4 w-full">
-        {/* Tam ekran genişliyi və künclərə çəkilmiş nizam */}
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-20 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-8 md:px-12 flex items-center justify-between">
            
-           {/* Left Logo Section & Menu */}
+           {/* Left Logo Section (Tam Künc) */}
            <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
-             <div className="cursor-pointer flex-shrink-0 flex items-center gap-3" onClick={() => setPage("home")}>
-                <img src="/Premium.png" alt="PS" className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-full border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.3)] bg-black" onError={(e)=>{e.target.style.display='none'; e.target.nextSibling.style.display='flex'}} />
-                <div className="hidden w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 items-center justify-center font-black text-white text-xl sm:text-2xl border-2 border-[#030308]">PS</div>
-                <span className="hidden md:block font-black text-lg sm:text-2xl text-white tracking-tight">Premium Shop</span>
+             <div className="cursor-pointer flex-shrink-0 flex items-center gap-4" onClick={() => setPage("home")}>
+                <img src="/Premium.png" alt="PS" className="w-14 h-14 sm:w-20 sm:h-20 object-cover rounded-full border-2 border-indigo-500/50 shadow-[0_0_20px_rgba(99,102,241,0.5)] bg-black" onError={(e)=>{e.target.style.display='none'; e.target.nextSibling.style.display='flex'}} />
+                <div className="hidden w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 items-center justify-center font-black text-white text-xl sm:text-2xl border-2 border-[#030308]">PS</div>
+                <span className="hidden md:block font-black text-xl sm:text-3xl text-white tracking-tight drop-shadow-md">Premium Shop</span>
              </div>
 
-             <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto no-scrollbar pt-1 ml-2 sm:ml-4">
-                <button onClick={() => setPage("home")} className={`font-black text-xs sm:text-sm uppercase tracking-wider whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
-                <button onClick={() => setPage("categories")} className={`font-black text-xs sm:text-sm uppercase tracking-wider whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
+             <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto no-scrollbar pt-1 ml-4 sm:ml-8">
+                <button onClick={() => setPage("home")} className={`font-black text-xs sm:text-sm uppercase tracking-widest whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
+                <button onClick={() => setPage("categories")} className={`font-black text-xs sm:text-sm uppercase tracking-widest whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
              </div>
            </div>
 
-           {/* Actions Section */}
-           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              <button onClick={() => setIsCartOpen(true)} className="relative p-2.5 rounded-full bg-indigo-950/40 border border-indigo-500/30 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
+           {/* Actions Section (Tam Sağ Künc) */}
+           <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+              <button onClick={() => setIsCartOpen(true)} className="relative p-2 sm:p-2.5 rounded-full bg-indigo-950/40 border border-indigo-500/30 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
                 <Icons.Cart />
-                {cart.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-indigo-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-[#030308]">{cart.length}</span>}
+                {cart.length > 0 && <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 bg-indigo-500 text-white font-black text-[8px] sm:text-[9px] w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center border border-[#030308] shadow-[0_0_10px_rgba(99,102,241,0.8)]">{cart.length}</span>}
               </button>
               {user ? (
-                <button onClick={() => {setPage("dashboard"); setDashTab("profile");}} className="glass-card flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border border-indigo-500/30">
-                  <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white overflow-hidden shadow-inner">
+                <button onClick={() => {setPage("dashboard"); setDashTab("profile");}} className="glass-card flex items-center gap-2 pl-1 pr-3 py-1 sm:py-1.5 rounded-full border border-indigo-500/30">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs sm:text-sm text-white overflow-hidden shadow-inner">
                     {user.profileImg ? <img src={user.profileImg} alt="User" className="w-full h-full object-cover" /> : user.name[0].toUpperCase()}
                   </div>
-                  <span className="font-bold text-xs text-white hidden sm:inline">{user.name}</span>
+                  <span className="font-bold text-[10px] sm:text-xs text-white hidden sm:inline tracking-wider uppercase">{user.name}</span>
                 </button>
               ) : (
-                <button onClick={() => setAuthMode("login")} className="glow-btn px-4 sm:px-6 py-2 rounded-full bg-indigo-600 text-white font-black text-xs uppercase tracking-widest whitespace-nowrap">
+                <button onClick={() => setAuthMode("login")} className="glow-btn px-4 sm:px-6 py-2 sm:py-2.5 rounded-full bg-indigo-600 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest whitespace-nowrap">
                   <span className="sm:hidden">Giriş</span>
                   <span className="hidden sm:inline">Giriş / Qeydiyyat</span>
                 </button>
@@ -482,15 +499,21 @@ export default function App() {
             <div className="led-blob led-2 hidden md:block"></div>
             <div className="led-blob led-3 hidden md:block"></div>
 
-            <div className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden glass-card p-6 sm:p-12 lg:p-20 mb-16 sm:mb-24 animate-card border border-indigo-500/30 bg-black/40 w-full" style={{ animationDelay: '50ms' }}>
+            {/* HERO SECTION - YENİ SLOGANLARLA */}
+            <div className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden glass-card p-6 sm:p-12 lg:p-20 mb-10 sm:mb-16 animate-card border border-indigo-500/30 bg-black/40 w-full" style={{ animationDelay: '50ms' }}>
               <div className="relative z-10 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                 <div className="space-y-6 sm:space-y-8">
                   <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-inner backdrop-blur-md">
                     <span className="relative flex h-2 w-2 sm:h-3 sm:w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 sm:h-3 sm:w-3 bg-indigo-500"></span></span>
                     100% Güvənli Çatdırılma
                   </div>
-                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter text-white leading-[1.1] neon-text">Rəqəmsal Dünyanızı <br /><span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 text-transparent bg-clip-text">Premium Edin!</span></h1>
-                  <p className="text-gray-400 text-sm sm:text-lg lg:text-xl max-w-xl leading-relaxed font-medium">Azərbaycanın ən etibarlı platformasında kartla rahatlıqla ödəyin, rəsmi abunəlik hesabınız e-mail ünvanınıza dərhal çatdırılsın.</p>
+                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter text-white leading-[1.1] neon-text">
+                    Sənin Zamanın <br /><span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 text-transparent bg-clip-text">Dəyərlidir! ⏳</span>
+                  </h1>
+                  <p className="text-gray-400 text-sm sm:text-base lg:text-lg max-w-xl leading-relaxed font-medium">
+                    Çoxlu abunəliklər, qarışıq ödənişlər, adminin cavab verməsini gözləmək... Bunları artıq unut! ❌<br/><br/>
+                    Bütün sevimli Premium xidmətlərin tək bir ünvanda. 7/24 işləyən avtomatik ödəniş sistemimizlə hesabın saniyələr içində aktivləşir. Rahatlıq və əyləncə heç bu qədər əlçatan olmamışdı! 😎💳
+                  </p>
                   <div className="flex flex-col sm:flex-row gap-4 pt-2">
                     <button onClick={() => setPage("categories")} className="glow-btn w-full sm:w-auto px-8 py-4 sm:py-5 rounded-2xl bg-indigo-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(99,102,241,0.4)] transition text-center">Abunəliklərə Bax</button>
                   </div>
@@ -513,7 +536,27 @@ export default function App() {
               </div>
             </div>
 
-            <div className="mb-16 sm:mb-24 space-y-8 animate-card" style={{ animationDelay: '150ms' }}>
+            {/* SLOGAN BANNERLƏRİ */}
+            <div className="grid md:grid-cols-2 gap-6 mb-16 sm:mb-24 animate-card" style={{ animationDelay: '100ms' }}>
+                <div className="glass-card rounded-[2rem] p-8 sm:p-10 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none transition duration-500 group-hover:bg-red-500/20"></div>
+                    <div className="w-12 h-12 bg-red-950/50 rounded-xl flex items-center justify-center text-2xl mb-5 border border-red-500/20">🍿</div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white mb-3 tracking-tight">"Həftəsonu Film Marafonu"</h3>
+                    <p className="text-xs sm:text-sm text-gray-400 leading-relaxed font-medium">
+                        Həftəsonu planı hazırdır, popkornlar partlayır... Bəs Netflix? "Hesab tapım", "Ödənişi təsdiqləsinlər" deyə saatlarla gözləməyə son! Saytımıza daxil ol, avtomatik sistemlə anında Netflix Premium əldə et və film marafonuna dərhal başla! 🎬🚀
+                    </p>
+                </div>
+                <div className="glass-card rounded-[2rem] p-8 sm:p-10 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none transition duration-500 group-hover:bg-green-500/20"></div>
+                    <div className="w-12 h-12 bg-green-950/50 rounded-xl flex items-center justify-center text-2xl mb-5 border border-green-500/20">🎧</div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white mb-3 tracking-tight">"Reklamsız Həyat"</h3>
+                    <p className="text-xs sm:text-sm text-gray-400 leading-relaxed font-medium">
+                        Tam ən sevdiyin mahnının nəqəratində və ya filmin ən maraqlı yerində o bezdirici reklam çıxır? 😤 Buna dözmək məcburiyyətində deyilsən! Bizimlə YouTube və Spotify Premium-a anında, avtomatik ödənişlə keçid et, reklamsız həyatın dadını çıxar. Özünü musiqiyə burax! ✨
+                    </p>
+                </div>
+            </div>
+
+            <div className="mb-16 sm:mb-24 space-y-8 animate-card" style={{ animationDelay: '200ms' }}>
               <div className="text-center space-y-4 mb-10 sm:mb-16">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Ən Çox Satılanlar</h2>
                 <div className="w-16 sm:w-24 h-1.5 bg-indigo-600 mx-auto rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
@@ -545,12 +588,15 @@ export default function App() {
               </div>
             </div>
 
-            <section className="mb-16 sm:mb-24 py-8 sm:py-10 animate-card w-full" style={{ animationDelay: '400ms' }}>
+            <section className="mb-16 sm:mb-24 py-8 sm:py-10 animate-card w-full" style={{ animationDelay: '300ms' }}>
               <div className="text-center space-y-4 mb-10 sm:mb-16">
-                <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Sistem Necə İşləyir?</h2>
-                <div className="w-16 sm:w-24 h-1.5 bg-indigo-600 mx-auto rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+                <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Sənin Zamanın Dəyərlidir ⏳</h2>
+                <p className="text-gray-400 text-xs sm:text-sm max-w-2xl mx-auto font-medium leading-relaxed">
+                  Onu qeydiyyatlarla və uzun proseslərlə xərcləmə. Ən baxımlı seriallar, ən hit mahnılar və reklamsız videolar üçün sadəcə bir neçə toxunuş kifayətdir. İndi Premium-a keç, fərqi hiss et! 🌟
+                </p>
+                <div className="w-16 sm:w-24 h-1.5 bg-indigo-600 mx-auto rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)] mt-4"></div>
               </div>
-              <div className="grid md:grid-cols-3 gap-6 sm:gap-8 relative">
+              <div className="grid md:grid-cols-3 gap-6 sm:gap-8 relative mt-12">
                  <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-indigo-500/10 via-indigo-500/50 to-indigo-500/10 z-0" />
                  <div className="relative z-10 glass-card p-6 sm:p-10 rounded-[1.5rem] sm:rounded-3xl text-center group animate-card" style={{ animationDelay: '500ms' }}>
                     <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-[#0c0c1d] border border-indigo-500/30 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-black text-indigo-400 mb-6 sm:mb-8 shadow-[0_0_20px_rgba(99,102,241,0.2)]">1</div>
@@ -693,7 +739,7 @@ export default function App() {
                 <p className="text-[11px] sm:text-sm font-medium text-gray-400 max-w-md mx-auto">Aşağıdakı kartlardan birinə ödəniş edin, nömrəni kopyalamaq üçün toxunun və çeki yükləyin.</p>
               </div>
 
-              {/* MODERN, TAM UYĞUNLAŞMIŞ KARTLAR SLIDERİ */}
+              {/* SQUARE CARDS SLIDER COMPACT */}
               <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 sm:pb-6 snap-x no-scrollbar w-full animate-card" style={{ animationDelay: '100ms' }}>
                 {CARD_ACCOUNTS.map(acc => (
                   <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-56 h-40 sm:w-64 sm:h-44 snap-center p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col items-center justify-center ${acc.color} ${selectedBank.id === acc.id ? "ring-4 ring-offset-4 ring-indigo-500 scale-[1.02] shadow-[0_15px_40px_rgba(0,0,0,0.2)]" : "opacity-90 hover:opacity-100 scale-95"}`}>
@@ -1077,15 +1123,15 @@ export default function App() {
         </div>
       )}
 
-      {/* MINIMALIST MODERN FOOTER - KÜNCLƏRDƏ YERLƏŞİR */}
+      {/* MINIMALIST MODERN FOOTER - TAM KÜNCLƏRDƏ */}
       <footer className="bg-[#030308] border-t border-indigo-900/30 pt-10 sm:pt-12 pb-6 mt-16 sm:mt-20 w-full" id="footer">
-        <div className="w-full px-6 sm:px-12 md:px-16 lg:px-20 flex flex-col items-center sm:items-start md:flex-row justify-between gap-6">
+        <div className="w-full px-4 sm:px-8 md:px-12 flex flex-col items-center sm:items-start md:flex-row justify-between gap-6">
            
            {/* Left Logo (Tam sol künc) */}
            <div className="flex items-center gap-3 opacity-50 hover:opacity-100 transition duration-300 cursor-pointer" onClick={() => setPage("home")}>
-              <img src="/Premium.png" alt="Premium Shop" className="h-8 sm:h-10 w-8 sm:w-10 object-cover rounded-full border border-indigo-500/30" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+              <img src="/Premium.png" alt="Premium Shop" className="h-10 sm:h-12 w-10 sm:w-12 object-cover rounded-full border border-indigo-500/30" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
               <div className="hidden items-center gap-2">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-indigo-900 flex items-center justify-center font-black text-white text-[10px] sm:text-xs">PS</div>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-indigo-900 flex items-center justify-center font-black text-white text-[10px] sm:text-xs">PS</div>
               </div>
               <span className="font-black text-sm sm:text-base tracking-widest text-white uppercase">Premium Shop</span>
            </div>
@@ -1098,7 +1144,7 @@ export default function App() {
            </div>
         </div>
 
-        <div className="w-full px-6 sm:px-12 md:px-16 lg:px-20 mt-8 sm:mt-10 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-600 text-center sm:text-left">
+        <div className="w-full px-4 sm:px-8 md:px-12 mt-8 sm:mt-10 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-gray-600 text-center sm:text-left">
            <span>© 2026 Premium Shop</span>
            <button onClick={() => setIsAdminModalOpen(true)} className="hover:text-indigo-400 transition">İdarəetmə (Admin)</button>
         </div>
