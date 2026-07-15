@@ -461,16 +461,16 @@ export default function App() {
                 <span className="hidden md:block font-black text-xl sm:text-3xl text-white tracking-tight drop-shadow-md">Premium Shop</span>
              </div>
 
-             <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto no-scrollbar pt-1 ml-4 sm:ml-8">
-                <button onClick={() => setPage("home")} className={`font-black text-xs sm:text-sm uppercase tracking-widest whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
-                <button onClick={() => setPage("categories")} className={`font-black text-xs sm:text-sm uppercase tracking-widest whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
+             <div className="flex items-center gap-2 sm:gap-6 overflow-x-auto no-scrollbar pt-1 ml-2 sm:ml-8">
+                <button onClick={() => setPage("home")} className={`font-black text-[13px] sm:text-sm whitespace-nowrap transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
+                <button onClick={() => setPage("categories")} className={`font-black text-[13px] sm:text-sm whitespace-nowrap transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Abunəliklər</button>
              </div>
            </div>
 
            {/* Actions Section (Tam Sağ Künc) */}
-           <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
-              <button onClick={() => setIsCartOpen(true)} className="relative p-2 sm:p-2.5 rounded-full bg-indigo-950/40 border border-indigo-500/30 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner">
-                <Icons.Cart />
+           <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+              <button onClick={() => setIsCartOpen(true)} className="relative p-1.5 sm:p-2.5 rounded-full bg-indigo-950/40 border border-indigo-500/30 text-indigo-300 hover:text-white hover:bg-indigo-900/60 transition shadow-inner flex items-center justify-center">
+                <div className="transform scale-[0.80] sm:scale-100 flex items-center justify-center"><Icons.Cart /></div>
                 {cart.length > 0 && <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 bg-indigo-500 text-white font-black text-[8px] sm:text-[9px] w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center border border-[#030308] shadow-[0_0_10px_rgba(99,102,241,0.8)]">{cart.length}</span>}
               </button>
               {user ? (
