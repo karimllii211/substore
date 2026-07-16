@@ -61,9 +61,13 @@ const CSS = `
   .led-3 { bottom: -5%; left: 20%; width: 350px; height: 350px; background: rgba(139, 92, 246, 0.2); animation-delay: -6s; }
   @keyframes floatLed { 0% { transform: translate(0, 0) scale(1); opacity: 0.5; } 100% { transform: translate(20px, 30px) scale(1.1); opacity: 0.8; } }
 
-  /* MÖHTƏŞƏM SCROLL ANİMASİYALARI */
-  .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-  .show-reveal { opacity: 1; transform: translateY(0); }
+  .page-transition { animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  @keyframes slideUpFade { 
+    from { opacity: 0; transform: translateY(20px) scale(0.98); filter: blur(4px); } 
+    to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } 
+  }
+  
+  .animate-card { opacity: 0; animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   
   .drawer-open { animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
@@ -86,14 +90,6 @@ const CSS = `
   input, select, textarea { background-color: #0c0c1d !important; color: #ffffff !important; border: 1px solid rgba(99, 102, 241, 0.2) !important; transition: all 0.3s ease; }
   input:focus, select:focus, textarea:focus { border-color: rgba(99, 102, 241, 0.8) !important; outline: none !important; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
   input::placeholder { color: #64748b !important; }
-
-  /* WHATSAPP WIDGET */
-  .wa-float {
-    position: fixed; width: 55px; height: 55px; bottom: 30px; left: 20px; background-color: #25d366; color: #FFF;
-    border-radius: 50px; text-align: center; font-size: 30px; box-shadow: 0px 4px 15px rgba(37, 211, 102, 0.4);
-    z-index: 1000; display: flex; align-items: center; justify-content: center; transition: all 0.3s;
-  }
-  .wa-float:hover { transform: scale(1.1); }
 `;
 
 const DEFAULT_PRODUCTS = [
@@ -251,10 +247,6 @@ export default function App() {
       setProfileEdit({ name: user.name, surname: user.surname, email: user.email, phone: user.phone || "", profileImg: user.profileImg || "", gender: user.gender || "Kişi" });
     } else localStorage.removeItem("premium_shop_current_user");
   }, [user]);
-
-  useEffect(() => {
-    localStorage.setItem("premium_shop_cart", JSON.stringify(cart));
-  }, [cart]);
 
   const showNotif = (msg, type = "success") => {
     setNotification({ msg, type });
@@ -706,7 +698,7 @@ export default function App() {
         )}
 
         {page === "checkout" && (
-          <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 animate-card relative z-10 w-full">
+          <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
             <button type="button" onClick={() => { setPage("categories"); setIsCartOpen(true); }} className="text-gray-400 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-widest mb-6 sm:mb-8 flex items-center gap-2 transition cursor-pointer relative z-50">
               ← Səbətə Qayıt
             </button>
@@ -717,7 +709,6 @@ export default function App() {
                 <p className="text-[11px] sm:text-sm font-medium text-gray-400 max-w-md mx-auto">Aşağıdakı kartlardan birinə ödəniş edin, nömrəni kopyalamaq üçün toxunun və çeki yükləyin.</p>
               </div>
 
-              {/* MODERN, TAM AĞ İÇLİ VƏ RƏNGLİ KƏNARLI KARTLAR */}
               <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 sm:pb-6 snap-x no-scrollbar w-full">
                 {CARD_ACCOUNTS.map(acc => (
                   <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-56 h-36 sm:w-64 sm:h-44 snap-center p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-offset-4 ring-indigo-500 scale-[1.02] shadow-[0_15px_40px_rgba(0,0,0,0.4)]" : "opacity-90 hover:opacity-100 scale-95"}`}>
@@ -963,7 +954,7 @@ export default function App() {
 
       {/* CART DRAWER RIGHT SIDE */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-[1001] bg-[#030308]/80 backdrop-blur-sm flex justify-end">
+        <div className="fixed inset-0 bg-[#030308]/80 backdrop-blur-sm flex justify-end" style={{ zIndex: 9999 }}>
           <div className="glass-card w-full sm:w-80 md:max-w-md h-full flex flex-col justify-between drawer-open rounded-none border-y-0 border-r-0 border-l border-indigo-500/30 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
             <div className="p-6 sm:p-8 pb-4 h-full flex flex-col">
               <div className="flex justify-between items-center pb-5 sm:pb-6 border-b border-indigo-900/50 mb-5 sm:mb-6">
@@ -1016,7 +1007,7 @@ export default function App() {
 
       {/* USER AUTH MODAL WITH PASSWORD & FORGOT PROTECTIONS */}
       {authMode && (
-        <div className="fixed inset-0 z-[1001] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 w-full h-full overflow-y-auto">
+        <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 w-full h-full overflow-y-auto" style={{ zIndex: 9999 }}>
           <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)] my-auto">
             <button onClick={() => setAuthMode(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white hover:bg-indigo-900 flex items-center justify-center text-lg sm:text-xl font-bold transition">&times;</button>
 
@@ -1103,7 +1094,7 @@ export default function App() {
 
       {/* ADMIN LOGIN MODAL */}
       {isAdminModalOpen && (
-        <div className="fixed inset-0 z-[1001] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
           <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-red-500/30">
             <button onClick={() => setIsAdminModalOpen(false)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-900/40 border border-red-500/30 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 mx-auto shadow-lg">🛡️</div>
@@ -1120,7 +1111,7 @@ export default function App() {
 
       {/* APPROVING ORDER DETAILS MODAL (ADMIN ONLY) */}
       {approvingOrder && (
-        <div className="fixed inset-0 z-[1001] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
           <div className="glass-card w-full max-w-lg rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-emerald-500/30 w-full">
             <button onClick={() => setApprovingOrder(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
             <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">Sifarişi Təsdiqlə</h3>
@@ -1139,7 +1130,7 @@ export default function App() {
 
       {/* ADVANCED EDITING PRODUCT MODAL (ADMIN ONLY) */}
       {editingProduct && (
-        <div className="fixed inset-0 z-[1001] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto" style={{ zIndex: 9999 }}>
           <div className="glass-card w-full max-w-4xl rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-indigo-500/30 my-4 sm:my-8 w-full">
             <button onClick={() => setEditingProduct(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
             <h3 className="text-2xl sm:text-3xl font-black text-white mb-6 sm:mb-8 tracking-tight">{editingProduct.id ? "Məhsul Redaktoru" : "Yeni Məhsul Yaradıcı"}</h3>
@@ -1231,7 +1222,7 @@ function Notif({ n }) {
   if (!n) return null;
   const colors = n.type === "error" ? "bg-red-600 text-white" : n.type === "info" ? "bg-blue-600 text-white" : "bg-emerald-600 text-white";
   return (
-    <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[100] px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] font-black text-[10px] sm:text-xs uppercase tracking-wider text-center animate-toast ${colors}`}>
+    <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] font-black text-[10px] sm:text-xs uppercase tracking-wider text-center animate-toast ${colors}`} style={{ zIndex: 9999 }}>
       {n.msg}
     </div>
   );
