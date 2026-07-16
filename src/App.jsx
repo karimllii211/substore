@@ -104,7 +104,6 @@ const DEFAULT_PRODUCTS = [
   { id: 5, name: "Canva Pro", cat: "design", color: "#8B5CF6", emoji: "🎨", desc: "Milyonlarla premium şablon · AI dizayn köməkçisi", accountType: "Fərdi (Davətnamə)", rating: "4.7", sales: "8.8k", features: ["Bütün Premium şablonlar açıqdır", "Arxa plan silmə xüsusiyyəti", "Magic Studio (AI) alətləri", "Şəxsi mailinizə dəvətnamə göndərilir"], customLogo: "", packages: [{ id: "p12", duration: "1 Ay", price: 9 }, { id: "p13", duration: "3 Ay", price: 24 }, { id: "p14", duration: "1 İl", price: 85 }], popular: true }
 ];
 
-// MÖHTƏŞƏM AĞ LOQO FİLTRİ: brightness(0) invert(1) hər cür PNG-ni saf AĞ rəngə çevirir!
 const renderBankLogo = (src, altName) => (
   <img src={src} alt={altName} style={{ filter: 'brightness(0) invert(1)' }} className="max-h-8 sm:max-h-12 max-w-[120px] sm:max-w-[150px] object-contain drop-shadow-lg" onError={(e) => {
     e.target.style.display = 'none';
@@ -118,12 +117,11 @@ const BankLogos = {
   M10: () => renderBankLogo("/m10.png", "M10")
 };
 
-// İstədiyiniz rənglər: ABB-Mavi, Kapital-Qırmızı, LEO-Qara, M10-Bordo Yaşıl
 const CARD_ACCOUNTS = [
   { id: "kapital", bank: "Kapital Bank", logo: BankLogos.Kapital, num: "4169 7388 1861 3451", color: "bg-[#e50914] border border-red-500", numColor: "text-white" },
   { id: "abb", bank: "ABB Bank", logo: BankLogos.ABB, num: "5522 0093 7234 8144", color: "bg-[#00529b] border border-blue-500", numColor: "text-white" },
   { id: "leo", bank: "LEO Bank", logo: BankLogos.LEO, num: "4098 5844 6496 5191", color: "bg-black border border-gray-800", numColor: "text-white" },
-  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "bg-[#015C4B] border border-[#028068]", numColor: "text-white" } // Tünd Bordo Yaşıl
+  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "bg-[#015C4B] border border-[#028068]", numColor: "text-white" } 
 ];
 
 const CATEGORIES = [
@@ -156,7 +154,7 @@ export default function App() {
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [orders, setOrders] = useState([]);
 
-  // SCROLL ANİMASİYASI İZLƏYİCİSİ (Aşağı düşdükcə elementlər önə çıxır)
+  // SCROLL ANİMASİYASI İZLƏYİCİSİ
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -203,11 +201,18 @@ export default function App() {
 
   const [page, setPage] = useState("home"); 
   const [selectedCat, setSelectedCat] = useState("all");
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    const local = localStorage.getItem("premium_shop_cart");
+    return local ? JSON.parse(local) : [];
+  });
   const [user, setUser] = useState(() => {
     const local = localStorage.getItem("premium_shop_current_user");
     return local ? JSON.parse(local) : null;
   });
+
+  useEffect(() => {
+    localStorage.setItem("premium_shop_cart", JSON.stringify(cart));
+  }, [cart]);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [viewedProduct, setViewedProduct] = useState(null); 
@@ -246,6 +251,10 @@ export default function App() {
       setProfileEdit({ name: user.name, surname: user.surname, email: user.email, phone: user.phone || "", profileImg: user.profileImg || "", gender: user.gender || "Kişi" });
     } else localStorage.removeItem("premium_shop_current_user");
   }, [user]);
+
+  useEffect(() => {
+    localStorage.setItem("premium_shop_cart", JSON.stringify(cart));
+  }, [cart]);
 
   const showNotif = (msg, type = "success") => {
     setNotification({ msg, type });
@@ -426,6 +435,8 @@ export default function App() {
     setEditingProduct(null);
   };
 
+  const handleDeleteProduct = (p) => remove(ref(db, 'products/' + p.firebaseKey));
+
   const approveOrderAction = async (e) => {
     e.preventDefault();
     if (!accountEmail || !accountPass) return showNotif("Məlumatları daxil edin", "error");
@@ -449,7 +460,7 @@ export default function App() {
       <style>{CSS}</style>
       <Notif n={notification} />
 
-      {/* TƏMİZ, KÜNCLƏRƏ ÇƏKİLMİŞ HEADER */}
+      {/* KÜNCLƏRƏ ÇƏKİLMİŞ HEADER */}
       <nav className="sticky top-0 z-50 bg-[#030308]/90 backdrop-blur-xl border-b border-indigo-950/60 px-4 sm:px-8 py-3 sm:py-4 w-full">
         <div className="w-full flex items-center justify-between">
            
@@ -604,12 +615,12 @@ export default function App() {
 
         {page === "categories" && (
           <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
-            <div className="mb-8 sm:mb-12 space-y-4 sm:space-y-6">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Kataloq</h1>
+            <div className="mb-6 sm:mb-12 space-y-3 sm:space-y-6">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Kataloq</h1>
               <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-4 no-scrollbar w-full">
                 {CATEGORIES.map(cat => (
-                  <button key={cat.id} onClick={() => setSelectedCat(cat.id)} className={`px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all duration-300 flex items-center gap-2 sm:gap-3 ${selectedCat === cat.id ? "bg-indigo-600 text-white shadow-[0_10px_25px_rgba(99,102,241,0.5)] transform scale-105" : "bg-indigo-950/30 border border-indigo-900/50 text-gray-400 hover:bg-indigo-900/40 hover:text-white"}`}>
-                    <span className="text-base sm:text-lg">{cat.icon}</span> {cat.label}
+                  <button key={cat.id} onClick={() => setSelectedCat(cat.id)} className={`px-3 sm:px-6 py-2 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all duration-300 flex items-center gap-2 sm:gap-3 ${selectedCat === cat.id ? "bg-indigo-600 text-white shadow-[0_10px_25px_rgba(99,102,241,0.5)] transform scale-105" : "bg-indigo-950/30 border border-indigo-900/50 text-gray-400 hover:bg-indigo-900/40 hover:text-white"}`}>
+                    <span className="text-sm sm:text-lg">{cat.icon}</span> {cat.label}
                   </button>
                 ))}
               </div>
@@ -617,15 +628,15 @@ export default function App() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {products.filter(p => selectedCat === "all" || p.cat === selectedCat).map((product, index) => (
-                <div key={product.id} onClick={() => openProductDetail(product)} className="reveal cursor-pointer glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden group" style={{ animationDelay: `${index * 50}ms` }}>
+                <div key={product.id} onClick={() => openProductDetail(product)} className="reveal cursor-pointer glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between relative overflow-hidden group" style={{ animationDelay: `${index * 50}ms` }}>
                   <div>
-                    <div className="flex items-center justify-between mb-5 sm:mb-6">
+                    <div className="flex items-center justify-between mb-4 sm:mb-6">
                       <div className="p-2 sm:p-3 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product.name, product.emoji, product.color, product.customLogo)}</div>
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-black text-white mb-2">{product.name}</h3>
-                    <p className="text-[11px] sm:text-xs text-gray-400 font-medium leading-relaxed mb-5 sm:mb-6">{product.desc}</p>
+                    <h3 className="text-base sm:text-2xl font-black text-white mb-1 sm:mb-2">{product.name}</h3>
+                    <p className="text-[9px] sm:text-xs text-gray-400 font-medium leading-relaxed mb-4 sm:mb-6">{product.desc}</p>
                   </div>
-                  <button className="w-full py-3 sm:py-3.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest text-white transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02]" style={{ backgroundColor: product.color }}>Ətraflı Bax</button>
+                  <button className="w-full py-2.5 sm:py-3.5 rounded-xl font-black text-[8px] sm:text-xs uppercase tracking-widest text-white transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02]" style={{ backgroundColor: product.color }}>Ətraflı Bax</button>
                 </div>
               ))}
             </div>
@@ -695,8 +706,8 @@ export default function App() {
         )}
 
         {page === "checkout" && (
-          <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
-            <button onClick={() => { setPage("home"); setIsCartOpen(true); }} className="text-gray-400 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-widest mb-6 sm:mb-8 flex items-center gap-2 transition">
+          <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 animate-card relative z-10 w-full">
+            <button type="button" onClick={() => { setPage("categories"); setIsCartOpen(true); }} className="text-gray-400 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-widest mb-6 sm:mb-8 flex items-center gap-2 transition cursor-pointer relative z-50">
               ← Səbətə Qayıt
             </button>
             
@@ -764,11 +775,11 @@ export default function App() {
 
         {page === "dashboard" && (
           <main className="reveal max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
-            <h1 className="text-3xl sm:text-4xl font-black text-white mb-6 sm:mb-8 tracking-tight">Şəxsi Kabinet</h1>
+            <h1 className="text-2xl sm:text-4xl font-black text-white mb-4 sm:mb-8 tracking-tight">Şəxsi Kabinet</h1>
             
             <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-3 sm:pb-4 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
-              <button onClick={() => setDashTab("profile")} className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "profile" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>Hesab Məlumatları</button>
-              <button onClick={() => setDashTab("orders")} className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>
+              <button onClick={() => setDashTab("profile")} className={`px-3 sm:px-6 py-1.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "profile" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>Hesab Məlumatları</button>
+              <button onClick={() => setDashTab("orders")} className={`px-3 sm:px-6 py-1.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>
                 Sifarişlərim {orders.filter(o => o.userEmail === user?.email).length > 0 && <span className="ml-1 sm:ml-2 bg-white/20 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs">{orders.filter(o => o.userEmail === user?.email).length}</span>}
               </button>
             </div>
@@ -819,32 +830,32 @@ export default function App() {
                   {orders.filter(o => o.userEmail === user?.email).length === 0 ? (
                     <div className="glass-card rounded-[2rem] p-10 sm:p-16 text-center space-y-4 sm:space-y-6 border border-indigo-500/20">
                       <div className="w-16 h-16 sm:w-24 sm:h-24 bg-[#0c0c1d] rounded-full flex items-center justify-center mx-auto border border-indigo-500/30">
-                        <span className="text-3xl sm:text-4xl animate-bounce text-indigo-400"><Icons.Cart /></span>
+                        <span className="text-2xl sm:text-4xl animate-bounce text-indigo-400"><Icons.Cart /></span>
                       </div>
-                      <div><h3 className="text-xl sm:text-2xl font-black text-white mb-2">Sifarişiniz Yoxdur</h3><p className="text-xs sm:text-sm text-gray-400 font-medium">Platformamızdan hələ heç bir abunəlik əldə etməmisiniz.</p></div>
+                      <div><h3 className="text-lg sm:text-2xl font-black text-white mb-1">Sifarişiniz Yoxdur</h3><p className="text-xs sm:text-sm text-gray-400 font-medium">Platformamızdan hələ heç bir abunəlik əldə etməmisiniz.</p></div>
                       <button onClick={() => {setPage("categories"); setDashTab("profile");}} className="glow-btn inline-block px-8 sm:px-10 py-3 sm:py-4 rounded-xl bg-indigo-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider">Kataloqa Keç</button>
                     </div>
                   ) : (
                     <div className="grid gap-4 sm:gap-6">
                       {orders.filter(o => o.userEmail === user?.email).reverse().map((order) => (
-                        <div key={order.id} className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 border border-indigo-500/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
+                        <div key={order.id} className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-8 border border-indigo-500/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
                           <div className="space-y-2 sm:space-y-3 w-full md:w-auto">
                             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                              <span className="text-[9px] sm:text-[10px] font-black px-2 sm:px-3 py-1 sm:py-1.5 rounded-md bg-indigo-600 text-white tracking-widest">{order.id}</span>
-                              <span className="text-[10px] sm:text-xs font-bold text-gray-500">{order.date}</span>
+                              <span className="text-[8px] sm:text-[10px] font-black px-2 sm:px-3 py-1 sm:py-1.5 rounded-md bg-indigo-600 text-white tracking-widest">{order.id}</span>
+                              <span className="text-[9px] sm:text-xs font-bold text-gray-500">{order.date}</span>
                             </div>
-                            <h4 className="text-lg sm:text-xl font-black text-white">{order.productName} <span className="text-indigo-400">({order.duration})</span></h4>
-                            <div className="flex gap-3 sm:gap-4 text-[10px] sm:text-xs font-bold text-gray-400"><span>Ödəniş: <span className="text-white">{order.bank}</span></span><span>Məbləğ: <span className="text-white">{order.price} AZN</span></span></div>
+                            <h4 className="text-sm sm:text-xl font-black text-white">{order.productName} <span className="text-indigo-400">({order.duration})</span></h4>
+                            <div className="flex gap-3 sm:gap-4 text-[9px] sm:text-xs font-bold text-gray-400"><span>Ödəniş: <span className="text-white">{order.bank}</span></span><span>Məbləğ: <span className="text-white">{order.price} AZN</span></span></div>
                           </div>
                           <div className="w-full md:w-auto text-left md:text-right mt-2 md:mt-0">
-                            {order.status === "pending" && <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-yellow-900/40 border border-yellow-500/40 text-yellow-400 text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-inner inline-flex items-center gap-2"><div className="spinner w-2.5 h-2.5 sm:w-3 sm:h-3 border-[2px]"></div> Yoxlanılır</span>}
-                            {order.status === "rejected" && <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-red-900/40 border border-red-500/40 text-red-400 text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-inner inline-flex items-center gap-2">❌ Rədd Edildi</span>}
+                            {order.status === "pending" && <span className="px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl bg-yellow-900/40 border border-yellow-500/40 text-yellow-400 text-[8px] sm:text-xs font-black uppercase tracking-wider shadow-inner inline-flex items-center gap-2"><div className="spinner w-2 h-2 sm:w-3 sm:h-3 border-[2px]"></div> Yoxlanılır</span>}
+                            {order.status === "rejected" && <span className="px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl bg-red-900/40 border border-red-500/40 text-red-400 text-[8px] sm:text-xs font-black uppercase tracking-wider shadow-inner inline-flex items-center gap-2">❌ Rədd Edildi</span>}
                             {order.status === "approved" && (
                               <div className="space-y-2 sm:space-y-3">
-                                <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-emerald-900/40 border border-emerald-500/40 text-emerald-400 text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-inner inline-flex items-center gap-2">✅ Aktivdir</span>
+                                <span className="px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl bg-emerald-900/40 border border-emerald-500/40 text-emerald-400 text-[8px] sm:text-xs font-black uppercase tracking-wider shadow-inner inline-flex items-center gap-2">✅ Aktivdir</span>
                                 {order.credentials && (
-                                  <div className="p-3 sm:p-4 bg-[#0c0c1d] border border-indigo-500/30 rounded-xl text-[10px] sm:text-xs space-y-1.5 sm:space-y-2 text-left w-full sm:min-w-[200px]">
-                                    <div className="text-gray-500 font-bold uppercase tracking-widest text-[8px] sm:text-[9px] mb-1 sm:mb-2">Giriş Məlumatları</div>
+                                  <div className="p-3 sm:p-4 bg-[#0c0c1d] border border-indigo-500/30 rounded-xl text-[9px] sm:text-xs space-y-1.5 sm:space-y-2 text-left w-full sm:min-w-[200px]">
+                                    <div className="text-gray-500 font-bold uppercase tracking-widest text-[7px] sm:text-[9px] mb-1 sm:mb-2">Giriş Məlumatları</div>
                                     <div className="flex justify-between gap-4"><span className="text-gray-400">E-mail:</span> <span className="text-white font-black select-all">{order.credentials.email}</span></div>
                                     <div className="flex justify-between gap-4"><span className="text-gray-400">Şifrə:</span> <span className="text-white font-black select-all">{order.credentials.pass}</span></div>
                                   </div>
@@ -882,10 +893,10 @@ export default function App() {
                   {orders.slice().reverse().map((order) => (
                     <div key={order.id} className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 flex flex-col lg:flex-row justify-between gap-5 sm:gap-6 border-l-4 w-full" style={{borderLeftColor: order.status === 'pending' ? '#eab308' : order.status === 'approved' ? '#10b981' : '#ef4444'}}>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
-                        <div><div className="text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">ID / Tarix</div><div className="font-bold text-indigo-400 mt-1 text-sm sm:text-base">{order.id}</div><div className="text-[10px] sm:text-xs font-bold text-gray-400">{order.date}</div></div>
-                        <div><div className="text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">Müştəri</div><div className="font-black text-white mt-1 text-sm sm:text-base">{order.userName} {order.userSurname}</div><div className="text-[10px] sm:text-xs font-bold text-gray-400">{order.userEmail}</div><div className="text-[10px] sm:text-xs font-bold text-gray-400">{order.userPhone}</div></div>
-                        <div><div className="text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">Məhsul / Məbləğ</div><div className="font-black text-white mt-1 text-sm sm:text-base">{order.productName} ({order.duration})</div><div className="font-black text-emerald-400">{order.price} AZN</div></div>
-                        <div><div className="text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">Bank Çeki</div><div className="font-bold text-white mt-1 text-sm sm:text-base">{order.bank}</div>{order.receipt && <a href={order.receipt} target="_blank" rel="noreferrer" className="inline-block mt-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-900/50 text-indigo-300 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-lg">Çekə Bax 🔍</a>}</div>
+                        <div><div className="text-[8px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">ID / Tarix</div><div className="font-bold text-indigo-400 mt-1 text-[11px] sm:text-base">{order.id}</div><div className="text-[10px] sm:text-xs font-bold text-gray-400">{order.date}</div></div>
+                        <div><div className="text-[8px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">Müştəri</div><div className="font-black text-white mt-1 text-[11px] sm:text-base">{order.userName} {order.userSurname}</div><div className="text-[10px] sm:text-xs font-bold text-gray-400">{order.userEmail}</div><div className="text-[10px] sm:text-xs font-bold text-gray-400">{order.userPhone}</div></div>
+                        <div><div className="text-[8px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">Məhsul / Məbləğ</div><div className="font-black text-white mt-1 text-[11px] sm:text-base">{order.productName} ({order.duration})</div><div className="font-black text-emerald-400">{order.price} AZN</div></div>
+                        <div><div className="text-[8px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">Bank Çeki</div><div className="font-bold text-white mt-1 text-[11px] sm:text-base">{order.bank}</div>{order.receipt && <a href={order.receipt} target="_blank" rel="noreferrer" className="inline-block mt-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-900/50 text-indigo-300 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-lg">Çekə Bax 🔍</a>}</div>
                       </div>
                       <div className="flex lg:flex-col justify-end gap-2 sm:gap-3 min-w-[120px] sm:min-w-[150px] mt-4 lg:mt-0">
                         {order.status === "pending" ? (
@@ -1185,10 +1196,37 @@ export default function App() {
         </div>
       )}
 
+      {/* MINIMALIST MODERN FOOTER - TAM BƏRPA OLUNDU VƏ YIĞCAMLAŞDIRILDI */}
+      <footer className="bg-[#030308] border-t border-indigo-900/30 pt-6 sm:pt-10 pb-4 sm:pb-6 mt-12 sm:mt-20 w-full" id="footer">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-row justify-between items-center gap-4">
+           
+           {/* Left Logo */}
+           <div className="flex items-center gap-2 sm:gap-3 opacity-50 hover:opacity-100 transition duration-300 cursor-pointer" onClick={() => setPage("home")}>
+              <img src="/Premium.png" alt="Premium Shop" className="h-6 sm:h-8 w-6 sm:w-8 object-cover rounded-full border border-indigo-500/30" onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+              <div className="hidden items-center gap-2">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-indigo-900 flex items-center justify-center font-black text-white text-[8px] sm:text-xs">PS</div>
+              </div>
+              <span className="font-black text-[10px] sm:text-sm tracking-widest text-white uppercase">Premium Shop</span>
+           </div>
+
+           {/* Contact Links */}
+           <div className="flex flex-row items-center gap-3 sm:gap-6 text-[8px] sm:text-xs font-black uppercase tracking-widest text-gray-500">
+             <a href="https://wa.me/994103136941" className="hover:text-[#25D366] transition">WhatsApp</a>
+             <span className="opacity-20 text-white">|</span>
+             <a href="mailto:premiumshopazerbaycan@gmail.com" className="hover:text-indigo-400 transition">E-Poçt</a>
+           </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6 sm:mt-8 flex flex-row justify-between items-center gap-3 sm:gap-4 text-[7px] sm:text-[9px] font-black uppercase tracking-widest text-gray-600">
+           <span>© 2026 Premium Shop</span>
+           <button onClick={() => setIsAdminModalOpen(true)} className="hover:text-indigo-400 transition">İdarəetmə</button>
+        </div>
+      </footer>
     </div>
   );
 }
 
+// Minimalist Toast Notification
 function Notif({ n }) {
   if (!n) return null;
   const colors = n.type === "error" ? "bg-red-600 text-white" : n.type === "info" ? "bg-blue-600 text-white" : "bg-emerald-600 text-white";
