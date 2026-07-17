@@ -584,10 +584,6 @@ export default function App() {
                 {(cart || []).length > 0 && <span className="cart-badge absolute -top-2 -right-2 bg-purple-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-[#030308]">{cart.length}</span>}
               </button>
 
-              <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-gray-400 hover:text-purple-400 transition ml-1 sm:ml-2">
-                {theme === 'dark' ? <Icons.Sun /> : <Icons.Moon />}
-              </button>
-
               {user ? (
                 <button onClick={() => {setPage("dashboard"); setDashTab("profile"); goToTop();}} className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border border-purple-500/30 bg-purple-900/20 hover:bg-purple-900/40 transition">
                   <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-xs text-white overflow-hidden shadow-inner">
@@ -677,7 +673,7 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                {(products || []).filter(p => p.popular).slice(0,3).map((product, index) => (
+                {(products || []).slice(0,3).map((product, index) => (
                   <div key={product.id} className="hero-card rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer reveal" style={{ transitionDuration: '0.3s', transitionDelay: '0ms' }} onClick={() => openProductDetail(product)}>
                     <div className="flex items-center justify-between mb-6 sm:mb-8 relative z-10">
                       <div className="p-3 sm:p-4 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product?.name, product?.emoji, product?.color, product?.customLogo)}</div>
@@ -873,7 +869,7 @@ export default function App() {
               <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 sm:pb-6 snap-x no-scrollbar w-full">
                 {CARD_ACCOUNTS.map(acc => (
                   <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`payment-card flex-shrink-0 w-56 h-36 sm:w-64 sm:h-44 snap-center p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-offset-4 ring-purple-500 scale-[1.02] shadow-[0_15px_40px_rgba(0,0,0,0.4)]" : "opacity-90 hover:opacity-100 scale-95"}`}>
-                    <div className="relative z-10 font-black text-[10px] sm:text-xs tracking-widest text-center uppercase" style={{ color: '#e2e8f0' }}>{acc.bank}</div>
+                    <div className="relative z-10 font-black text-[10px] sm:text-xs tracking-widest text-center uppercase text-white">{acc.bank}</div>
                     
                     <div className="relative z-10 w-full flex items-center justify-center flex-1 py-1">
                        {acc.logo()}
@@ -881,8 +877,8 @@ export default function App() {
 
                     <div className="relative z-10 mt-auto text-center">
                       <div onClick={(e) => copyToClipboard(e, acc.num)} className="group cursor-pointer inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-md border border-white/30 shadow-sm">
-                        <div className={`text-base sm:text-lg font-black tracking-widest transition-colors`} style={{ color: '#ffffff' }}>{acc.num}</div>
-                        <div className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#ffffff' }}>
+                        <div className="text-base sm:text-lg font-black tracking-widest transition-colors text-white">{acc.num}</div>
+                        <div className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity text-white">
                           <span>📋</span> Kopyala
                         </div>
                       </div>
