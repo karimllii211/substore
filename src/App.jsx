@@ -186,9 +186,9 @@ const Icons = {
   Menu: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
 };
 
-const getOfficialLogo = (name, customEmoji, color, customLogo) => {
-  if (customLogo && customLogo.trim() !== "") return <img src={customLogo} alt={name} className="w-10 h-10 object-contain rounded-md" />;
-  const lower = name.toLowerCase();
+const getOfficialLogo = (name = "", customEmoji = "", color = "", customLogo = "") => {
+  if (customLogo && customLogo.trim() !== "") return <img src={customLogo} alt={name || "logo"} className="w-10 h-10 object-contain rounded-md" />;
+  const lower = (name || "").toLowerCase();
   if (lower.includes("netflix")) return <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#E50914"}><path d="M5.6 2h3.2l6.4 15V2h3.2v20h-3.2L8.8 7v15H5.6z"/></svg>;
   if (lower.includes("spotify")) return <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#1DB954"}><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.564.387-.86.207-2.377-1.454-5.37-1.783-8.894-.982-.336.076-.67-.135-.747-.472-.077-.336.135-.67.472-.747 3.856-.88 7.15-.494 9.822 1.14.296.18.387.563.207.854zm1.224-2.723c-.226.367-.707.487-1.074.26-2.72-1.672-6.868-2.154-10.077-1.182-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.667-1.112 8.243-.574 11.343 1.332.367.226.487.707.26 1.074zm.106-2.834C14.792 8.8 9.123 8.614 5.833 9.61c-.482.146-.988-.128-1.134-.61-.147-.482.128-.988.61-1.134 3.77-1.144 10.016-.928 13.893 1.373.435.258.578.82.32 1.255-.258.435-.82.578-1.255.32z"/></svg>;
   if (lower.includes("youtube")) return <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#FF0000"}><path d="M23.498 6.163a3.003 3.003 0 00-2.11-2.11C19.516 3.545 12 3.545 12 3.545s-7.516 0-9.388.508a3.003 3.003 0 00-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 002.11 2.11c1.872.508 9.388.508 9.388.508s7.516 0 9.388-.508a3.003 3.003 0 002.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>;
@@ -201,7 +201,12 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [theme, setTheme] = useState(() => localStorage.getItem("ps_theme") || "dark");
+  
+  // Təhlükəsizlik: Yaddaşdan (localStorage) gələn datalara qoruyucu try/catch
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem("ps_theme") || "dark"; } catch(e) { return "dark"; }
+  });
+  
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // MÖHTƏŞƏM SCROLL ANİMASİYASI İZLƏYİCİSİ (Tam Xətasız)
@@ -227,7 +232,7 @@ export default function App() {
        observer.disconnect();
        clearTimeout(timeoutId);
     }
-  }, [products, orders, theme]); // Component re-renders on change
+  }); // Re-runs on every render to ensure new page elements are caught
 
   useEffect(() => {
     const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
@@ -235,7 +240,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("ps_theme", theme);
+    try { localStorage.setItem("ps_theme", theme); } catch(e) {}
     if (theme === 'light') {
       document.body.classList.add('light-mode-active');
     } else {
@@ -269,13 +274,21 @@ export default function App() {
 
   const [page, setPage] = useState("home"); 
   const [selectedCat, setSelectedCat] = useState("all");
+  
+  // Təhlükəsizlik: Səbət yaddaşı
   const [cart, setCart] = useState(() => {
-    const local = localStorage.getItem("premium_shop_cart");
-    return local ? JSON.parse(local) : [];
+    try {
+      const local = localStorage.getItem("premium_shop_cart");
+      return local ? JSON.parse(local) : [];
+    } catch(e) { return []; }
   });
+  
+  // Təhlükəsizlik: User yaddaşı
   const [user, setUser] = useState(() => {
-    const local = localStorage.getItem("premium_shop_current_user");
-    return local ? JSON.parse(local) : null;
+    try {
+      const local = localStorage.getItem("premium_shop_current_user");
+      return local ? JSON.parse(local) : null;
+    } catch(e) { return null; }
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -294,10 +307,14 @@ export default function App() {
   const [showOtpSuccess, setShowOtpSuccess] = useState(false);
   
   const [dashTab, setDashTab] = useState("profile"); 
-  const [profileEdit, setProfileEdit] = useState({ name: "", surname: "", email: "", phone: "", profileImg: "", gender: "Kişi" });
+  const [profileEdit, setProfileEdit] = useState({ name: user?.name || "", surname: user?.surname || "", email: user?.email || "", phone: user?.phone || "", profileImg: user?.profileImg || "", gender: user?.gender || "Kişi" });
   const profileInputRef = useRef(null);
 
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => localStorage.getItem("premium_shop_admin_active") === "true");
+  // Təhlükəsizlik: Admin yaddaşı
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
+    try { return localStorage.getItem("premium_shop_admin_active") === "true"; } catch(e) { return false; }
+  });
+  
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [adminUsername, setAdminUsername] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
@@ -311,13 +328,15 @@ export default function App() {
 
   useEffect(() => { 
     if (user) {
-      localStorage.setItem("premium_shop_current_user", JSON.stringify(user));
-      setProfileEdit({ name: user.name, surname: user.surname, email: user.email, phone: user.phone || "", profileImg: user.profileImg || "", gender: user.gender || "Kişi" });
-    } else localStorage.removeItem("premium_shop_current_user");
+      try { localStorage.setItem("premium_shop_current_user", JSON.stringify(user)); } catch(e) {}
+      setProfileEdit({ name: user.name || "", surname: user.surname || "", email: user.email || "", phone: user.phone || "", profileImg: user.profileImg || "", gender: user.gender || "Kişi" });
+    } else {
+      try { localStorage.removeItem("premium_shop_current_user"); } catch(e) {}
+    }
   }, [user]);
 
   useEffect(() => {
-    localStorage.setItem("premium_shop_cart", JSON.stringify(cart));
+    try { localStorage.setItem("premium_shop_cart", JSON.stringify(cart)); } catch(e) {}
   }, [cart]);
 
   const showNotif = (msg, type = "success") => {
@@ -332,12 +351,8 @@ export default function App() {
     showNotif("Kart nömrəsi kopyalandı", "success");
   };
 
-  /**
-   * Cihazdan şəkil yükləmək və sıxmaq (Compress) funksiyası
-   * Məlumat bazasını doldurmamaq üçün vacibdir.
-   */
   const handleImageUpload = (e, setter) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) return showNotif("Yalnız şəkil yükləyin!", "error");
       const reader = new FileReader();
@@ -361,7 +376,7 @@ export default function App() {
   };
 
   const handleUpdateProfile = () => {
-    if(user.firebaseKey) {
+    if(user?.firebaseKey) {
        update(ref(db, 'users/' + user.firebaseKey), {
           name: profileEdit.name,
           surname: profileEdit.surname,
@@ -386,9 +401,6 @@ export default function App() {
     } catch (error) { setIsEmailSending(false); return false; }
   };
 
-  /**
-   * Qeydiyyat, Giriş və OTP yoxlanışını idarə edir.
-   */
   const handleUserAuth = async (e) => {
     e.preventDefault();
     if (authMode === "login") {
@@ -446,9 +458,9 @@ export default function App() {
   };
 
   const addToCart = (product, packageItem) => {
-    if (cart.find(item => item.product.id === product.id && item.package.id === packageItem.id)) return showNotif("Bu paket artıq səbətdədir", "info");
+    if (cart.find(item => item?.product?.id === product?.id && item?.package?.id === packageItem?.id)) return showNotif("Bu paket artıq səbətdədir", "info");
     setCart([...cart, { product, package: packageItem }]);
-    showNotif(`${product.name} səbətə əlavə edildi`, "success");
+    showNotif(`${product?.name} səbətə əlavə edildi`, "success");
     setIsCartOpen(true);
   };
 
@@ -462,8 +474,8 @@ export default function App() {
     if (!uploadedReceipt) return showNotif("Ödəniş çekini yükləyin!", "error");
 
     const generatedOrders = cart.map(item => ({
-      id: "ORD-" + Math.floor(10000 + Math.random() * 90000), userEmail: user.email, userName: user.name, userSurname: user.surname, userPhone: user.phone || "Qeyd edilməyib",
-      productName: item.product.name, duration: item.package.duration, price: item.package.price, bank: selectedBank.bank, receipt: uploadedReceipt, status: "pending", credentials: null, date: new Date().toLocaleDateString("az-AZ")
+      id: "ORD-" + Math.floor(10000 + Math.random() * 90000), userEmail: user?.email, userName: user?.name, userSurname: user?.surname, userPhone: user?.phone || "Qeyd edilməyib",
+      productName: item?.product?.name, duration: item?.package?.duration, price: item?.package?.price, bank: selectedBank?.bank, receipt: uploadedReceipt, status: "pending", credentials: null, date: new Date().toLocaleDateString("az-AZ")
     }));
 
     for (const o of generatedOrders) { push(ref(db, 'orders'), o); }
@@ -480,23 +492,29 @@ export default function App() {
   const handleAdminLogin = (e) => {
     e.preventDefault();
     if (adminUsername === "karimllii" && adminPassword === "Karimli.777") {
-      setIsAdminLoggedIn(true); localStorage.setItem("premium_shop_admin_active", "true"); setIsAdminModalOpen(false); setPage("admin_dashboard");
+      setIsAdminLoggedIn(true); 
+      try { localStorage.setItem("premium_shop_admin_active", "true"); } catch(e) {}
+      setIsAdminModalOpen(false); setPage("admin_dashboard");
     } else showNotif("Səhv Məlumat!", "error");
   };
 
-  const handleAdminLogout = () => { setIsAdminLoggedIn(false); localStorage.removeItem("premium_shop_admin_active"); setPage("home"); };
+  const handleAdminLogout = () => { 
+    setIsAdminLoggedIn(false); 
+    try { localStorage.removeItem("premium_shop_admin_active"); } catch(e) {}
+    setPage("home"); 
+  };
 
-  const handleAddPackage = () => setEditingProduct({...editingProduct, packages: [...editingProduct.packages, { id: "p" + Date.now(), duration: "Yeni Paket", price: 0 }]});
+  const handleAddPackage = () => setEditingProduct({...editingProduct, packages: [...(editingProduct?.packages || []), { id: "p" + Date.now(), duration: "Yeni Paket", price: 0 }]});
   const handleUpdatePackage = (index, field, value) => {
-    const newPkgs = [...editingProduct.packages]; newPkgs[index][field] = value; setEditingProduct({...editingProduct, packages: newPkgs});
+    const newPkgs = [...(editingProduct?.packages || [])]; newPkgs[index][field] = value; setEditingProduct({...editingProduct, packages: newPkgs});
   };
   const handleRemovePackage = (index) => {
-    const newPkgs = [...editingProduct.packages]; newPkgs.splice(index, 1); setEditingProduct({...editingProduct, packages: newPkgs});
+    const newPkgs = [...(editingProduct?.packages || [])]; newPkgs.splice(index, 1); setEditingProduct({...editingProduct, packages: newPkgs});
   };
 
   const handleSaveProduct = (e) => {
     e.preventDefault();
-    if (editingProduct.firebaseKey) {
+    if (editingProduct?.firebaseKey) {
       update(ref(db, 'products/' + editingProduct.firebaseKey), editingProduct);
       showNotif("Məhsul yeniləndi", "success");
     } else {
@@ -524,9 +542,7 @@ export default function App() {
     await sendEmailNotification({ to_email: order.userEmail, to_name: order.userName, order_id: order.id, product_name: order.productName, duration: order.duration, subject: `Sifariş Təsdiqlənmədi ❌ #${order.id}` }, EMAILJS_CONFIG.templateOrder);
   };
 
-  const openProductDetail = (product) => { setViewedProduct(product); setSelectedDuration(product.packages[0]); setPage("product_detail"); };
-
-  // Helper üçün yuxarıya sürüşdürmə düyməsi
+  const openProductDetail = (product) => { setViewedProduct(product); setSelectedDuration(product?.packages?.[0]); setPage("product_detail"); window.scrollTo(0,0); };
   const goToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
@@ -578,7 +594,7 @@ export default function App() {
               
               <button onClick={() => setIsCartOpen(true)} className="relative text-gray-400 hover:text-purple-400 transition">
                 <Icons.Cart />
-                {cart.length > 0 && <span className="cart-badge absolute -top-2 -right-2 bg-purple-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-[#030308]">{cart.length}</span>}
+                {cart?.length > 0 && <span className="cart-badge absolute -top-2 -right-2 bg-purple-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-[#030308]">{cart.length}</span>}
               </button>
 
               <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-gray-400 hover:text-purple-400 transition ml-1 sm:ml-2">
@@ -588,9 +604,9 @@ export default function App() {
               {user ? (
                 <button onClick={() => {setPage("dashboard"); setDashTab("profile"); goToTop();}} className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border border-purple-500/30 bg-purple-900/20 hover:bg-purple-900/40 transition">
                   <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-xs text-white overflow-hidden shadow-inner">
-                    {user.profileImg ? <img src={user.profileImg} alt="User" className="w-full h-full object-cover" /> : user.name[0].toUpperCase()}
+                    {user?.profileImg ? <img src={user.profileImg} alt="User" className="w-full h-full object-cover" /> : (user?.name?.[0]?.toUpperCase() || 'U')}
                   </div>
-                  <span className="font-bold text-[10px] sm:text-xs text-white hidden sm:inline">{user.name}</span>
+                  <span className="font-bold text-[10px] sm:text-xs text-white hidden sm:inline">{user?.name || "Profil"}</span>
                 </button>
               ) : (
                 <div className="flex items-center gap-4 ml-1 sm:ml-3">
@@ -614,7 +630,7 @@ export default function App() {
       </nav>
 
       {/* DYNAMIC PAGES - React Crash Safe */}
-      <div key={page} className="page-transition flex-1 relative w-full">
+      <div className="page-transition flex-1 relative w-full">
         
         {page === "home" && (
           <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-16 relative z-10 w-full overflow-hidden">
@@ -674,18 +690,18 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                {products.filter(p => p.popular).slice(0,3).map((product, index) => (
+                {(products || []).filter(p => p.popular).slice(0,3).map((product, index) => (
                   <div key={product.id} className="hero-card rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer reveal" style={{ transitionDelay: `${index * 100}ms` }} onClick={() => openProductDetail(product)}>
                     <div className="flex items-center justify-between mb-6 sm:mb-8 relative z-10">
-                      <div className="p-3 sm:p-4 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product.name, product.emoji, product.color, product.customLogo)}</div>
+                      <div className="p-3 sm:p-4 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product?.name, product?.emoji, product?.color, product?.customLogo)}</div>
                       <span className="text-[9px] font-black text-white bg-white/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20">Populyar</span>
                     </div>
                     <div className="relative z-10">
-                      <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 sm:mb-3 tracking-tight">{product.name}</h3>
-                      <p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed mb-6 sm:mb-8 min-h-[40px]">{product.desc}</p>
+                      <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 sm:mb-3 tracking-tight">{product?.name}</h3>
+                      <p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed mb-6 sm:mb-8 min-h-[40px]">{product?.desc}</p>
                     </div>
                     <div className="pt-5 sm:pt-6 border-t border-white/10 mt-auto relative z-10">
-                      <button className="w-full py-3 sm:py-4 rounded-xl text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-300 shadow-lg hover:scale-[1.02]" style={{ backgroundColor: product.color }}>
+                      <button className="w-full py-3 sm:py-4 rounded-xl text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-300 shadow-lg hover:scale-[1.02]" style={{ backgroundColor: product?.color }}>
                         Ətraflı Bax →
                       </button>
                     </div>
@@ -775,16 +791,16 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {products.filter(p => selectedCat === "all" || p.cat === selectedCat).map((product, index) => (
+              {(products || []).filter(p => selectedCat === "all" || p.cat === selectedCat).map((product, index) => (
                 <div key={product.id} onClick={() => openProductDetail(product)} className="reveal cursor-pointer glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between relative overflow-hidden group" style={{ transitionDelay: `${index * 50}ms` }}>
                   <div>
                     <div className="flex items-center justify-between mb-4 sm:mb-6">
-                      <div className="p-2 sm:p-3 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product.name, product.emoji, product.color, product.customLogo)}</div>
+                      <div className="p-2 sm:p-3 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product?.name, product?.emoji, product?.color, product?.customLogo)}</div>
                     </div>
-                    <h3 className="text-base sm:text-2xl font-black text-white mb-1 sm:mb-2">{product.name}</h3>
-                    <p className="text-[9px] sm:text-xs text-gray-400 font-medium leading-relaxed mb-4 sm:mb-6">{product.desc}</p>
+                    <h3 className="text-base sm:text-2xl font-black text-white mb-1 sm:mb-2">{product?.name}</h3>
+                    <p className="text-[9px] sm:text-xs text-gray-400 font-medium leading-relaxed mb-4 sm:mb-6">{product?.desc}</p>
                   </div>
-                  <button className="w-full py-2.5 sm:py-3.5 rounded-xl font-black text-[8px] sm:text-xs uppercase tracking-widest text-white transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02]" style={{ backgroundColor: product.color }}>Ətraflı Bax</button>
+                  <button className="w-full py-2.5 sm:py-3.5 rounded-xl font-black text-[8px] sm:text-xs uppercase tracking-widest text-white transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02]" style={{ backgroundColor: product?.color }}>Ətraflı Bax</button>
                 </div>
               ))}
             </div>
@@ -801,28 +817,28 @@ export default function App() {
                <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 relative z-10">
                  <div className="space-y-6 sm:space-y-8">
                     <div className="flex items-center gap-4 sm:gap-6 reveal">
-                      <div className="p-4 sm:p-6 bg-[#0c0c1d] rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl">{getOfficialLogo(viewedProduct.name, viewedProduct.emoji, viewedProduct.color, viewedProduct.customLogo)}</div>
+                      <div className="p-4 sm:p-6 bg-[#0c0c1d] rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl">{getOfficialLogo(viewedProduct?.name, viewedProduct?.emoji, viewedProduct?.color, viewedProduct?.customLogo)}</div>
                       <div>
                          <span className="text-[9px] sm:text-[10px] font-black text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full tracking-widest uppercase inline-block mb-2">100% Zəmanət</span>
-                         <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">{viewedProduct.name}</h1>
+                         <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">{viewedProduct?.name}</h1>
                       </div>
                     </div>
                     
                     <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm font-black reveal" style={{ transitionDelay: '50ms' }}>
-                       <div className="flex items-center gap-1 sm:gap-2 bg-[#0c0c1d] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-indigo-900/50"><span className="text-yellow-400">⭐ {viewedProduct.rating || "5.0"}</span> <span className="text-white hidden sm:inline">Reytinq</span></div>
-                       <div className="flex items-center gap-1 sm:gap-2 bg-[#0c0c1d] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-indigo-900/50"><span className="text-emerald-400">🔥 {viewedProduct.sales || "1k+"}</span> <span className="text-white hidden sm:inline">Satış</span></div>
-                       <div className="flex items-center gap-1 sm:gap-2 bg-[#0c0c1d] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-indigo-500/30 text-indigo-300">Növ: {viewedProduct.accountType || "Rəsmi Hesab"}</div>
+                       <div className="flex items-center gap-1 sm:gap-2 bg-[#0c0c1d] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-indigo-900/50"><span className="text-yellow-400">⭐ {viewedProduct?.rating || "5.0"}</span> <span className="text-white hidden sm:inline">Reytinq</span></div>
+                       <div className="flex items-center gap-1 sm:gap-2 bg-[#0c0c1d] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-indigo-900/50"><span className="text-emerald-400">🔥 {viewedProduct?.sales || "1k+"}</span> <span className="text-white hidden sm:inline">Satış</span></div>
+                       <div className="flex items-center gap-1 sm:gap-2 bg-[#0c0c1d] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-indigo-500/30 text-indigo-300">Növ: {viewedProduct?.accountType || "Rəsmi Hesab"}</div>
                     </div>
 
                     <div className="space-y-3 sm:space-y-4 reveal" style={{ transitionDelay: '100ms' }}>
                        <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-widest">Məhsul Haqqında</h3>
-                       <p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">{viewedProduct.desc}</p>
+                       <p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">{viewedProduct?.desc}</p>
                     </div>
 
                     <div className="space-y-3 sm:space-y-4 pt-4 sm:pt-6 border-t border-indigo-900/50 reveal" style={{ transitionDelay: '150ms' }}>
                        <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-widest">Üstünlüklər</h3>
                        <ul className="space-y-2 sm:space-y-3">
-                         {(viewedProduct.features || ["Rəsmi zəmanət", "7/24 Dəstək"]).map((feature, i) => (
+                         {(viewedProduct?.features || ["Rəsmi zəmanət", "7/24 Dəstək"]).map((feature, i) => (
                            <li key={i} className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold text-gray-300"><span className="text-emerald-400">✓</span> {feature}</li>
                          ))}
                        </ul>
@@ -833,7 +849,7 @@ export default function App() {
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-widest mb-4 sm:mb-6 text-center">Müddəti Seçin</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-                        {viewedProduct.packages.map((pkg) => (
+                        {(viewedProduct?.packages || []).map((pkg) => (
                           <div key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`cursor-pointer p-4 sm:p-5 rounded-xl sm:rounded-2xl border-2 flex items-center justify-between transition-all duration-300 ${selectedDuration?.id === pkg.id ? "bg-purple-600/20 border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.3)] transform scale-[1.02]" : "bg-black border-transparent hover:border-indigo-900/50"}`}>
                             <span className={`text-xs sm:text-sm font-black uppercase tracking-wider ${selectedDuration?.id === pkg.id ? "text-purple-300" : "text-gray-400"}`}>{pkg.duration}</span>
                             <span className="text-xl sm:text-2xl font-black text-white tracking-tight">{pkg.price} <span className="text-[10px] sm:text-sm text-gray-500">AZN</span></span>
@@ -911,7 +927,7 @@ export default function App() {
                 <div className="border-t border-indigo-900/50 pt-4 sm:pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
                   <div className="text-center sm:text-left">
                     <span className="text-[9px] sm:text-[11px] font-black text-gray-500 uppercase tracking-widest block mb-0.5 sm:mb-1">Ümumi Məbləğ</span>
-                    <span className="text-2xl sm:text-3xl font-black text-white tracking-tighter">{cart.reduce((sum, item) => sum + item.package.price, 0)} <span className="text-sm sm:text-lg text-purple-400">AZN</span></span>
+                    <span className="text-2xl sm:text-3xl font-black text-white tracking-tighter">{(cart || []).reduce((sum, item) => sum + (item?.package?.price || 0), 0)} <span className="text-sm sm:text-lg text-purple-400">AZN</span></span>
                   </div>
                   <button type="submit" disabled={isEmailSending} className="glow-btn w-full sm:w-auto px-6 sm:px-10 py-4 sm:py-5 bg-purple-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2 sm:gap-3">
                     {isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Sifarişi Təsdiqlə"}
@@ -927,10 +943,10 @@ export default function App() {
           <main className="reveal max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
             <h1 className="text-2xl sm:text-4xl font-black text-white mb-4 sm:mb-8 tracking-tight">Şəxsi Kabinet</h1>
             
-            <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-3 sm:pb-4 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
+            <div className="flex gap-2 sm:gap-4 border-b border-indigo-955/60 pb-3 sm:pb-4 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
               <button onClick={() => setDashTab("profile")} className={`px-3 sm:px-6 py-1.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "profile" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>Hesab Məlumatları</button>
               <button onClick={() => setDashTab("orders")} className={`px-3 sm:px-6 py-1.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "orders" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>
-                Sifarişlərim {orders.filter(o => o.userEmail === user?.email).length > 0 && <span className="ml-1 sm:ml-2 bg-white/20 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs">{orders.filter(o => o.userEmail === user?.email).length}</span>}
+                Sifarişlərim {(orders || []).filter(o => o?.userEmail === user?.email).length > 0 && <span className="ml-1 sm:ml-2 bg-white/20 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs">{(orders || []).filter(o => o?.userEmail === user?.email).length}</span>}
               </button>
             </div>
 
@@ -941,7 +957,7 @@ export default function App() {
                     <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mb-8 sm:mb-10">
                       <div className="relative group">
                         <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-black text-4xl sm:text-5xl text-white overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.4)] border-2 sm:border-4 border-[#030308]">
-                          {profileEdit.profileImg ? <img src={profileEdit.profileImg} alt="User" className="w-full h-full object-cover" /> : profileEdit.name?.[0]?.toUpperCase()}
+                          {profileEdit?.profileImg ? <img src={profileEdit.profileImg} alt="User" className="w-full h-full object-cover" /> : (profileEdit?.name?.[0]?.toUpperCase() || 'U')}
                         </div>
                         <div onClick={() => profileInputRef.current?.click()} className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer backdrop-blur-sm">
                           <span className="text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center">Şəkli<br/>Dəyiş</span>
@@ -977,7 +993,7 @@ export default function App() {
 
               {dashTab === "orders" && (
                 <div className="w-full reveal">
-                  {orders.filter(o => o.userEmail === user?.email).length === 0 ? (
+                  {(orders || []).filter(o => o?.userEmail === user?.email).length === 0 ? (
                     <div className="glass-card rounded-[2rem] p-10 sm:p-16 text-center space-y-4 sm:space-y-6 border border-indigo-500/20">
                       <div className="w-16 h-16 sm:w-24 sm:h-24 bg-[#0c0c1d] rounded-full flex items-center justify-center mx-auto border border-indigo-500/30">
                         <span className="text-2xl sm:text-4xl animate-bounce text-purple-400"><Icons.Cart /></span>
@@ -987,7 +1003,7 @@ export default function App() {
                     </div>
                   ) : (
                     <div className="grid gap-4 sm:gap-6">
-                      {orders.filter(o => o.userEmail === user?.email).reverse().map((order) => (
+                      {(orders || []).filter(o => o?.userEmail === user?.email).slice().reverse().map((order) => (
                         <div key={order.id} className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-8 border border-indigo-500/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
                           <div className="space-y-2 sm:space-y-3 w-full md:w-auto">
                             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -1062,15 +1078,15 @@ export default function App() {
             </div>
 
             <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-4 sm:pb-6 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
-              <button onClick={() => setActiveAdminTab("orders")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({orders.length})</button>
-              <button onClick={() => setActiveAdminTab("products")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({products.length})</button>
+              <button onClick={() => setActiveAdminTab("orders")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({(orders || []).length})</button>
+              <button onClick={() => setActiveAdminTab("products")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({(products || []).length})</button>
             </div>
 
             {activeAdminTab === "orders" && (
               <div className="space-y-4 sm:space-y-6 reveal w-full">
-                {orders.length === 0 && <div className="text-center py-12 sm:py-20 text-gray-500 font-bold text-base sm:text-lg">Sistemdə heç bir sifariş yoxdur.</div>}
+                {(orders || []).length === 0 && <div className="text-center py-12 sm:py-20 text-gray-500 font-bold text-base sm:text-lg">Sistemdə heç bir sifariş yoxdur.</div>}
                 <div className="grid gap-4 w-full">
-                  {orders.slice().reverse().map((order) => (
+                  {(orders || []).slice().reverse().map((order) => (
                     <div key={order.id} className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 flex flex-col lg:flex-row justify-between gap-5 sm:gap-6 border-l-4 w-full" style={{borderLeftColor: order.status === 'pending' ? '#eab308' : order.status === 'approved' ? '#10b981' : '#ef4444'}}>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
                         <div><div className="text-[8px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">ID / Tarix</div><div className="font-bold text-purple-400 mt-1 text-[11px] sm:text-base">{order.id}</div><div className="text-[10px] sm:text-xs font-bold text-gray-400">{order.date}</div></div>
@@ -1110,14 +1126,14 @@ export default function App() {
                   <button onClick={() => setEditingProduct({ name: "Yeni Məhsul", cat: "entertainment", color: "#6366f1", emoji: "📦", desc: "Açıqlama", accountType: "Rəsmi Hesab", rating: "5.0", sales: "0", features: ["Yeni xüsusiyyət"], customLogo: "", packages: [{ id: "temp1", duration: "1 Ay", price: 10 }] })} className="glow-btn w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-purple-600 text-white rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg">+ Yeni Əlavə Et</button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full">
-                  {products.map(p => (
+                  {(products || []).map(p => (
                     <div key={p.id} className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-6 flex flex-col justify-between border border-indigo-500/20 relative overflow-hidden group">
                       <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-6 relative z-10">
                         <div className="p-2.5 sm:p-3 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(p.name, p.emoji, p.color, p.customLogo)}</div>
                         <div><h4 className="font-black text-base sm:text-lg text-white">{p.name}</h4><span className="text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">{p.cat}</span></div>
                       </div>
                       <div className="flex flex-wrap gap-2 mb-5 sm:mb-6 relative z-10">
-                        {p.packages.map(pkg => (
+                        {(p.packages || []).map(pkg => (
                           <span key={pkg.id} className="text-[9px] sm:text-[10px] px-2 sm:px-2.5 py-1 bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 rounded-md font-black">{pkg.duration}: {pkg.price} AZN</span>
                         ))}
                       </div>
@@ -1135,7 +1151,7 @@ export default function App() {
       </div>
 
       {/* WHATSAPP FLOAT BUTTON (Sol Alt Künc) */}
-      <a href="https://wa.me/994103136941" className="wa-float reveal" style={{ zIndex: 1000 }} target="_blank" rel="noopener noreferrer">
+      <a href="https://wa.me/994103136941" className="wa-float reveal" target="_blank" rel="noopener noreferrer">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
           <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c-.003 1.396.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c.003-3.625 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
         </svg>
