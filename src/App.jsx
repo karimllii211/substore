@@ -59,10 +59,10 @@ const CSS = `
   .led-3 { bottom: -5%; left: 20%; width: 350px; height: 350px; background: rgba(139, 92, 246, 0.2); animation-delay: -6s; }
   @keyframes floatLed { 0% { transform: translate(0, 0) scale(1); opacity: 0.5; } 100% { transform: translate(20px, 30px) scale(1.1); opacity: 0.8; } }
 
-  .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+  .reveal { opacity: 0; transform: translateY(40px); transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
   .show-reveal { opacity: 1; transform: translateY(0); }
   
-  .page-transition { animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .page-transition { animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   @keyframes slideUpFade { 
     from { opacity: 0; transform: translateY(20px) scale(0.98); filter: blur(4px); } 
     to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } 
@@ -94,7 +94,7 @@ const CSS = `
   .wa-float {
     position: fixed; width: 55px; height: 55px; bottom: 30px; left: 20px; background-color: #25d366; color: #FFF;
     border-radius: 50px; text-align: center; font-size: 30px; box-shadow: 0px 4px 15px rgba(37, 211, 102, 0.4);
-    z-index: 1000; display: flex; align-items: center; justify-content: center; transition: all 0.3s;
+    z-index: 10000; display: flex; align-items: center; justify-content: center; transition: all 0.3s;
   }
   .wa-float:hover { transform: scale(1.1); }
   
@@ -114,6 +114,12 @@ const LightModeCSS = `
   body.light-mode-active, html.light-mode-active { background-color: #f4f7fb !important; color: #0f172a !important; }
   body.light-mode-active .glass-card, body.light-mode-active .hero-card { background: #ffffff !important; border-color: #cbd5e1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.04) !important; }
   body.light-mode-active .glass-card .text-white, body.light-mode-active .hero-card .text-white, body.light-mode-active h1.text-white, body.light-mode-active h2.text-white, body.light-mode-active h3.text-white { color: #0f172a !important; }
+  
+  /* xüsusi olaraq bank kartlarının içindəki yazıları qara olmaqdan qoruyuruq! */
+  body.light-mode-active .payment-card .text-white { color: #ffffff !important; }
+  body.light-mode-active .payment-card .text-gray-300 { color: #d1d5db !important; }
+  body.light-mode-active .payment-card .text-gray-400 { color: #9ca3af !important; }
+  
   body.light-mode-active .glass-card .text-gray-400, body.light-mode-active .hero-card .text-gray-400 { color: #475569 !important; }
   body.light-mode-active .glass-card .text-gray-500, body.light-mode-active .hero-card .text-gray-500 { color: #64748b !important; }
   body.light-mode-active .bg-\\[\\#0c0c1d\\] { background-color: #f8fafc !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
@@ -189,6 +195,7 @@ const getOfficialLogo = (name = "", customEmoji = "", color = "", customLogo = "
 };
 
 export default function App() {
+  // BÜTÜN YADDAŞLAR ƏN YUXARIDA (ReferenceError-in qarşısını almaq üçün qızıl qayda!)
   const [products, setProducts] = useState([]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -215,6 +222,41 @@ export default function App() {
     try { return localStorage.getItem("ps_theme") || "dark"; } catch(e) { return "dark"; }
   });
 
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [viewedProduct, setViewedProduct] = useState(null); 
+  const [selectedDuration, setSelectedDuration] = useState(null);
+  
+  const [authMode, setAuthMode] = useState(null); 
+  const [authForm, setAuthForm] = useState({ name: "", surname: "", phone: "", email: "", pass: "", otpInput: "", profileImg: "" });
+  const [otpCode, setOtpCode] = useState(null);
+  const [forgotUserKey, setForgotUserKey] = useState(null);
+
+  const [selectedBank, setSelectedBank] = useState(CARD_ACCOUNTS[0]);
+  const [uploadedReceipt, setUploadedReceipt] = useState(null);
+  const [notification, setNotification] = useState(null);
+  const [isEmailSending, setIsEmailSending] = useState(false);
+  const [showOtpSuccess, setShowOtpSuccess] = useState(false);
+  
+  const [dashTab, setDashTab] = useState("profile"); 
+  const [profileEdit, setProfileEdit] = useState({ name: user?.name || "", surname: user?.surname || "", email: user?.email || "", phone: user?.phone || "", profileImg: user?.profileImg || "", gender: user?.gender || "Kişi" });
+  
+  const profileInputRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
+    try { return localStorage.getItem("premium_shop_admin_active") === "true"; } catch(e) { return false; }
+  });
+  
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [adminUsername, setAdminUsername] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [activeAdminTab, setActiveAdminTab] = useState("orders"); 
+
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [approvingOrder, setApprovingOrder] = useState(null);
+  const [accountEmail, setAccountEmail] = useState("");
+  const [accountPass, setAccountPass] = useState("");
+
   // SCROLL ANİMASİYASI İZLƏYİCİSİ (Ağ ekran xətası kökündən həll edildi)
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -235,7 +277,7 @@ export default function App() {
        clearTimeout(timeout);
        observer.disconnect();
     }
-  }, [page, dashTab, selectedCat]); // Səhifə dəyişəndə mütləq yenidən hesablasın!
+  }, [page, dashTab, selectedCat, activeAdminTab]); // Səhifə dəyişəndə mütləq yenidən hesablasın!
 
   useEffect(() => {
     const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
@@ -278,40 +320,6 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem("premium_shop_cart", JSON.stringify(cart)); } catch(e) {}
   }, [cart]);
-
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [viewedProduct, setViewedProduct] = useState(null); 
-  const [selectedDuration, setSelectedDuration] = useState(null);
-  
-  const [authMode, setAuthMode] = useState(null); 
-  const [authForm, setAuthForm] = useState({ name: "", surname: "", phone: "", email: "", pass: "", otpInput: "", profileImg: "" });
-  const [otpCode, setOtpCode] = useState(null);
-  const [forgotUserKey, setForgotUserKey] = useState(null);
-
-  const [selectedBank, setSelectedBank] = useState(CARD_ACCOUNTS[0]);
-  const [uploadedReceipt, setUploadedReceipt] = useState(null);
-  const [notification, setNotification] = useState(null);
-  const [isEmailSending, setIsEmailSending] = useState(false);
-  const [showOtpSuccess, setShowOtpSuccess] = useState(false);
-  
-  const [dashTab, setDashTab] = useState("profile"); 
-  const [profileEdit, setProfileEdit] = useState({ name: user?.name || "", surname: user?.surname || "", email: user?.email || "", phone: user?.phone || "", profileImg: user?.profileImg || "", gender: user?.gender || "Kişi" });
-  const profileInputRef = useRef(null);
-
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
-    try { return localStorage.getItem("premium_shop_admin_active") === "true"; } catch(e) { return false; }
-  });
-  
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
-  const [adminUsername, setAdminUsername] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [activeAdminTab, setActiveAdminTab] = useState("orders"); 
-
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [approvingOrder, setApprovingOrder] = useState(null);
-  const [accountEmail, setAccountEmail] = useState("");
-  const [accountPass, setAccountPass] = useState("");
-  const fileInputRef = useRef(null);
 
   useEffect(() => { 
     if (user) {
@@ -670,7 +678,7 @@ export default function App() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                 {(products || []).filter(p => p.popular).slice(0,3).map((product, index) => (
-                  <div key={product.id} className="hero-card rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer reveal" style={{ transitionDelay: `${index * 50}ms` }} onClick={() => openProductDetail(product)}>
+                  <div key={product.id} className="hero-card rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer reveal" style={{ transitionDelay: `${index * 30}ms` }} onClick={() => openProductDetail(product)}>
                     <div className="flex items-center justify-between mb-6 sm:mb-8 relative z-10">
                       <div className="p-3 sm:p-4 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product?.name, product?.emoji, product?.color, product?.customLogo)}</div>
                       <span className="text-[9px] font-black text-white bg-white/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20">Populyar</span>
@@ -1129,7 +1137,7 @@ export default function App() {
 
       {/* OVERLAY MODALS (ALWAYS ON TOP) */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-[99999] bg-[#030308]/80 backdrop-blur-sm flex justify-end">
+        <div className="fixed inset-0 z-[99999] bg-[#030308]/80 backdrop-blur-sm flex justify-end" style={{ zIndex: 99999 }}>
           <div className="glass-card w-full sm:w-80 md:max-w-md h-full flex flex-col justify-between drawer-open rounded-none border-y-0 border-r-0 border-l border-indigo-500/30 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
             <div className="p-6 sm:p-8 pb-4 h-full flex flex-col">
               <div className="flex justify-between items-center pb-5 sm:pb-6 border-b border-indigo-900/50 mb-5 sm:mb-6">
@@ -1182,7 +1190,7 @@ export default function App() {
 
       {/* USER AUTH MODAL WITH PASSWORD & FORGOT PROTECTIONS */}
       {authMode && (
-        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 w-full h-full overflow-y-auto">
+        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 w-full h-full overflow-y-auto" style={{ zIndex: 99999 }}>
           <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)] my-auto">
             <button onClick={() => setAuthMode(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white hover:bg-indigo-900 flex items-center justify-center text-lg sm:text-xl font-bold transition">&times;</button>
 
@@ -1269,7 +1277,7 @@ export default function App() {
 
       {/* ADMIN LOGIN MODAL */}
       {isAdminModalOpen && (
-        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4" style={{ zIndex: 99999 }}>
           <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-red-500/30">
             <button onClick={() => setIsAdminModalOpen(false)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-900/40 border border-red-500/30 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 mx-auto shadow-lg">🛡️</div>
@@ -1286,7 +1294,7 @@ export default function App() {
 
       {/* APPROVING ORDER DETAILS MODAL (ADMIN ONLY) */}
       {approvingOrder && (
-        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4" style={{ zIndex: 99999 }}>
           <div className="glass-card w-full max-w-lg rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-emerald-500/30 w-full">
             <button onClick={() => setApprovingOrder(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
             <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">Sifarişi Təsdiqlə</h3>
@@ -1305,7 +1313,7 @@ export default function App() {
 
       {/* ADVANCED EDITING PRODUCT MODAL (ADMIN ONLY) */}
       {editingProduct && (
-        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto" style={{ zIndex: 99999 }}>
           <div className="glass-card w-full max-w-4xl rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-indigo-500/30 my-4 sm:my-8 w-full">
             <button onClick={() => setEditingProduct(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
             <h3 className="text-2xl sm:text-3xl font-black text-white mb-6 sm:mb-8 tracking-tight">{editingProduct.id ? "Məhsul Redaktoru" : "Yeni Məhsul Yaradıcı"}</h3>
