@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, update, onValue, push, remove } from 'firebase/database';
 
+// =========================================================================
+// ⚠️ FIREBASE REALTIME DATABASE KONFİQURASİYASI
+// =========================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyBQGR-rN7qXlTa0KaCiDALLPOM5NOgfqwU",
   authDomain: "premiumshop-5c568.firebaseapp.com",
@@ -15,6 +18,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// =========================================================================
+// ⚠️ EMAILJS KONFİQURASİYASI
+// =========================================================================
 const EMAILJS_CONFIG = {
   serviceId: "premiumshop",
   templateOtp: "otpcode",
@@ -188,6 +194,28 @@ export default function App() {
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [orders, setOrders] = useState([]);
 
+  const [page, setPage] = useState("home"); 
+  const [selectedCat, setSelectedCat] = useState("all");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  const [cart, setCart] = useState(() => {
+    try {
+      const local = localStorage.getItem("premium_shop_cart");
+      return local ? JSON.parse(local) : [];
+    } catch(e) { return []; }
+  });
+  
+  const [user, setUser] = useState(() => {
+    try {
+      const local = localStorage.getItem("premium_shop_current_user");
+      return local ? JSON.parse(local) : null;
+    } catch(e) { return null; }
+  });
+
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem("ps_theme") || "dark"; } catch(e) { return "dark"; }
+  });
+
   // SCROLL ANİMASİYASI İZLƏYİCİSİ (Ağ ekran xətası kökündən həll edildi)
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -198,23 +226,22 @@ export default function App() {
       });
     }, { threshold: 0.05 });
 
-    const hiddenElements = document.querySelectorAll('.reveal');
-    hiddenElements.forEach((el) => observer.observe(el));
+    // Qısa bir gecikmə (timeout) əlavə edirik ki, React səhifəni tam yükləsin
+    const timeout = setTimeout(() => {
+       const hiddenElements = document.querySelectorAll('.reveal');
+       hiddenElements.forEach((el) => observer.observe(el));
+    }, 100);
 
     return () => {
-       hiddenElements.forEach((el) => observer.unobserve(el));
+       clearTimeout(timeout);
        observer.disconnect();
     }
-  }); // Re-runs on every render to catch dynamic page elements!
+  }, [page, selectedCat]); // Səhifə dəyişəndə mütləq yenidən hesablasın!
 
   useEffect(() => {
     const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
     return () => document.head.removeChild(link);
   }, []);
-
-  const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem("ps_theme") || "dark"; } catch(e) { return "dark"; }
-  });
 
   useEffect(() => {
     try { localStorage.setItem("ps_theme", theme); } catch(e) {}
@@ -248,24 +275,6 @@ export default function App() {
       else setRegisteredUsers([]);
     });
   }, []);
-
-  const [page, setPage] = useState("home"); 
-  const [selectedCat, setSelectedCat] = useState("all");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
-  const [cart, setCart] = useState(() => {
-    try {
-      const local = localStorage.getItem("premium_shop_cart");
-      return local ? JSON.parse(local) : [];
-    } catch(e) { return []; }
-  });
-  
-  const [user, setUser] = useState(() => {
-    try {
-      const local = localStorage.getItem("premium_shop_current_user");
-      return local ? JSON.parse(local) : null;
-    } catch(e) { return null; }
-  });
 
   useEffect(() => {
     try { localStorage.setItem("premium_shop_cart", JSON.stringify(cart)); } catch(e) {}
@@ -729,18 +738,18 @@ export default function App() {
 
         {/* ƏLAQƏ SƏHİFƏSİ */}
         {page === "contact" && (
-          <main className="reveal max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20 relative z-10 w-full text-center">
-            <h1 className="text-4xl sm:text-5xl font-black text-white mb-10 tracking-tight">Bizimlə Əlaqə</h1>
-            <p className="text-gray-400 mb-12 text-sm sm:text-base">Sualınız və ya probleminiz var? Seçim edin və birbaşa bizə yazın. Dərhal cavablandırılacaq!</p>
+          <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20 relative z-10 w-full text-center">
+            <h1 className="text-4xl sm:text-5xl font-black text-white mb-10 tracking-tight reveal">Bizimlə Əlaqə</h1>
+            <p className="text-gray-400 mb-12 text-sm sm:text-base reveal">Sualınız və ya probleminiz var? Seçim edin və birbaşa bizə yazın. Dərhal cavablandırılacaq!</p>
             <div className="grid md:grid-cols-2 gap-8">
-               <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="glass-card p-10 rounded-[2.5rem] flex flex-col items-center gap-6 hover:scale-105 transition border border-green-500/30">
+               <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="glass-card p-10 rounded-[2.5rem] flex flex-col items-center gap-6 hover:scale-105 transition border border-green-500/30 reveal">
                   <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-white shadow-[0_0_30px_rgba(34,197,94,0.4)]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c-.003 1.396.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c.003-3.625 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>
                   </div>
                   <h3 className="text-2xl font-black text-white">WhatsApp</h3>
                   <p className="text-gray-400 text-sm">7/24 Sürətli Dəstək Xətti</p>
                </a>
-               <a href="mailto:premiumshopazerbaycan@gmail.com" className="glass-card p-10 rounded-[2.5rem] flex flex-col items-center gap-6 hover:scale-105 transition border border-purple-500/30">
+               <a href="mailto:premiumshopazerbaycan@gmail.com" className="glass-card p-10 rounded-[2.5rem] flex flex-col items-center gap-6 hover:scale-105 transition border border-purple-500/30 reveal">
                   <div className="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-[0_0_30px_rgba(168,85,247,0.4)]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
                   </div>
@@ -753,8 +762,8 @@ export default function App() {
 
         {/* Məhsullar Səhifəsi */}
         {page === "categories" && (
-          <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
-            <div className="mb-6 sm:mb-12 space-y-3 sm:space-y-6">
+          <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
+            <div className="mb-6 sm:mb-12 space-y-3 sm:space-y-6 reveal">
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Kataloq</h1>
               <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-4 no-scrollbar w-full">
                 {CATEGORIES.map(cat => (
@@ -784,14 +793,14 @@ export default function App() {
 
         {/* Məhsul Detalı Səhifəsi */}
         {page === "product_detail" && viewedProduct && (
-          <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
-            <button onClick={() => setPage("categories")} className="text-gray-400 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-widest mb-6 sm:mb-8 flex items-center gap-2 transition">
+          <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
+            <button onClick={() => setPage("categories")} className="text-gray-400 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-widest mb-6 sm:mb-8 flex items-center gap-2 transition reveal">
               ← Geriyə
             </button>
-            <div className="glass-card rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border border-indigo-500/20 overflow-hidden relative">
+            <div className="glass-card rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border border-indigo-500/20 overflow-hidden relative reveal">
                <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 relative z-10">
                  <div className="space-y-6 sm:space-y-8">
-                    <div className="flex items-center gap-4 sm:gap-6 reveal">
+                    <div className="flex items-center gap-4 sm:gap-6">
                       <div className="p-4 sm:p-6 bg-[#0c0c1d] rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl">{getOfficialLogo(viewedProduct?.name, viewedProduct?.emoji, viewedProduct?.color, viewedProduct?.customLogo)}</div>
                       <div>
                          <span className="text-[9px] sm:text-[10px] font-black text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full tracking-widest uppercase inline-block mb-2">100% Zəmanət</span>
@@ -799,18 +808,18 @@ export default function App() {
                       </div>
                     </div>
                     
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm font-black reveal" style={{ transitionDelay: '50ms' }}>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm font-black">
                        <div className="flex items-center gap-1 sm:gap-2 bg-[#0c0c1d] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-indigo-900/50"><span className="text-yellow-400">⭐ {viewedProduct?.rating || "5.0"}</span> <span className="text-white hidden sm:inline">Reytinq</span></div>
                        <div className="flex items-center gap-1 sm:gap-2 bg-[#0c0c1d] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-indigo-900/50"><span className="text-emerald-400">🔥 {viewedProduct?.sales || "1k+"}</span> <span className="text-white hidden sm:inline">Satış</span></div>
                        <div className="flex items-center gap-1 sm:gap-2 bg-[#0c0c1d] px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-indigo-500/30 text-indigo-300">Növ: {viewedProduct?.accountType || "Rəsmi Hesab"}</div>
                     </div>
 
-                    <div className="space-y-3 sm:space-y-4 reveal" style={{ transitionDelay: '100ms' }}>
+                    <div className="space-y-3 sm:space-y-4">
                        <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-widest">Məhsul Haqqında</h3>
                        <p className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed">{viewedProduct?.desc}</p>
                     </div>
 
-                    <div className="space-y-3 sm:space-y-4 pt-4 sm:pt-6 border-t border-indigo-900/50 reveal" style={{ transitionDelay: '150ms' }}>
+                    <div className="space-y-3 sm:space-y-4 pt-4 sm:pt-6 border-t border-indigo-900/50">
                        <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-widest">Üstünlüklər</h3>
                        <ul className="space-y-2 sm:space-y-3">
                          {(viewedProduct?.features || ["Rəsmi zəmanət", "7/24 Dəstək"]).map((feature, i) => (
@@ -820,7 +829,7 @@ export default function App() {
                     </div>
                  </div>
 
-                 <div className="bg-[#0c0c1d] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 border border-indigo-900/30 flex flex-col justify-between mt-6 lg:mt-0 reveal" style={{ transitionDelay: '200ms' }}>
+                 <div className="bg-[#0c0c1d] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 border border-indigo-900/30 flex flex-col justify-between mt-6 lg:mt-0">
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-widest mb-4 sm:mb-6 text-center">Müddəti Seçin</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -847,18 +856,18 @@ export default function App() {
 
         {/* Ödəniş Səhifəsi */}
         {page === "checkout" && (
-          <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
-            <button type="button" onClick={() => { setPage("categories"); setIsCartOpen(true); }} className="text-gray-400 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-widest mb-6 sm:mb-8 flex items-center gap-2 transition cursor-pointer relative z-50">
+          <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
+            <button type="button" onClick={() => { setPage("categories"); setIsCartOpen(true); }} className="text-gray-400 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-widest mb-6 sm:mb-8 flex items-center gap-2 transition cursor-pointer relative z-50 reveal">
               ← Səbətə Qayıt
             </button>
             
-            <div className="glass-card w-full max-w-4xl mx-auto rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-10 border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)] relative">
-              <div className="text-center mb-6 sm:mb-8 pt-2 sm:pt-0 reveal">
+            <div className="glass-card w-full max-w-4xl mx-auto rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-10 border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)] relative reveal">
+              <div className="text-center mb-6 sm:mb-8 pt-2 sm:pt-0">
                 <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 sm:mb-3 tracking-tight">Ödəniş Mərhələsi</h3>
                 <p className="text-[11px] sm:text-sm font-medium text-gray-400 max-w-md mx-auto">Aşağıdakı kartlardan birinə ödəniş edin, nömrəni kopyalamaq üçün toxunun və çeki yükləyin.</p>
               </div>
 
-              <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 sm:pb-6 snap-x no-scrollbar w-full reveal" style={{ transitionDelay: '100ms' }}>
+              <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 sm:pb-6 snap-x no-scrollbar w-full">
                 {CARD_ACCOUNTS.map(acc => (
                   <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-56 h-36 sm:w-64 sm:h-44 snap-center p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-offset-4 ring-purple-500 scale-[1.02] shadow-[0_15px_40px_rgba(0,0,0,0.4)]" : "opacity-90 hover:opacity-100 scale-95"}`}>
                     <div className="relative z-10 font-black text-gray-400 text-[10px] sm:text-xs tracking-widest text-center uppercase">{acc.bank}</div>
@@ -879,7 +888,7 @@ export default function App() {
                 ))}
               </div>
 
-              <form onSubmit={handleCheckoutSubmit} className="space-y-6 sm:space-y-8 mt-2 sm:mt-4 bg-[#0c0c1d] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-900/30 reveal" style={{ transitionDelay: '200ms' }}>
+              <form onSubmit={handleCheckoutSubmit} className="space-y-6 sm:space-y-8 mt-2 sm:mt-4 bg-[#0c0c1d] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-900/30">
                 <div>
                   <label className="block text-[9px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 sm:mb-4">Ödəniş Çeki (Cihazdan Yüklə)</label>
                   {!uploadedReceipt ? (
@@ -915,10 +924,10 @@ export default function App() {
 
         {/* Şəxsi Kabinet */}
         {page === "dashboard" && (
-          <main className="reveal max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
-            <h1 className="text-2xl sm:text-4xl font-black text-white mb-4 sm:mb-8 tracking-tight">Şəxsi Kabinet</h1>
+          <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
+            <h1 className="text-2xl sm:text-4xl font-black text-white mb-4 sm:mb-8 tracking-tight reveal">Şəxsi Kabinet</h1>
             
-            <div className="flex gap-2 sm:gap-4 border-b border-indigo-955/60 pb-3 sm:pb-4 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
+            <div className="flex gap-2 sm:gap-4 border-b border-indigo-955/60 pb-3 sm:pb-4 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full reveal">
               <button onClick={() => setDashTab("profile")} className={`px-3 sm:px-6 py-1.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "profile" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>Hesab Məlumatları</button>
               <button onClick={() => setDashTab("orders")} className={`px-3 sm:px-6 py-1.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "orders" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>
                 Sifarişlərim {(orders || []).filter(o => o?.userEmail === user?.email).length > 0 && <span className="ml-1 sm:ml-2 bg-white/20 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs">{(orders || []).filter(o => o?.userEmail === user?.email).length}</span>}
@@ -1014,10 +1023,10 @@ export default function App() {
           </main>
         )}
 
-        {/* Qaydalar və Məxfilik Siyasəti (PDF Üçün Ayrılmış Yerlər) */}
+        {/* Qaydalar və Məxfilik Siyasəti */}
         {(page === "rules" || page === "privacy") && (
-          <main className="reveal max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-20 relative z-10 w-full">
-            <div className="glass-card p-8 sm:p-16 rounded-[2rem] border border-indigo-500/30">
+          <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-20 relative z-10 w-full">
+            <div className="glass-card p-8 sm:p-16 rounded-[2rem] border border-indigo-500/30 reveal">
                <h1 className="text-3xl sm:text-4xl font-black text-white mb-8 border-b border-indigo-900/50 pb-6">{page === "rules" ? "İstifadə Şərtləri" : "Məxfilik Siyasəti"}</h1>
                
                <div className="space-y-6 text-gray-400 text-sm sm:text-base leading-relaxed">
@@ -1037,7 +1046,7 @@ export default function App() {
                   <p>3.2. Saytımız heç bir halda kredit kartı və ya digər həssas bank məlumatlarınızı öz sistemində saxlamır.</p>
 
                   <div className="mt-12 pt-8 border-t border-indigo-900/50 flex justify-center">
-                     <button onClick={() => setPage("home")} className="glow-btn px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl text-sm uppercase tracking-widest">Ana Səhifəyə Qayıt</button>
+                     <button onClick={() => setPage("home")} className="glow-btn px-8 py-3 bg-purple-600 text-white font-bold rounded-xl text-sm uppercase tracking-widest">Ana Səhifəyə Qayıt</button>
                   </div>
                </div>
             </div>
@@ -1046,13 +1055,13 @@ export default function App() {
 
         {/* ADMINISTRATIVE DASHBOARD SCREEN */}
         {page === "admin_dashboard" && isAdminLoggedIn && (
-          <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12">
+          <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12 reveal">
               <div><h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">İdarəetmə Paneli</h1><p className="text-xs sm:text-sm font-bold text-purple-400 mt-1 sm:mt-2 uppercase tracking-widest">Səlahiyyətli İdarəçi</p></div>
               <button onClick={handleAdminLogout} className="px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-red-900/40 border border-red-500/30 text-red-400 font-black text-xs sm:text-sm uppercase tracking-wider hover:bg-red-800/50 transition shadow-lg w-full sm:w-auto">Sistemdən Çıxış</button>
             </div>
 
-            <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-4 sm:pb-6 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
+            <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-4 sm:pb-6 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full reveal">
               <button onClick={() => setActiveAdminTab("orders")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({(orders || []).length})</button>
               <button onClick={() => setActiveAdminTab("products")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({(products || []).length})</button>
             </div>
@@ -1151,10 +1160,10 @@ export default function App() {
            <div>
               <h3 className="text-lg font-bold text-white mb-4">Faydalı Link</h3>
               <ul className="space-y-3 text-sm text-gray-400 font-medium">
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("categories"); setSelectedCat("all"); goToTop();}}>Bütün məhsullar</span></li>
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("rules"); goToTop();}}>İstifadə Şərtləri</span></li>
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => { if(user) {setPage("dashboard"); setDashTab("profile");} else {setAuthMode("login"); window.scrollTo(0,0);} }}>Hesab</span></li>
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setIsCartOpen(true)}>Səbətim</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("categories"); setSelectedCat("all"); goToTop();}}>Bütün məhsullar</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("rules"); goToTop();}}>İstifadə Şərtləri</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => { if(user) {setPage("dashboard"); setDashTab("profile");} else {setAuthMode("login"); window.scrollTo(0,0);} }}>Hesab</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setIsCartOpen(true)}>Səbətim</span></li>
               </ul>
            </div>
 
@@ -1162,8 +1171,8 @@ export default function App() {
            <div>
               <h3 className="text-lg font-bold text-white mb-4">Qısa Keçidlər</h3>
               <ul className="space-y-3 text-sm text-gray-400 font-medium">
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("login"); window.scrollTo(0,0);}}>Giriş</span></li>
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}}>Qeydiyyat</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("login"); window.scrollTo(0,0);}}>Giriş</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}}>Qeydiyyat</span></li>
               </ul>
            </div>
 
@@ -1172,7 +1181,7 @@ export default function App() {
               <h3 className="text-lg font-bold text-white mb-4">Abunə Ol</h3>
               <p className="text-gray-400 text-xs leading-relaxed mb-4 font-medium">Ən yeni güncəlləmələrdən xəbərdar olmaq üçün abunə ol!</p>
               <div className="space-y-3">
-                 <button onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}} className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-bold rounded-full py-3.5 text-sm tracking-widest transition shadow-[0_0_15px_rgba(99,102,241,0.4)]">ABUNƏ OL</button>
+                 <button onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}} className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-full py-3.5 text-sm tracking-widest transition shadow-[0_0_15px_rgba(99,102,241,0.4)]">ABUNƏ OL</button>
               </div>
            </div>
         </div>
@@ -1186,6 +1195,252 @@ export default function App() {
            </div>
         </div>
       </footer>
+
+      {/* OVERLAY MODALS (ALWAYS ON TOP) */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-[9999] bg-[#030308]/80 backdrop-blur-sm flex justify-end">
+          <div className="glass-card w-full sm:w-80 md:max-w-md h-full flex flex-col justify-between drawer-open rounded-none border-y-0 border-r-0 border-l border-indigo-500/30 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
+            <div className="p-6 sm:p-8 pb-4 h-full flex flex-col">
+              <div className="flex justify-between items-center pb-5 sm:pb-6 border-b border-indigo-900/50 mb-5 sm:mb-6">
+                <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2 sm:gap-3">
+                  <div className="p-2 sm:p-3 bg-purple-600 rounded-lg sm:rounded-xl text-white shadow-lg"><Icons.Cart /></div> Səbətiniz
+                </h3>
+                <button onClick={() => setIsCartOpen(false)} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/80 text-gray-400 hover:bg-indigo-900 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
+              </div>
+              
+              {(cart || []).length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4 sm:space-y-6">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#0c0c1d] rounded-full flex items-center justify-center border border-indigo-900/50 text-purple-500"><Icons.Cart /></div>
+                  <p className="text-gray-400 font-black uppercase tracking-widest text-[10px] sm:text-xs">Səbətiniz boşdur</p>
+                </div>
+              ) : (
+                <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 pr-1 sm:pr-2 no-scrollbar">
+                  {(cart || []).map((item, index) => (
+                    <div key={index} className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0c0c1d] border border-indigo-500/30 hover:border-purple-400 transition-colors group">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="p-2 sm:p-2.5 bg-black/40 rounded-lg sm:rounded-xl border border-white/10 shadow-lg">{getOfficialLogo(item?.product?.name, item?.product?.emoji, item?.product?.color, item?.product?.customLogo)}</div>
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-black text-white mb-0.5 sm:mb-1">{item?.product?.name}</h4>
+                          <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-purple-400 bg-indigo-950/80 px-1.5 sm:px-2 py-0.5 rounded">{item?.package?.duration}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <span className="font-black text-sm sm:text-lg text-white tracking-tight">{item?.package?.price} <span className="text-[9px] sm:text-[10px] text-gray-500">AZN</span></span>
+                        <button onClick={() => removeFromCart(index)} className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md sm:rounded-lg bg-red-900/40 text-red-400 hover:bg-red-600 hover:text-white transition">&times;</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {(cart || []).length > 0 && (
+              <div className="p-6 sm:p-8 bg-black/40 border-t border-indigo-900/50 backdrop-blur-md">
+                <div className="flex justify-between items-center mb-5 sm:mb-6">
+                  <span className="text-[10px] sm:text-xs font-black text-gray-500 uppercase tracking-widest">Ümumi Məbləğ</span>
+                  <span className="text-2xl sm:text-3xl font-black text-white tracking-tighter">{(cart || []).reduce((sum, item) => sum + (item?.package?.price || 0), 0)} <span className="text-sm sm:text-lg text-purple-400">AZN</span></span>
+                </div>
+                <button onClick={() => { setIsCartOpen(false); setPage("checkout"); }} className="glow-btn w-full py-4 sm:py-5 bg-purple-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(168,85,247,0.4)]">
+                  Ödənişə Keç
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* USER AUTH MODAL WITH PASSWORD & FORGOT PROTECTIONS */}
+      {authMode && (
+        <div className="fixed inset-0 z-[9999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 w-full h-full overflow-y-auto">
+          <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)] my-auto">
+            <button onClick={() => setAuthMode(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white hover:bg-indigo-900 flex items-center justify-center text-lg sm:text-xl font-bold transition">&times;</button>
+
+            {showOtpSuccess ? (
+              <div className="py-8 sm:py-12 text-center space-y-4 sm:space-y-6">
+                <div className="success-check">✓</div>
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">Kodu Göndərdik!</h3>
+                <p className="text-xs sm:text-sm font-medium text-gray-400">E-mail qutunuzu yoxlayın.</p>
+              </div>
+            ) : authMode === "login" ? (
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight">Xoş Gəldiniz</h3>
+                <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 sm:mb-8">Hesabınıza giriş edin.</p>
+                <form onSubmit={handleUserAuth} className="space-y-4 sm:space-y-5">
+                  <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">E-poçt Ünvanı</label><input type="email" value={authForm.email} onChange={(e) => setAuthForm({...authForm, email: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
+                  <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">Şifrə</label><input type="password" value={authForm.pass} onChange={(e) => setAuthForm({...authForm, pass: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
+                  <div className="text-right">
+                     <span onClick={() => setAuthMode("forgot")} className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-purple-400 cursor-pointer hover:text-purple-300">Şifrəni unutmusunuz?</span>
+                  </div>
+                  <button type="submit" className="glow-btn w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-purple-600 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest">Giriş Et</button>
+                </form>
+                <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-indigo-950/50 text-center">
+                  <p className="text-[10px] sm:text-xs font-black text-gray-500">Hesabınız yoxdur? <span onClick={() => setAuthMode("register")} className="text-purple-400 cursor-pointer hover:text-purple-300">İndi Yarat</span></p>
+                </div>
+              </div>
+            ) : authMode === "register" ? (
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight">Qeydiyyat</h3>
+                <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 sm:mb-8">Məlumatları doldurun.</p>
+                <form onSubmit={handleUserAuth} className="space-y-4 sm:space-y-5">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">Ad</label><input type="text" value={authForm.name} onChange={(e) => setAuthForm({...authForm, name: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
+                    <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">Soyad</label><input type="text" value={authForm.surname} onChange={(e) => setAuthForm({...authForm, surname: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
+                  </div>
+                  <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">E-poçt</label><input type="email" value={authForm.email} onChange={(e) => setAuthForm({...authForm, email: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
+                  <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">Şifrə təyin edin</label><input type="password" value={authForm.pass} onChange={(e) => setAuthForm({...authForm, pass: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
+                  
+                  <button type="submit" disabled={isEmailSending} className="glow-btn w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-purple-600 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest flex justify-center items-center gap-2 sm:gap-3 transition">
+                    {isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Kodu Göndər 📩"}
+                  </button>
+                </form>
+                <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-indigo-950/50 text-center">
+                  <p className="text-[10px] sm:text-xs font-black text-gray-500">Artıq hesabınız var? <span onClick={() => setAuthMode("login")} className="text-purple-400 cursor-pointer hover:text-purple-300">Giriş edin</span></p>
+                </div>
+              </div>
+            ) : authMode === "forgot" ? (
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight">Şifrəni Yenilə</h3>
+                <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 sm:mb-8">Hesabınızın e-poçtunu yazın.</p>
+                <form onSubmit={handleUserAuth} className="space-y-4 sm:space-y-5">
+                  <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">E-poçt Ünvanı</label><input type="email" value={authForm.email} onChange={(e) => setAuthForm({...authForm, email: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
+                  <button type="submit" disabled={isEmailSending} className="glow-btn w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-purple-600 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest flex justify-center items-center gap-2 sm:gap-3 transition">
+                    {isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Kodu Göndər 📩"}
+                  </button>
+                </form>
+                <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-indigo-950/50 text-center">
+                  <span onClick={() => setAuthMode("login")} className="text-[10px] sm:text-xs font-black text-purple-400 cursor-pointer hover:text-purple-300 uppercase tracking-widest">← Geriyə Qayıt</span>
+                </div>
+              </div>
+            ) : authMode === "reset_pass" ? (
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight">Yeni Şifrə</h3>
+                <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 sm:mb-8">Hesabınız üçün yeni şifrə təyin edin.</p>
+                <form onSubmit={handleUserAuth} className="space-y-4 sm:space-y-5">
+                  <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">Yeni Şifrə</label><input type="password" value={authForm.pass} onChange={(e) => setAuthForm({...authForm, pass: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
+                  <button type="submit" className="glow-btn w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-emerald-600 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest">Şifrəni Yenilə</button>
+                </form>
+              </div>
+            ) : (
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight text-center">Təsdiq Kodu</h3>
+                <p className="text-[9px] sm:text-[11px] font-black text-gray-500 mb-6 sm:mb-8 text-center uppercase tracking-widest">E-poçtunuza gələn 6 rəqəmli kodu yazın</p>
+                <form onSubmit={handleUserAuth} className="space-y-5 sm:space-y-6">
+                  <div>
+                    <input type="text" value={authForm.otpInput} onChange={(e) => setAuthForm({...authForm, otpInput: e.target.value})} className="w-full p-4 sm:p-5 rounded-xl sm:rounded-2xl text-center text-2xl sm:text-3xl font-black tracking-[8px] sm:tracking-[12px] bg-indigo-950/40 border-indigo-500/50 text-indigo-300 placeholder-indigo-900" placeholder="------" maxLength="6" required />
+                  </div>
+                  <button type="submit" className="glow-btn w-full py-4 sm:py-5 bg-emerald-600 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.4)]">Təsdiqlə</button>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ADMIN LOGIN MODAL */}
+      {isAdminModalOpen && (
+        <div className="fixed inset-0 z-[9999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-red-500/30">
+            <button onClick={() => setIsAdminModalOpen(false)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-900/40 border border-red-500/30 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 mx-auto shadow-lg">🛡️</div>
+            <h3 className="text-xl sm:text-2xl font-black text-white mb-1 sm:mb-2 text-center tracking-tight">Admin Paneli</h3>
+            <p className="text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-6 sm:mb-8 text-center">Səlahiyyətli şəxs girişi</p>
+            <form onSubmit={handleAdminLogin} className="space-y-4 sm:space-y-5">
+              <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">İstifadəçi Adı</label><input type="text" value={adminUsername} onChange={(e) => setAdminUsername(e.target.value)} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
+              <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">Şifrə</label><input type="password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
+              <button type="submit" className="w-full py-3.5 sm:py-4 mt-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.4)] transition">Sistemə Giriş</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* APPROVING ORDER DETAILS MODAL (ADMIN ONLY) */}
+      {approvingOrder && (
+        <div className="fixed inset-0 z-[9999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="glass-card w-full max-w-lg rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-emerald-500/30 w-full">
+            <button onClick={() => setApprovingOrder(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
+            <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">Sifarişi Təsdiqlə</h3>
+            <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 sm:mb-8">Müştəri üçün abunəlik məlumatlarını daxil edin</p>
+            <form onSubmit={approveOrderAction} className="space-y-4 sm:space-y-5 bg-[#0c0c1d] p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-indigo-900/30 shadow-inner">
+              <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 sm:mb-2">Hesab E-maili / Giriş Adı</label><input type="text" value={accountEmail} onChange={(e) => setAccountEmail(e.target.value)} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold text-emerald-300" required /></div>
+              <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 sm:mb-2">Hesab Şifrəsi</label><input type="text" value={accountPass} onChange={(e) => setAccountPass(e.target.value)} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold text-emerald-300" required /></div>
+              <div className="flex gap-3 sm:gap-4 pt-4 sm:pt-6">
+                <button type="button" onClick={() => setApprovingOrder(null)} className="w-1/3 py-3.5 sm:py-4 bg-indigo-950/40 text-gray-400 font-black text-[10px] sm:text-xs uppercase tracking-widest rounded-xl hover:bg-indigo-900/60 transition">Ləğv</button>
+                <button type="submit" className="glow-btn w-2/3 py-3.5 sm:py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] sm:text-xs uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)] transition">Göndər ✉️</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ADVANCED EDITING PRODUCT MODAL (ADMIN ONLY) */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-[9999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="glass-card w-full max-w-4xl rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-indigo-500/30 my-4 sm:my-8 w-full">
+            <button onClick={() => setEditingProduct(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
+            <h3 className="text-2xl sm:text-3xl font-black text-white mb-6 sm:mb-8 tracking-tight">{editingProduct.id ? "Məhsul Redaktoru" : "Yeni Məhsul Yaradıcı"}</h3>
+
+            <form onSubmit={handleSaveProduct} className="space-y-6 sm:space-y-8">
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6 bg-[#0c0c1d] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-900/30">
+                <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Adı</label><input type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-base sm:text-lg font-black" required /></div>
+                
+                <div>
+                  <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Loqosu (Cihazdan Yüklə)</label>
+                  <div className="flex items-center gap-4">
+                    {editingProduct.customLogo && <img src={editingProduct.customLogo} className="w-10 h-10 rounded-lg object-contain bg-black p-1" alt="logo" />}
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="px-4 py-3 sm:py-4 bg-indigo-900/50 hover:bg-indigo-600 text-white rounded-xl text-xs sm:text-sm font-bold w-full transition">Şəkil Seç</button>
+                    <input type="file" accept="image/*" ref={fileInputRef} onChange={(e) => handleImageUpload(e, (res) => setEditingProduct({...editingProduct, customLogo: res}))} className="hidden" />
+                  </div>
+                </div>
+
+                <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Açar Rəngi (Hex Code)</label><input type="text" value={editingProduct.color} onChange={(e) => setEditingProduct({...editingProduct, color: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold bg-black" /></div>
+                <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Qısa Açıqlama</label><input type="text" value={editingProduct.desc} onChange={(e) => setEditingProduct({...editingProduct, desc: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4 sm:gap-6 bg-[#0c0c1d] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-900/30">
+                <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1 sm:mb-2">Hesab Növü</label><input type="text" placeholder="Məs: Ortaq Hesab" value={editingProduct.accountType || ''} onChange={(e) => setEditingProduct({...editingProduct, accountType: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-yellow-400 mb-1 sm:mb-2">Reytinq (Ulduz)</label><input type="text" placeholder="Məs: 4.9" value={editingProduct.rating || ''} onChange={(e) => setEditingProduct({...editingProduct, rating: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-pink-400 mb-1 sm:mb-2">Satış Sayı</label><input type="text" placeholder="Məs: 12.5k" value={editingProduct.sales || ''} onChange={(e) => setEditingProduct({...editingProduct, sales: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                <div className="md:col-span-3">
+                  <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Geniş Xüsusiyyətləri (Hər sətirə 1 ədəd yazın)</label>
+                  <textarea rows="3" value={(editingProduct.features || []).join('\n')} onChange={(e) => setEditingProduct({...editingProduct, features: e.target.value.split('\n')})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold leading-relaxed" placeholder="4K Ultra HD&#10;7/24 Dəstək"></textarea>
+                </div>
+              </div>
+
+              <div className="bg-[#0c0c1d] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-indigo-900/30">
+                 <div className="flex justify-between items-center mb-4 sm:mb-6">
+                    <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400">Paketlər</label>
+                    <button type="button" onClick={handleAddPackage} className="px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-900/50 text-indigo-300 rounded-lg text-[9px] sm:text-xs font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition">+ Əlavə Et</button>
+                 </div>
+                 <div className="space-y-2 sm:space-y-3">
+                   {editingProduct.packages.map((pkg, i) => (
+                     <div key={i} className="flex items-center gap-2 sm:gap-4">
+                       <input type="text" value={pkg.duration} onChange={(e) => handleUpdatePackage(i, 'duration', e.target.value)} className="w-1/2 p-2.5 sm:p-3 rounded-lg text-xs sm:text-sm font-bold" placeholder="1 Ay" required />
+                       <input type="number" value={pkg.price} onChange={(e) => handleUpdatePackage(i, 'price', Number(e.target.value))} className="w-1/3 p-2.5 sm:p-3 rounded-lg text-xs sm:text-sm font-bold" placeholder="Qiymət (AZN)" required />
+                       <button type="button" onClick={() => handleRemovePackage(i)} className="w-8 h-8 sm:w-10 sm:h-10 bg-red-900/30 text-red-400 rounded-lg flex items-center justify-center font-bold hover:bg-red-600 hover:text-white transition">&times;</button>
+                     </div>
+                   ))}
+                 </div>
+              </div>
+
+              <div className="flex gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-indigo-900/50">
+                <button type="button" onClick={() => setEditingProduct(null)} className="w-1/3 py-3.5 sm:py-5 bg-indigo-950/40 text-gray-400 font-black text-[10px] sm:text-sm uppercase tracking-widest rounded-xl sm:rounded-2xl hover:bg-indigo-900/60 transition">Ləğv Et</button>
+                <button type="submit" className="glow-btn w-2/3 py-3.5 sm:py-5 bg-purple-600 text-white font-black text-[10px] sm:text-sm uppercase tracking-widest rounded-xl sm:rounded-2xl shadow-lg transition">Məhsulu Yadda Saxla</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Minimalist Toast Notification
+function Notif({ n }) {
+  if (!n) return null;
+  const colors = n.type === "error" ? "bg-red-600 text-white" : n.type === "info" ? "bg-blue-600 text-white" : "bg-emerald-600 text-white";
+  return (
+    <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] font-black text-[10px] sm:text-xs uppercase tracking-wider text-center animate-toast ${colors}`} style={{ zIndex: 9999 }}>
+      {n.msg}
     </div>
   );
 }
