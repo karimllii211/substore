@@ -599,6 +599,7 @@ export default function App() {
         )}
       </nav>
 
+      {}
       <div className="page-transition flex-1 relative w-full">
         
         {page === "home" && (
