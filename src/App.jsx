@@ -2,9 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, update, onValue, push, remove } from 'firebase/database';
 
-// =========================================================================
-// ⚠️ FIREBASE REALTIME DATABASE KONFİQURASİYASI
-// =========================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyBQGR-rN7qXlTa0KaCiDALLPOM5NOgfqwU",
   authDomain: "premiumshop-5c568.firebaseapp.com",
@@ -18,9 +15,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// =========================================================================
-// ⚠️ EMAILJS KONFİQURASİYASI
-// =========================================================================
 const EMAILJS_CONFIG = {
   serviceId: "premiumshop",
   templateOtp: "otpcode",
@@ -59,7 +53,6 @@ const CSS = `
   .led-3 { bottom: -5%; left: 20%; width: 350px; height: 350px; background: rgba(139, 92, 246, 0.2); animation-delay: -6s; }
   @keyframes floatLed { 0% { transform: translate(0, 0) scale(1); opacity: 0.5; } 100% { transform: translate(20px, 30px) scale(1.1); opacity: 0.8; } }
 
-  /* MÖHTƏŞƏM SCROLL ANİMASİYALARI */
   .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
   .show-reveal { opacity: 1; transform: translateY(0); }
   
@@ -111,7 +104,6 @@ const CSS = `
   }
 `;
 
-// Tam qüsursuz işləyən Light Mode Rejimi
 const LightModeCSS = `
   body, html { background-color: #f4f7fb !important; color: #0f172a !important; }
   .glass-card, .hero-card { background: #ffffff !important; border-color: #cbd5e1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.04) !important; }
@@ -122,17 +114,14 @@ const LightModeCSS = `
   .bg-black\\/40, .bg-indigo-950\\/20 { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
   .border-white\\/10 { border-color: #e2e8f0 !important; }
   
-  /* Qorunacaq rənglər (Düymələr, İkonlar) */
   .glow-btn.text-white, .bg-indigo-600.text-white, .bg-emerald-600.text-white, .bg-red-600.text-white, .cart-badge { color: #ffffff !important; }
   .neon-text { text-shadow: none !important; color: #0f172a !important; }
   input, select, textarea { background-color: #ffffff !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; }
   
-  /* Üst Menyu Light Mode */
   .nav-light { background-color: rgba(255,255,255,0.95) !important; border-bottom-color: #e2e8f0 !important; }
   .nav-light .text-white { color: #0f172a !important; }
   .nav-light .text-gray-400 { color: #475569 !important; }
   
-  /* Alt Menyu Qara Qalmalıdır (Şəkildəki Kimi) */
   #footer { background-color: #060814 !important; color: #ffffff !important; }
   #footer .text-white { color: #ffffff !important; }
   #footer .text-gray-400 { color: #9ca3af !important; }
@@ -147,25 +136,22 @@ const DEFAULT_PRODUCTS = [
   { id: 5, name: "Canva Pro", cat: "design", color: "#8B5CF6", emoji: "🎨", desc: "Milyonlarla premium şablon · AI dizayn köməkçisi", accountType: "Fərdi (Davətnamə)", rating: "4.7", sales: "8.8k", features: ["Bütün Premium şablonlar açıqdır", "Arxa plan silmə xüsusiyyəti", "Magic Studio (AI) alətləri", "Şəxsi mailinizə dəvətnamə göndərilir"], customLogo: "", packages: [{ id: "p12", duration: "1 Ay", price: 9 }, { id: "p13", duration: "3 Ay", price: 24 }, { id: "p14", duration: "1 İl", price: 85 }], popular: true }
 ];
 
-const renderBankLogo = (src, altName, extraClass = "") => (
-  <img src={src} alt={altName} className={`max-h-12 sm:max-h-16 max-w-[120px] sm:max-w-[160px] object-contain drop-shadow-sm ${extraClass}`} onError={(e) => {
-    e.target.style.display = 'none';
-    if(e.target.nextSibling) e.target.nextSibling.style.display = 'block';
-  }} />
+const renderBankLogo = (src, altName) => (
+  <img src={src} alt={altName} style={{ filter: 'brightness(0) invert(1)' }} className="max-h-8 sm:max-h-12 max-w-[120px] sm:max-w-[150px] object-contain drop-shadow-lg" onError={(e) => { e.target.style.display = 'none'; }} />
 );
 
 const BankLogos = {
-  ABB: () => renderBankLogo("/abb.png", "ABB Bank", "mix-blend-multiply"),
-  Kapital: () => renderBankLogo("/kapital.png", "Kapital Bank", "mix-blend-multiply"),
-  LEO: () => renderBankLogo("/leo.png", "LEO Bank", "invert"),
-  M10: () => renderBankLogo("/m10.png", "M10", "mix-blend-multiply")
+  ABB: () => renderBankLogo("/abb.png", "ABB Bank"),
+  Kapital: () => renderBankLogo("/kapital.png", "Kapital Bank"),
+  LEO: () => renderBankLogo("/leo.png", "LEO Bank"),
+  M10: () => renderBankLogo("/m10.png", "M10")
 };
 
 const CARD_ACCOUNTS = [
-  { id: "kapital", bank: "Kapital Bank", logo: BankLogos.Kapital, num: "4169 7388 1861 3451", color: "bg-white border-4 border-[#dc2626]", numColor: "text-gray-900" },
-  { id: "abb", bank: "ABB", logo: BankLogos.ABB, num: "5522 0093 7234 8144", color: "bg-white border-4 border-[#2563eb]", numColor: "text-blue-900" },
-  { id: "leo", bank: "LEO Bank", logo: BankLogos.LEO, num: "4098 5844 6496 5191", color: "bg-white border-4 border-black", numColor: "text-gray-900" },
-  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "bg-white border-4 border-[#02D68F]", numColor: "text-gray-900" }
+  { id: "kapital", bank: "Kapital Bank", logo: BankLogos.Kapital, num: "4169 7388 1861 3451", color: "bg-[#e50914] border border-red-500", numColor: "text-white" },
+  { id: "abb", bank: "ABB Bank", logo: BankLogos.ABB, num: "5522 0093 7234 8144", color: "bg-[#00529b] border border-blue-500", numColor: "text-white" },
+  { id: "leo", bank: "LEO Bank", logo: BankLogos.LEO, num: "4098 5844 6496 5191", color: "bg-black border border-gray-800", numColor: "text-white" },
+  { id: "m10", bank: "M10", logo: BankLogos.M10, num: "+994 10 313 69 41", color: "bg-[#015C4B] border border-[#028068]", numColor: "text-white" } 
 ];
 
 const CATEGORIES = [
@@ -187,7 +173,7 @@ const Icons = {
 };
 
 const getOfficialLogo = (name = "", customEmoji = "", color = "", customLogo = "") => {
-  if (customLogo && customLogo.trim() !== "") return <img src={customLogo} alt={name || "logo"} className="w-10 h-10 object-contain rounded-md" />;
+  if (customLogo && typeof customLogo === 'string' && customLogo.trim() !== "") return <img src={customLogo} alt={name || "logo"} className="w-10 h-10 object-contain rounded-md" />;
   const lower = (name || "").toLowerCase();
   if (lower.includes("netflix")) return <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#E50914"}><path d="M5.6 2h3.2l6.4 15V2h3.2v20h-3.2L8.8 7v15H5.6z"/></svg>;
   if (lower.includes("spotify")) return <svg viewBox="0 0 24 24" className="w-10 h-10" fill={color || "#1DB954"}><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.564.387-.86.207-2.377-1.454-5.37-1.783-8.894-.982-.336.076-.67-.135-.747-.472-.077-.336.135-.67.472-.747 3.856-.88 7.15-.494 9.822 1.14.296.18.387.563.207.854zm1.224-2.723c-.226.367-.707.487-1.074.26-2.72-1.672-6.868-2.154-10.077-1.182-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.667-1.112 8.243-.574 11.343 1.332.367.226.487.707.26 1.074zm.106-2.834C14.792 8.8 9.123 8.614 5.833 9.61c-.482.146-.988-.128-1.134-.61-.147-.482.128-.988.61-1.134 3.77-1.144 10.016-.928 13.893 1.373.435.258.578.82.32 1.255-.258.435-.82.578-1.255.32z"/></svg>;
@@ -201,15 +187,8 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [orders, setOrders] = useState([]);
-  
-  // Təhlükəsizlik: Yaddaşdan (localStorage) gələn datalara qoruyucu try/catch
-  const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem("ps_theme") || "dark"; } catch(e) { return "dark"; }
-  });
-  
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // MÖHTƏŞƏM SCROLL ANİMASİYASI İZLƏYİCİSİ (Tam Xətasız)
+  // SCROLL ANİMASİYASI İZLƏYİCİSİ (Ağ ekran xətası kökündən həll edildi)
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -219,25 +198,23 @@ export default function App() {
       });
     }, { threshold: 0.05 });
 
-    // Hər səhifə dəyişdikdə elementləri yenidən tapıb izləyir (Boş ekran xətası həlli)
-    const timeoutId = setTimeout(() => {
-      const hiddenElements = document.querySelectorAll('.reveal');
-      hiddenElements.forEach((el) => {
-        el.classList.remove('show-reveal');
-        observer.observe(el);
-      });
-    }, 150);
+    const hiddenElements = document.querySelectorAll('.reveal');
+    hiddenElements.forEach((el) => observer.observe(el));
 
     return () => {
+       hiddenElements.forEach((el) => observer.unobserve(el));
        observer.disconnect();
-       clearTimeout(timeoutId);
     }
-  }); // Re-runs on every render to ensure new page elements are caught
+  }); // Re-runs on every render to catch dynamic page elements!
 
   useEffect(() => {
     const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
     return () => document.head.removeChild(link);
   }, []);
+
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem("ps_theme") || "dark"; } catch(e) { return "dark"; }
+  });
 
   useEffect(() => {
     try { localStorage.setItem("ps_theme", theme); } catch(e) {}
@@ -254,7 +231,7 @@ export default function App() {
     onValue(productsRef, (snapshot) => {
       const data = snapshot.val();
       if(data) setProducts(Object.keys(data).map(key => ({...data[key], firebaseKey: key})));
-      else DEFAULT_PRODUCTS.forEach(p => push(ref(db, 'products'), p));
+      else { setProducts([]); DEFAULT_PRODUCTS.forEach(p => push(ref(db, 'products'), p)); }
     });
 
     const ordersRef = ref(db, 'orders');
@@ -274,8 +251,8 @@ export default function App() {
 
   const [page, setPage] = useState("home"); 
   const [selectedCat, setSelectedCat] = useState("all");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // Təhlükəsizlik: Səbət yaddaşı
   const [cart, setCart] = useState(() => {
     try {
       const local = localStorage.getItem("premium_shop_cart");
@@ -283,13 +260,16 @@ export default function App() {
     } catch(e) { return []; }
   });
   
-  // Təhlükəsizlik: User yaddaşı
   const [user, setUser] = useState(() => {
     try {
       const local = localStorage.getItem("premium_shop_current_user");
       return local ? JSON.parse(local) : null;
     } catch(e) { return null; }
   });
+
+  useEffect(() => {
+    try { localStorage.setItem("premium_shop_cart", JSON.stringify(cart)); } catch(e) {}
+  }, [cart]);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [viewedProduct, setViewedProduct] = useState(null); 
@@ -310,7 +290,6 @@ export default function App() {
   const [profileEdit, setProfileEdit] = useState({ name: user?.name || "", surname: user?.surname || "", email: user?.email || "", phone: user?.phone || "", profileImg: user?.profileImg || "", gender: user?.gender || "Kişi" });
   const profileInputRef = useRef(null);
 
-  // Təhlükəsizlik: Admin yaddaşı
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
     try { return localStorage.getItem("premium_shop_admin_active") === "true"; } catch(e) { return false; }
   });
@@ -334,10 +313,6 @@ export default function App() {
       try { localStorage.removeItem("premium_shop_current_user"); } catch(e) {}
     }
   }, [user]);
-
-  useEffect(() => {
-    try { localStorage.setItem("premium_shop_cart", JSON.stringify(cart)); } catch(e) {}
-  }, [cart]);
 
   const showNotif = (msg, type = "success") => {
     setNotification({ msg, type });
@@ -594,7 +569,7 @@ export default function App() {
               
               <button onClick={() => setIsCartOpen(true)} className="relative text-gray-400 hover:text-purple-400 transition">
                 <Icons.Cart />
-                {cart?.length > 0 && <span className="cart-badge absolute -top-2 -right-2 bg-purple-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-[#030308]">{cart.length}</span>}
+                {(cart || []).length > 0 && <span className="cart-badge absolute -top-2 -right-2 bg-purple-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-[#030308]">{cart.length}</span>}
               </button>
 
               <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-gray-400 hover:text-purple-400 transition ml-1 sm:ml-2">
@@ -1176,10 +1151,10 @@ export default function App() {
            <div>
               <h3 className="text-lg font-bold text-white mb-4">Faydalı Link</h3>
               <ul className="space-y-3 text-sm text-gray-400 font-medium">
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("categories"); setSelectedCat("all"); goToTop();}}>Bütün məhsullar</span></li>
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("rules"); goToTop();}}>İstifadə Şərtləri</span></li>
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => { if(user) {setPage("dashboard"); setDashTab("profile");} else {setAuthMode("login"); window.scrollTo(0,0);} }}>Hesab</span></li>
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setIsCartOpen(true)}>Səbətim</span></li>
+                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("categories"); setSelectedCat("all"); goToTop();}}>Bütün məhsullar</span></li>
+                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("rules"); goToTop();}}>İstifadə Şərtləri</span></li>
+                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => { if(user) {setPage("dashboard"); setDashTab("profile");} else {setAuthMode("login"); window.scrollTo(0,0);} }}>Hesab</span></li>
+                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setIsCartOpen(true)}>Səbətim</span></li>
               </ul>
            </div>
 
@@ -1187,8 +1162,8 @@ export default function App() {
            <div>
               <h3 className="text-lg font-bold text-white mb-4">Qısa Keçidlər</h3>
               <ul className="space-y-3 text-sm text-gray-400 font-medium">
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("login"); window.scrollTo(0,0);}}>Giriş</span></li>
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}}>Qeydiyyat</span></li>
+                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("login"); window.scrollTo(0,0);}}>Giriş</span></li>
+                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}}>Qeydiyyat</span></li>
               </ul>
            </div>
 
@@ -1197,7 +1172,7 @@ export default function App() {
               <h3 className="text-lg font-bold text-white mb-4">Abunə Ol</h3>
               <p className="text-gray-400 text-xs leading-relaxed mb-4 font-medium">Ən yeni güncəlləmələrdən xəbərdar olmaq üçün abunə ol!</p>
               <div className="space-y-3">
-                 <button onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}} className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold rounded-full py-3.5 text-sm tracking-widest transition shadow-[0_0_15px_rgba(168,85,247,0.4)]">ABUNƏ OL</button>
+                 <button onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}} className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-bold rounded-full py-3.5 text-sm tracking-widest transition shadow-[0_0_15px_rgba(99,102,241,0.4)]">ABUNƏ OL</button>
               </div>
            </div>
         </div>
