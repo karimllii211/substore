@@ -111,6 +111,7 @@ const CSS = `
   }
 `;
 
+// Tam qüsursuz işləyən Light Mode Rejimi
 const LightModeCSS = `
   body, html { background-color: #f4f7fb !important; color: #0f172a !important; }
   .glass-card, .hero-card { background: #ffffff !important; border-color: #cbd5e1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.04) !important; }
@@ -526,7 +527,8 @@ export default function App() {
            
            {/* Left Logo Section */}
            <div className="flex items-center gap-3 cursor-pointer flex-shrink-0" onClick={() => setPage("home")}>
-              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-black text-white text-lg sm:text-xl shadow-lg skew-x-[-10deg]">
+              <img src="/Premium.png" alt="PS" className="w-9 h-9 sm:w-12 sm:h-12 object-cover rounded-full border border-purple-500/30 shadow-lg" onError={(e)=>{e.target.style.display='none'; e.target.nextSibling.style.display='flex'}} />
+              <div className="hidden w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 items-center justify-center font-black text-white text-lg sm:text-xl shadow-lg skew-x-[-10deg]">
                 <span className="skew-x-[10deg]">P</span>
               </div>
               <span className="font-black text-lg sm:text-2xl tracking-tight hidden sm:block text-white">PremiumShop</span>
@@ -535,9 +537,16 @@ export default function App() {
            {/* Center Menu Links (Desktop) */}
            <div className="hidden md:flex items-center gap-8 font-bold text-sm text-white">
               <span className="cursor-pointer hover:text-purple-400 transition" onClick={() => setPage("home")}>Ana Səhifə</span>
-              <span className="cursor-pointer hover:text-purple-400 transition" onClick={() => setPage("categories")}>Məhsullar <span className="text-[10px] ml-1">▼</span></span>
-              <span className="cursor-pointer hover:text-purple-400 transition" onClick={() => setPage("categories")}>Kateqoriyalar <span className="text-[10px] ml-1">▼</span></span>
-              <a href="https://wa.me/994103136941" className="cursor-pointer hover:text-purple-400 transition" target="_blank" rel="noreferrer">Əlaqə</a>
+              <span className="cursor-pointer hover:text-purple-400 transition" onClick={() => {setPage("categories"); setSelectedCat("all");}}>Məhsullar</span>
+              <div className="relative group py-2">
+                 <span className="cursor-pointer hover:text-purple-400 transition flex items-center gap-1">Kateqoriyalar <span className="text-[10px]">▼</span></span>
+                 <div className="absolute top-full left-0 mt-0 w-48 bg-[#030308] border border-indigo-900/50 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 flex flex-col p-2">
+                    {CATEGORIES.map(c => (
+                       <span key={c.id} onClick={() => { setPage("categories"); setSelectedCat(c.id); }} className="px-4 py-3 hover:bg-indigo-900/40 rounded-lg cursor-pointer text-sm font-bold text-white transition">{c.icon} {c.label}</span>
+                    ))}
+                 </div>
+              </div>
+              <span className="cursor-pointer hover:text-purple-400 transition" onClick={() => setPage("contact")}>Əlaqə</span>
            </div>
 
            {/* Mobile Center Hamburger Toggle */}
@@ -577,10 +586,6 @@ export default function App() {
                   </button>
                 </div>
               )}
-
-              <div className="hidden sm:flex items-center gap-1 font-bold text-sm text-gray-400 border-l border-gray-600 pl-4 ml-1">
-                 🌐 AZ <span className="text-[10px]">▼</span>
-              </div>
            </div>
         </div>
         
@@ -588,8 +593,8 @@ export default function App() {
         {isMobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 w-full bg-[#030308] border-b border-indigo-900/50 flex flex-col p-4 space-y-4 font-bold text-sm text-white shadow-xl z-40">
              <span className="cursor-pointer hover:text-purple-400" onClick={() => {setPage("home"); setIsMobileMenuOpen(false);}}>Ana Səhifə</span>
-             <span className="cursor-pointer hover:text-purple-400" onClick={() => {setPage("categories"); setIsMobileMenuOpen(false);}}>Məhsullar</span>
-             <a href="https://wa.me/994103136941" className="cursor-pointer hover:text-purple-400" target="_blank" rel="noreferrer">Əlaqə</a>
+             <span className="cursor-pointer hover:text-purple-400" onClick={() => {setPage("categories"); setSelectedCat("all"); setIsMobileMenuOpen(false);}}>Məhsullar</span>
+             <span className="cursor-pointer hover:text-purple-400" onClick={() => {setPage("contact"); setIsMobileMenuOpen(false);}}>Əlaqə</span>
           </div>
         )}
       </nav>
@@ -612,7 +617,7 @@ export default function App() {
                   <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter text-white leading-[1.1] neon-text">Rəqəmsal Dünyanızı <br /><span className="bg-gradient-to-r from-purple-400 via-indigo-400 to-pink-500 text-transparent bg-clip-text">Premium Edin!</span></h1>
                   <p className="text-gray-400 text-sm sm:text-lg lg:text-xl max-w-xl leading-relaxed font-medium">Azərbaycanın ən etibarlı platformasında kartla rahatlıqla ödəyin, rəsmi abunəlik hesabınız e-mail ünvanınıza dərhal çatdırılsın.</p>
                   <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                    <button onClick={() => setPage("categories")} className="glow-btn w-full sm:w-auto px-8 py-4 sm:py-5 rounded-2xl bg-purple-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(168,85,247,0.4)] transition text-center">Bütün Məhsullar</button>
+                    <button onClick={() => {setPage("categories"); setSelectedCat("all");}} className="glow-btn w-full sm:w-auto px-8 py-4 sm:py-5 rounded-2xl bg-purple-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(168,85,247,0.4)] transition text-center">Bütün Məhsullar</button>
                   </div>
                 </div>
                 <div className="relative hidden lg:block">
@@ -635,12 +640,12 @@ export default function App() {
 
             {/* MÖHTƏŞƏM SLOGANLAR BÖLMƏSİ */}
             <div className="reveal mb-16 sm:mb-24 grid md:grid-cols-2 gap-6 sm:gap-8">
-               <div className="glass-card p-8 rounded-3xl border-l-4 border-l-[#E50914] bg-gradient-to-br from-black/50 to-red-900/10">
+               <div className="glass-card p-8 rounded-3xl border-l-4 border-l-[#E50914] bg-gradient-to-br from-black/50 to-red-900/10 hover:scale-105 transition">
                   <h3 className="text-2xl font-black text-white mb-4">"Həftəsonu Film Marafonu" 🍿</h3>
                   <p className="text-gray-400 text-sm leading-relaxed mb-4">Həftəsonu planı hazırdır, popkornlar partlayır... Bəs Netflix? "Hesab tapım", "Ödənişi təsdiqləsinlər" deyə saatlarla gözləməyə son! Saytımıza daxil ol, avtomatik sistemlə anında Netflix Premium əldə et və film marafonuna dərhal başla! 🎬🚀</p>
                   <p className="text-red-400 font-bold text-xs uppercase tracking-widest">🍿 Sənin bu həftəki favoritin hansı filmdir?</p>
                </div>
-               <div className="glass-card p-8 rounded-3xl border-l-4 border-l-[#1DB954] bg-gradient-to-br from-black/50 to-green-900/10">
+               <div className="glass-card p-8 rounded-3xl border-l-4 border-l-[#1DB954] bg-gradient-to-br from-black/50 to-green-900/10 hover:scale-105 transition">
                   <h3 className="text-2xl font-black text-white mb-4">"Reklamsız Həyat" Konsepti 🎧</h3>
                   <p className="text-gray-400 text-sm leading-relaxed mb-4">Tam ən sevdiyin mahnının nəqəratində və ya filmin ən maraqlı yerində o bezdirici reklam çıxır? 😤 Buna dözmək məcburiyyətində deyilsən! Bizimlə YouTube və Spotify Premium-a anında, avtomatik ödənişlə keçid et, reklamsız həyatın dadını çıxar.</p>
                   <p className="text-green-400 font-bold text-xs uppercase tracking-widest">✨ Özünü musiqiyə və videolara burax!</p>
@@ -713,6 +718,30 @@ export default function App() {
                 </div>
               </div>
             </section>
+          </main>
+        )}
+
+        {/* ƏLAQƏ SƏHİFƏSİ (YENİ) */}
+        {page === "contact" && (
+          <main className="reveal max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20 relative z-10 w-full text-center">
+            <h1 className="text-4xl sm:text-5xl font-black text-white mb-10 tracking-tight">Bizimlə Əlaqə</h1>
+            <p className="text-gray-400 mb-12 text-sm sm:text-base">Sualınız və ya probleminiz var? Seçim edin və birbaşa bizə yazın. Dərhal cavablandırılacaq!</p>
+            <div className="grid md:grid-cols-2 gap-8">
+               <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="glass-card p-10 rounded-[2.5rem] flex flex-col items-center gap-6 hover:scale-105 transition border border-green-500/30">
+                  <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-white shadow-[0_0_30px_rgba(34,197,94,0.4)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c-.003 1.396.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c.003-3.625 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>
+                  </div>
+                  <h3 className="text-2xl font-black text-white">WhatsApp</h3>
+                  <p className="text-gray-400 text-sm">7/24 Sürətli Dəstək Xətti</p>
+               </a>
+               <a href="mailto:premiumshopazerbaycan@gmail.com" className="glass-card p-10 rounded-[2.5rem] flex flex-col items-center gap-6 hover:scale-105 transition border border-purple-500/30">
+                  <div className="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-[0_0_30px_rgba(168,85,247,0.4)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                  </div>
+                  <h3 className="text-2xl font-black text-white">E-Poçt</h3>
+                  <p className="text-gray-400 text-sm">Rəsmi Müraciətlər və İş Birliyi</p>
+               </a>
+            </div>
           </main>
         )}
 
@@ -1303,7 +1332,7 @@ export default function App() {
 
               <div className="flex gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-indigo-900/50">
                 <button type="button" onClick={() => setEditingProduct(null)} className="w-1/3 py-3.5 sm:py-5 bg-indigo-950/40 text-gray-400 font-black text-[10px] sm:text-sm uppercase tracking-widest rounded-xl sm:rounded-2xl hover:bg-indigo-900/60 transition">Ləğv Et</button>
-                <button type="submit" className="glow-btn w-2/3 py-3.5 sm:py-5 bg-indigo-600 text-white font-black text-[10px] sm:text-sm uppercase tracking-widest rounded-xl sm:rounded-2xl shadow-lg transition">Məhsulu Yadda Saxla</button>
+                <button type="submit" className="glow-btn w-2/3 py-3.5 sm:py-5 bg-purple-600 text-white font-black text-[10px] sm:text-sm uppercase tracking-widest rounded-xl sm:rounded-2xl shadow-lg transition">Məhsulu Yadda Saxla</button>
               </div>
             </form>
           </div>
@@ -1320,10 +1349,8 @@ export default function App() {
               <h2 className="text-3xl sm:text-4xl font-black text-white mb-4 tracking-tighter">PREMIUM.</h2>
               <p className="text-gray-400 text-sm mb-6 font-medium">Bizi sosial şəbəkələrdə izləyin!</p>
               <div className="flex gap-3">
-                 <a href="#" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition font-bold">f</a>
+                 <a href="https://facebook.com/premiumshop.az" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition font-bold">f</a>
                  <a href="https://instagram.com/substore.az" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition font-bold">ig</a>
-                 <a href="#" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition font-bold">in</a>
-                 <a href="#" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition font-bold">yt</a>
               </div>
            </div>
 
@@ -1331,10 +1358,10 @@ export default function App() {
            <div>
               <h3 className="text-lg font-bold text-white mb-4">Faydalı Link</h3>
               <ul className="space-y-3 text-sm text-gray-400 font-medium">
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setPage("categories")}>Bütün məhsullar</span></li>
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setPage("rules")}>İstifadə Şərtləri</span></li>
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => { if(user) {setPage("dashboard"); setDashTab("profile");} else {setAuthMode("login");} }}>Hesab</span></li>
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setIsCartOpen(true)}>Səbətim</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("categories"); setSelectedCat("all");}}>Bütün məhsullar</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setPage("rules")}>İstifadə Şərtləri</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => { if(user) {setPage("dashboard"); setDashTab("profile");} else {setAuthMode("login");} }}>Hesab</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setIsCartOpen(true)}>Səbətim</span></li>
               </ul>
            </div>
 
@@ -1342,8 +1369,8 @@ export default function App() {
            <div>
               <h3 className="text-lg font-bold text-white mb-4">Qısa Keçidlər</h3>
               <ul className="space-y-3 text-sm text-gray-400 font-medium">
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setAuthMode("login")}>Giriş</span></li>
-                 <li><span className="text-indigo-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setAuthMode("register")}>Qeydiyyat</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setAuthMode("login")}>Giriş</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setAuthMode("register")}>Qeydiyyat</span></li>
               </ul>
            </div>
 
@@ -1353,7 +1380,7 @@ export default function App() {
               <p className="text-gray-400 text-xs leading-relaxed mb-4 font-medium">Ən yeni güncəlləmələrdən xəbərdar olmaq üçün abunə ol!</p>
               <div className="space-y-3">
                  <input type="email" placeholder="Email daxil et" className="w-full bg-[#111122] border-none rounded-full px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none transition" />
-                 <button className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold rounded-full py-3.5 text-sm tracking-widest transition shadow-[0_0_15px_rgba(168,85,247,0.4)]">ABUNƏ OL</button>
+                 <button onClick={() => setAuthMode("register")} className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold rounded-full py-3.5 text-sm tracking-widest transition shadow-[0_0_15px_rgba(168,85,247,0.4)]">ABUNƏ OL</button>
               </div>
            </div>
         </div>
