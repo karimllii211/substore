@@ -201,10 +201,10 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [theme, setTheme] = useState(localStorage.getItem("ps_theme") || "dark");
+  const [theme, setTheme] = useState(() => localStorage.getItem("ps_theme") || "dark");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // SCROLL ANİMASİYASI İZLƏYİCİSİ (Bərpa edildi və səhifə dəyişəndə tətiklənir)
+  // MÖHTƏŞƏM SCROLL ANİMASİYASI İZLƏYİCİSİ (Tam Xətasız)
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -214,16 +214,20 @@ export default function App() {
       });
     }, { threshold: 0.05 });
 
-    setTimeout(() => {
+    // Hər səhifə dəyişdikdə elementləri yenidən tapıb izləyir (Boş ekran xətası həlli)
+    const timeoutId = setTimeout(() => {
       const hiddenElements = document.querySelectorAll('.reveal');
       hiddenElements.forEach((el) => {
         el.classList.remove('show-reveal');
         observer.observe(el);
       });
-    }, 100);
+    }, 150);
 
-    return () => observer.disconnect();
-  }, [products, orders]); // Səhifə asılılıqları
+    return () => {
+       observer.disconnect();
+       clearTimeout(timeoutId);
+    }
+  }, [products, orders, theme]); // Component re-renders on change
 
   useEffect(() => {
     const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
@@ -328,6 +332,10 @@ export default function App() {
     showNotif("Kart nömrəsi kopyalandı", "success");
   };
 
+  /**
+   * Cihazdan şəkil yükləmək və sıxmaq (Compress) funksiyası
+   * Məlumat bazasını doldurmamaq üçün vacibdir.
+   */
   const handleImageUpload = (e, setter) => {
     const file = e.target.files[0];
     if (file) {
@@ -378,6 +386,9 @@ export default function App() {
     } catch (error) { setIsEmailSending(false); return false; }
   };
 
+  /**
+   * Qeydiyyat, Giriş və OTP yoxlanışını idarə edir.
+   */
   const handleUserAuth = async (e) => {
     e.preventDefault();
     if (authMode === "login") {
@@ -515,18 +526,21 @@ export default function App() {
 
   const openProductDetail = (product) => { setViewedProduct(product); setSelectedDuration(product.packages[0]); setPage("product_detail"); };
 
+  // Helper üçün yuxarıya sürüşdürmə düyməsi
+  const goToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
   return (
     <div className="max-w-[100vw] overflow-hidden flex flex-col min-h-screen">
       <style>{CSS}</style>
       {theme === 'light' && <style>{LightModeCSS}</style>}
       <Notif n={notification} />
 
-      {/* YENİ APPBAZAR TƏRZİ HEADER */}
-      <nav className={`sticky top-0 z-40 transition-colors duration-300 border-b ${theme === 'light' ? 'nav-light shadow-sm' : 'bg-[#030308]/90 border-indigo-950/60'}`} style={{ backdropFilter: 'blur(20px)' }}>
+      {/* YENİ APPBAZAR TƏRZİ HEADER (Tam Z-index Düzəlişli) */}
+      <nav className={`sticky top-0 z-[9990] transition-colors duration-300 border-b ${theme === 'light' ? 'nav-light shadow-sm' : 'bg-[#030308]/90 border-indigo-950/60'}`} style={{ backdropFilter: 'blur(20px)' }}>
         <div className="max-w-[90rem] mx-auto px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between w-full">
            
            {/* Left Logo Section */}
-           <div className="flex items-center gap-3 cursor-pointer flex-shrink-0" onClick={() => setPage("home")}>
+           <div className="flex items-center gap-3 cursor-pointer flex-shrink-0" onClick={() => {setPage("home"); goToTop();}}>
               <img src="/Premium.png" alt="PS" className="w-9 h-9 sm:w-12 sm:h-12 object-cover rounded-full border border-purple-500/30 shadow-lg" onError={(e)=>{e.target.style.display='none'; e.target.nextSibling.style.display='flex'}} />
               <div className="hidden w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 items-center justify-center font-black text-white text-lg sm:text-xl shadow-lg skew-x-[-10deg]">
                 <span className="skew-x-[10deg]">P</span>
@@ -536,17 +550,17 @@ export default function App() {
 
            {/* Center Menu Links (Desktop) */}
            <div className="hidden md:flex items-center gap-8 font-bold text-sm text-white">
-              <span className="cursor-pointer hover:text-purple-400 transition" onClick={() => setPage("home")}>Ana Səhifə</span>
-              <span className="cursor-pointer hover:text-purple-400 transition" onClick={() => {setPage("categories"); setSelectedCat("all");}}>Məhsullar</span>
+              <span className="cursor-pointer hover:text-purple-400 transition" onClick={() => {setPage("home"); goToTop();}}>Ana Səhifə</span>
+              <span className="cursor-pointer hover:text-purple-400 transition" onClick={() => {setPage("categories"); setSelectedCat("all"); goToTop();}}>Məhsullar</span>
               <div className="relative group py-2">
                  <span className="cursor-pointer hover:text-purple-400 transition flex items-center gap-1">Kateqoriyalar <span className="text-[10px]">▼</span></span>
                  <div className="absolute top-full left-0 mt-0 w-48 bg-[#030308] border border-indigo-900/50 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 flex flex-col p-2">
                     {CATEGORIES.map(c => (
-                       <span key={c.id} onClick={() => { setPage("categories"); setSelectedCat(c.id); }} className="px-4 py-3 hover:bg-indigo-900/40 rounded-lg cursor-pointer text-sm font-bold text-white transition">{c.icon} {c.label}</span>
+                       <span key={c.id} onClick={() => { setPage("categories"); setSelectedCat(c.id); goToTop(); }} className="px-4 py-3 hover:bg-indigo-900/40 rounded-lg cursor-pointer text-sm font-bold text-white transition">{c.icon} {c.label}</span>
                     ))}
                  </div>
               </div>
-              <span className="cursor-pointer hover:text-purple-400 transition" onClick={() => setPage("contact")}>Əlaqə</span>
+              <span className="cursor-pointer hover:text-purple-400 transition" onClick={() => {setPage("contact"); goToTop();}}>Əlaqə</span>
            </div>
 
            {/* Mobile Center Hamburger Toggle */}
@@ -572,7 +586,7 @@ export default function App() {
               </button>
 
               {user ? (
-                <button onClick={() => {setPage("dashboard"); setDashTab("profile");}} className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border border-purple-500/30 bg-purple-900/20 hover:bg-purple-900/40 transition">
+                <button onClick={() => {setPage("dashboard"); setDashTab("profile"); goToTop();}} className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border border-purple-500/30 bg-purple-900/20 hover:bg-purple-900/40 transition">
                   <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-xs text-white overflow-hidden shadow-inner">
                     {user.profileImg ? <img src={user.profileImg} alt="User" className="w-full h-full object-cover" /> : user.name[0].toUpperCase()}
                   </div>
@@ -591,16 +605,16 @@ export default function App() {
         
         {/* Mobile Dropdown Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-[#030308] border-b border-indigo-900/50 flex flex-col p-4 space-y-4 font-bold text-sm text-white shadow-xl z-40">
-             <span className="cursor-pointer hover:text-purple-400" onClick={() => {setPage("home"); setIsMobileMenuOpen(false);}}>Ana Səhifə</span>
-             <span className="cursor-pointer hover:text-purple-400" onClick={() => {setPage("categories"); setSelectedCat("all"); setIsMobileMenuOpen(false);}}>Məhsullar</span>
-             <span className="cursor-pointer hover:text-purple-400" onClick={() => {setPage("contact"); setIsMobileMenuOpen(false);}}>Əlaqə</span>
+          <div className="md:hidden absolute top-full left-0 w-full bg-[#030308] border-b border-indigo-900/50 flex flex-col p-4 space-y-4 font-bold text-sm text-white shadow-xl z-[9980]">
+             <span className="cursor-pointer hover:text-purple-400" onClick={() => {setPage("home"); setIsMobileMenuOpen(false); goToTop();}}>Ana Səhifə</span>
+             <span className="cursor-pointer hover:text-purple-400" onClick={() => {setPage("categories"); setSelectedCat("all"); setIsMobileMenuOpen(false); goToTop();}}>Məhsullar</span>
+             <span className="cursor-pointer hover:text-purple-400" onClick={() => {setPage("contact"); setIsMobileMenuOpen(false); goToTop();}}>Əlaqə</span>
           </div>
         )}
       </nav>
 
-      {}
-      <div className="page-transition flex-1 relative w-full">
+      {/* DYNAMIC PAGES - React Crash Safe */}
+      <div key={page} className="page-transition flex-1 relative w-full">
         
         {page === "home" && (
           <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-16 relative z-10 w-full overflow-hidden">
@@ -618,7 +632,7 @@ export default function App() {
                   <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter text-white leading-[1.1] neon-text">Rəqəmsal Dünyanızı <br /><span className="bg-gradient-to-r from-purple-400 via-indigo-400 to-pink-500 text-transparent bg-clip-text">Premium Edin!</span></h1>
                   <p className="text-gray-400 text-sm sm:text-lg lg:text-xl max-w-xl leading-relaxed font-medium">Azərbaycanın ən etibarlı platformasında kartla rahatlıqla ödəyin, rəsmi abunəlik hesabınız e-mail ünvanınıza dərhal çatdırılsın.</p>
                   <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                    <button onClick={() => {setPage("categories"); setSelectedCat("all");}} className="glow-btn w-full sm:w-auto px-8 py-4 sm:py-5 rounded-2xl bg-purple-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(168,85,247,0.4)] transition text-center">Bütün Məhsullar</button>
+                    <button onClick={() => {setPage("categories"); setSelectedCat("all"); goToTop();}} className="glow-btn w-full sm:w-auto px-8 py-4 sm:py-5 rounded-2xl bg-purple-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(168,85,247,0.4)] transition text-center">Bütün Məhsullar</button>
                   </div>
                 </div>
                 <div className="relative hidden lg:block">
@@ -639,7 +653,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* MÖHTƏŞƏM SLOGANLAR BÖLMƏSİ */}
+            {/* MÖHTƏŞƏM SCROLL SLOGANLARI */}
             <div className="reveal mb-16 sm:mb-24 grid md:grid-cols-2 gap-6 sm:gap-8">
                <div className="glass-card p-8 rounded-3xl border-l-4 border-l-[#E50914] bg-gradient-to-br from-black/50 to-red-900/10 hover:scale-105 transition">
                   <h3 className="text-2xl font-black text-white mb-4">"Həftəsonu Film Marafonu" 🍿</h3>
@@ -722,7 +736,7 @@ export default function App() {
           </main>
         )}
 
-        {/* ƏLAQƏ SƏHİFƏSİ (YENİ) */}
+        {/* ƏLAQƏ SƏHİFƏSİ */}
         {page === "contact" && (
           <main className="reveal max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20 relative z-10 w-full text-center">
             <h1 className="text-4xl sm:text-5xl font-black text-white mb-10 tracking-tight">Bizimlə Əlaqə</h1>
@@ -857,7 +871,11 @@ export default function App() {
                 {CARD_ACCOUNTS.map(acc => (
                   <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-56 h-36 sm:w-64 sm:h-44 snap-center p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-offset-4 ring-purple-500 scale-[1.02] shadow-[0_15px_40px_rgba(0,0,0,0.4)]" : "opacity-90 hover:opacity-100 scale-95"}`}>
                     <div className="relative z-10 font-black text-gray-400 text-[10px] sm:text-xs tracking-widest text-center uppercase">{acc.bank}</div>
-                    <div className="relative z-10 w-full flex items-center justify-center flex-1 py-1"><acc.logo /></div>
+                    
+                    <div className="relative z-10 w-full flex items-center justify-center flex-1 py-1">
+                       {acc.logo()}
+                    </div>
+
                     <div className="relative z-10 mt-auto text-center">
                       <div onClick={(e) => copyToClipboard(e, acc.num)} className="group cursor-pointer inline-block bg-gray-100/80 px-3 py-1 rounded-md border border-gray-300 shadow-sm">
                         <div className={`text-base sm:text-lg font-black tracking-widest transition-colors ${acc.numColor}`}>{acc.num}</div>
@@ -1005,14 +1023,32 @@ export default function App() {
           </main>
         )}
 
-        {/* Qaydalar və Məxfilik Siyasəti (Yeni Əlavə) */}
+        {/* Qaydalar və Məxfilik Siyasəti (PDF Üçün Ayrılmış Yerlər) */}
         {(page === "rules" || page === "privacy") && (
-          <main className="reveal max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20 relative z-10 w-full text-center">
-            <div className="glass-card p-10 sm:p-16 rounded-[2rem] border border-indigo-500/30">
-               <div className="w-20 h-20 mx-auto bg-purple-600/20 text-purple-400 rounded-full flex items-center justify-center text-3xl mb-6">📄</div>
-               <h1 className="text-3xl sm:text-4xl font-black text-white mb-4">{page === "rules" ? "İstifadə Qaydaları" : "Məxfilik Siyasəti"}</h1>
-               <p className="text-gray-400 mb-8 leading-relaxed">Bu bölməyə aid PDF faylı və ya detallı mətn tezliklə bura əlavə olunacaqdır. Saytımızın bütün şərtləri müştəri məmnuniyyətini qorumaq üçündür.</p>
-               <button onClick={() => setPage("home")} className="glow-btn px-8 py-3 bg-purple-600 text-white font-bold rounded-xl text-sm uppercase tracking-widest">Ana Səhifəyə Qayıt</button>
+          <main className="reveal max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-20 relative z-10 w-full">
+            <div className="glass-card p-8 sm:p-16 rounded-[2rem] border border-indigo-500/30">
+               <h1 className="text-3xl sm:text-4xl font-black text-white mb-8 border-b border-indigo-900/50 pb-6">{page === "rules" ? "İstifadə Şərtləri" : "Məxfilik Siyasəti"}</h1>
+               
+               <div className="space-y-6 text-gray-400 text-sm sm:text-base leading-relaxed">
+                  <p>Bu sənəd Premium Shop platformasının müştərilərinə göstərdiyi rəqəmsal xidmətlərin qaydalarını və məlumat məxfiliyini tənzimləyir.</p>
+                  
+                  <h3 className="text-xl font-bold text-white mt-8 mb-4">1. Ümumi Müddəalar</h3>
+                  <p>1.1. Platformamızda satılan bütün abunəliklər və rəqəmsal məhsullar müvafiq platformaların (Netflix, Spotify, Canva və s.) qaydalarına tabedir.</p>
+                  <p>1.2. Müştəri, hesab məlumatlarını təhvil aldıqdan sonra onun təhlükəsizliyinə tam cavabdehdir.</p>
+                  <p>1.3. Paylaşılan (Ortaq) hesablarda şifrənin, e-poçtun və ya hər hansı daxili məlumatın dəyişdirilməsi qəti qadağandır və hesabın geri alınması ilə nəticələnə bilər.</p>
+
+                  <h3 className="text-xl font-bold text-white mt-8 mb-4">2. Ödəniş və Çatdırılma</h3>
+                  <p>2.1. Ödənişlər tamamilə təhlükəsiz şəkildə həyata keçirilir və yalnız istifadəçi çeki yüklədikdən sonra admin tərəfindən təsdiqlənir.</p>
+                  <p>2.2. Çatdırılma avtomatik olaraq elektron poçt ünvanınıza və şəxsi kabinetinizə həyata keçirilir.</p>
+
+                  <h3 className="text-xl font-bold text-white mt-8 mb-4">3. Məxfilik və Təhlükəsizlik</h3>
+                  <p>3.1. Sizin şəxsi məlumatlarınız (ad, e-poçt, əlaqə nömrəsi) yüksək səviyyəli şifrələmə protokolları ilə qorunur və heç bir üçüncü tərəfə ötürülmür.</p>
+                  <p>3.2. Saytımız heç bir halda kredit kartı və ya digər həssas bank məlumatlarınızı öz sistemində saxlamır.</p>
+
+                  <div className="mt-12 pt-8 border-t border-indigo-900/50 flex justify-center">
+                     <button onClick={() => setPage("home")} className="glow-btn px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl text-sm uppercase tracking-widest">Ana Səhifəyə Qayıt</button>
+                  </div>
+               </div>
             </div>
           </main>
         )}
@@ -1106,13 +1142,13 @@ export default function App() {
       </a>
 
       {/* YENİ APPBAZAR TƏRZİ ALT MENYU (FOOTER) */}
-      <footer className="footer-bg mt-16 pt-16 sm:pt-24 pb-8" id="footer">
+      <footer className="footer-bg mt-16 pt-16 sm:pt-24 pb-8 relative z-10" id="footer">
         <div className="footer-wave"></div>
         <div className="max-w-7xl mx-auto px-6 sm:px-12 md:px-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 sm:gap-16 relative z-10">
            
            {/* 1. Brend və Sosial */}
            <div>
-              <h2 className="text-3xl sm:text-4xl font-black text-white mb-4 tracking-tighter">PREMIUM.</h2>
+              <h2 className="text-3xl sm:text-4xl font-black text-white mb-4 tracking-tighter uppercase">PREMIUM.</h2>
               <p className="text-gray-400 text-sm mb-6 font-medium">Bizi sosial şəbəkələrdə izləyin!</p>
               <div className="flex gap-3">
                  <a href="https://facebook.com/premiumshop.az" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition font-bold">f</a>
@@ -1124,9 +1160,9 @@ export default function App() {
            <div>
               <h3 className="text-lg font-bold text-white mb-4">Faydalı Link</h3>
               <ul className="space-y-3 text-sm text-gray-400 font-medium">
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("categories"); setSelectedCat("all");}}>Bütün məhsullar</span></li>
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setPage("rules")}>İstifadə Şərtləri</span></li>
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => { if(user) {setPage("dashboard"); setDashTab("profile");} else {setAuthMode("login");} }}>Hesab</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("categories"); setSelectedCat("all"); goToTop();}}>Bütün məhsullar</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("rules"); goToTop();}}>İstifadə Şərtləri</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => { if(user) {setPage("dashboard"); setDashTab("profile");} else {setAuthMode("login"); window.scrollTo(0,0);} }}>Hesab</span></li>
                  <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setIsCartOpen(true)}>Səbətim</span></li>
               </ul>
            </div>
@@ -1135,8 +1171,8 @@ export default function App() {
            <div>
               <h3 className="text-lg font-bold text-white mb-4">Qısa Keçidlər</h3>
               <ul className="space-y-3 text-sm text-gray-400 font-medium">
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setAuthMode("login")}>Giriş</span></li>
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setAuthMode("register")}>Qeydiyyat</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("login"); window.scrollTo(0,0);}}>Giriş</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}}>Qeydiyyat</span></li>
               </ul>
            </div>
 
@@ -1145,8 +1181,7 @@ export default function App() {
               <h3 className="text-lg font-bold text-white mb-4">Abunə Ol</h3>
               <p className="text-gray-400 text-xs leading-relaxed mb-4 font-medium">Ən yeni güncəlləmələrdən xəbərdar olmaq üçün abunə ol!</p>
               <div className="space-y-3">
-                 <input type="email" placeholder="Email daxil et" className="w-full bg-[#111122] border-none rounded-full px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none transition" />
-                 <button onClick={() => setAuthMode("register")} className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold rounded-full py-3.5 text-sm tracking-widest transition shadow-[0_0_15px_rgba(168,85,247,0.4)]">ABUNƏ OL</button>
+                 <button onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}} className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold rounded-full py-3.5 text-sm tracking-widest transition shadow-[0_0_15px_rgba(168,85,247,0.4)]">ABUNƏ OL</button>
               </div>
            </div>
         </div>
@@ -1154,23 +1189,12 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 sm:px-12 md:px-16 mt-16 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center text-xs font-medium text-gray-500 relative z-10">
            <span>Copyright © 2026 Premium Shop, Bütün hüquqlar qorunur.</span>
            <div className="flex gap-4 mt-4 sm:mt-0">
-             <span className="cursor-pointer hover:text-white transition" onClick={() => setPage("rules")}>Qaydalar</span>
-             <span className="cursor-pointer hover:text-white transition" onClick={() => setPage("privacy")}>Məxfilik Siyasəti</span>
-             <span className="cursor-pointer hover:text-white transition" onClick={() => setIsAdminModalOpen(true)}>Admin</span>
+             <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("rules"); goToTop();}}>Qaydalar</span>
+             <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("privacy"); goToTop();}}>Məxfilik Siyasəti</span>
+             <span className="cursor-pointer hover:text-white transition" onClick={() => {setIsAdminModalOpen(true); window.scrollTo(0,0);}}>Admin</span>
            </div>
         </div>
       </footer>
-    </div>
-  );
-}
-
-// Minimalist Toast Notification
-function Notif({ n }) {
-  if (!n) return null;
-  const colors = n.type === "error" ? "bg-red-600 text-white" : n.type === "info" ? "bg-blue-600 text-white" : "bg-emerald-600 text-white";
-  return (
-    <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[1001] px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] font-black text-[10px] sm:text-xs uppercase tracking-wider text-center animate-toast ${colors}`}>
-      {n.msg}
     </div>
   );
 }
