@@ -111,27 +111,27 @@ const CSS = `
 `;
 
 const LightModeCSS = `
-  body, html { background-color: #f4f7fb !important; color: #0f172a !important; }
-  .glass-card, .hero-card { background: #ffffff !important; border-color: #cbd5e1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.04) !important; }
-  .glass-card .text-white, .hero-card .text-white, h1.text-white, h2.text-white, h3.text-white { color: #0f172a !important; }
-  .glass-card .text-gray-400, .hero-card .text-gray-400 { color: #475569 !important; }
-  .glass-card .text-gray-500, .hero-card .text-gray-500 { color: #64748b !important; }
-  .bg-\\[\\#0c0c1d\\] { background-color: #f8fafc !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
-  .bg-black\\/40, .bg-indigo-950\\/20 { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
-  .border-white\\/10 { border-color: #e2e8f0 !important; }
+  body.light-mode-active, html.light-mode-active { background-color: #f4f7fb !important; color: #0f172a !important; }
+  body.light-mode-active .glass-card, body.light-mode-active .hero-card { background: #ffffff !important; border-color: #cbd5e1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.04) !important; }
+  body.light-mode-active .glass-card .text-white, body.light-mode-active .hero-card .text-white, body.light-mode-active h1.text-white, body.light-mode-active h2.text-white, body.light-mode-active h3.text-white { color: #0f172a !important; }
+  body.light-mode-active .glass-card .text-gray-400, body.light-mode-active .hero-card .text-gray-400 { color: #475569 !important; }
+  body.light-mode-active .glass-card .text-gray-500, body.light-mode-active .hero-card .text-gray-500 { color: #64748b !important; }
+  body.light-mode-active .bg-\\[\\#0c0c1d\\] { background-color: #f8fafc !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
+  body.light-mode-active .bg-black\\/40 { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
+  body.light-mode-active .border-white\\/10 { border-color: #e2e8f0 !important; }
   
-  .glow-btn.text-white, .bg-indigo-600.text-white, .bg-emerald-600.text-white, .bg-red-600.text-white, .cart-badge { color: #ffffff !important; }
-  .neon-text { text-shadow: none !important; color: #0f172a !important; }
-  input, select, textarea { background-color: #ffffff !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; }
+  body.light-mode-active .glow-btn.text-white { color: #ffffff !important; }
+  body.light-mode-active .neon-text { text-shadow: none !important; color: #0f172a !important; }
+  body.light-mode-active input, body.light-mode-active select, body.light-mode-active textarea { background-color: #ffffff !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; }
   
-  .nav-light { background-color: rgba(255,255,255,0.95) !important; border-bottom-color: #e2e8f0 !important; }
-  .nav-light .text-white { color: #0f172a !important; }
-  .nav-light .text-gray-400 { color: #475569 !important; }
+  body.light-mode-active .nav-bar { background-color: rgba(255,255,255,0.95) !important; border-bottom-color: #e2e8f0 !important; }
+  body.light-mode-active .nav-bar .text-white { color: #0f172a !important; }
+  body.light-mode-active .nav-bar .text-gray-400 { color: #475569 !important; }
   
-  #footer { background-color: #060814 !important; color: #ffffff !important; }
-  #footer .text-white { color: #ffffff !important; }
-  #footer .text-gray-400 { color: #9ca3af !important; }
-  #footer input { background-color: #111122 !important; border: none !important; color: #ffffff !important; }
+  body.light-mode-active #footer { background-color: #060814 !important; color: #ffffff !important; }
+  body.light-mode-active #footer .text-white { color: #ffffff !important; }
+  body.light-mode-active #footer .text-gray-400 { color: #9ca3af !important; }
+  body.light-mode-active #footer input { background-color: #111122 !important; border: none !important; color: #ffffff !important; }
 `;
 
 const DEFAULT_PRODUCTS = [
@@ -174,7 +174,6 @@ const Icons = {
   Headset: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>,
   Sun: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>,
   Moon: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>,
-  Bell: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>,
   Menu: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
 };
 
@@ -236,7 +235,7 @@ export default function App() {
        clearTimeout(timeout);
        observer.disconnect();
     }
-  }, [page, selectedCat]); // Səhifə dəyişəndə mütləq yenidən hesablasın!
+  }, [page, dashTab, selectedCat]); // Səhifə dəyişəndə mütləq yenidən hesablasın!
 
   useEffect(() => {
     const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
@@ -536,7 +535,7 @@ export default function App() {
       <Notif n={notification} />
 
       {/* YENİ APPBAZAR TƏRZİ HEADER (Tam Z-index Düzəlişli) */}
-      <nav className={`sticky top-0 z-[9990] transition-colors duration-300 border-b ${theme === 'light' ? 'nav-light shadow-sm' : 'bg-[#030308]/90 border-indigo-950/60'}`} style={{ backdropFilter: 'blur(20px)' }}>
+      <nav className={`sticky top-0 z-[9990] transition-colors duration-300 border-b ${theme === 'light' ? 'nav-bar shadow-sm' : 'bg-[#030308]/90 border-indigo-950/60'}`} style={{ backdropFilter: 'blur(20px)' }}>
         <div className="max-w-[90rem] mx-auto px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between w-full">
            
            {/* Left Logo Section */}
@@ -555,7 +554,7 @@ export default function App() {
               <div className="relative group py-2">
                  <span className="cursor-pointer hover:text-purple-400 transition flex items-center gap-1">Kateqoriyalar <span className="text-[10px]">▼</span></span>
                  <div className="absolute top-full left-0 mt-0 w-48 bg-[#030308] border border-indigo-900/50 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 flex flex-col p-2">
-                    {CATEGORIES.map(c => (
+                    {CATEGORIES.filter(c => c.id !== 'all').map(c => (
                        <span key={c.id} onClick={() => { setPage("categories"); setSelectedCat(c.id); goToTop(); }} className="px-4 py-3 hover:bg-indigo-900/40 rounded-lg cursor-pointer text-sm font-bold text-white transition">{c.icon} {c.label}</span>
                     ))}
                  </div>
@@ -572,10 +571,6 @@ export default function App() {
 
            {/* Actions Section */}
            <div className="flex items-center gap-3 sm:gap-5 flex-shrink-0">
-              <button className="hidden sm:block text-gray-400 hover:text-purple-400 transition">
-                <Icons.Bell />
-              </button>
-              
               <button onClick={() => setIsCartOpen(true)} className="relative text-gray-400 hover:text-purple-400 transition">
                 <Icons.Cart />
                 {(cart || []).length > 0 && <span className="cart-badge absolute -top-2 -right-2 bg-purple-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-[#030308]">{cart.length}</span>}
@@ -675,7 +670,7 @@ export default function App() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                 {(products || []).filter(p => p.popular).slice(0,3).map((product, index) => (
-                  <div key={product.id} className="hero-card rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer reveal" style={{ transitionDelay: `${index * 100}ms` }} onClick={() => openProductDetail(product)}>
+                  <div key={product.id} className="hero-card rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden cursor-pointer reveal" style={{ transitionDelay: `${index * 50}ms` }} onClick={() => openProductDetail(product)}>
                     <div className="flex items-center justify-between mb-6 sm:mb-8 relative z-10">
                       <div className="p-3 sm:p-4 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product?.name, product?.emoji, product?.color, product?.customLogo)}</div>
                       <span className="text-[9px] font-black text-white bg-white/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20">Populyar</span>
@@ -869,17 +864,17 @@ export default function App() {
 
               <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 sm:pb-6 snap-x no-scrollbar w-full">
                 {CARD_ACCOUNTS.map(acc => (
-                  <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-56 h-36 sm:w-64 sm:h-44 snap-center p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-offset-4 ring-purple-500 scale-[1.02] shadow-[0_15px_40px_rgba(0,0,0,0.4)]" : "opacity-90 hover:opacity-100 scale-95"}`}>
-                    <div className="relative z-10 font-black text-gray-400 text-[10px] sm:text-xs tracking-widest text-center uppercase">{acc.bank}</div>
+                  <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`payment-card flex-shrink-0 w-56 h-36 sm:w-64 sm:h-44 snap-center p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col justify-between ${acc.color} ${selectedBank.id === acc.id ? "ring-offset-4 ring-purple-500 scale-[1.02] shadow-[0_15px_40px_rgba(0,0,0,0.4)]" : "opacity-90 hover:opacity-100 scale-95"}`}>
+                    <div className="relative z-10 font-black text-gray-300 text-[10px] sm:text-xs tracking-widest text-center uppercase">{acc.bank}</div>
                     
                     <div className="relative z-10 w-full flex items-center justify-center flex-1 py-1">
                        {acc.logo()}
                     </div>
 
                     <div className="relative z-10 mt-auto text-center">
-                      <div onClick={(e) => copyToClipboard(e, acc.num)} className="group cursor-pointer inline-block bg-gray-100/80 px-3 py-1 rounded-md border border-gray-300 shadow-sm">
+                      <div onClick={(e) => copyToClipboard(e, acc.num)} className="group cursor-pointer inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-md border border-white/30 shadow-sm">
                         <div className={`text-base sm:text-lg font-black tracking-widest transition-colors ${acc.numColor}`}>{acc.num}</div>
-                        <div className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity text-gray-500">
+                        <div className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity text-white">
                           <span>📋</span> Kopyala
                         </div>
                       </div>
@@ -936,7 +931,7 @@ export default function App() {
 
             <div className="flex flex-col lg:flex-row gap-8 sm:gap-10">
               {dashTab === "profile" && (
-                <div className="w-full max-w-2xl reveal">
+                <div className="w-full max-w-2xl animate-modal">
                   <div className="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 border border-indigo-500/20">
                     <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mb-8 sm:mb-10">
                       <div className="relative group">
@@ -976,7 +971,7 @@ export default function App() {
               )}
 
               {dashTab === "orders" && (
-                <div className="w-full reveal">
+                <div className="w-full animate-modal">
                   {(orders || []).filter(o => o?.userEmail === user?.email).length === 0 ? (
                     <div className="glass-card rounded-[2rem] p-10 sm:p-16 text-center space-y-4 sm:space-y-6 border border-indigo-500/20">
                       <div className="w-16 h-16 sm:w-24 sm:h-24 bg-[#0c0c1d] rounded-full flex items-center justify-center mx-auto border border-indigo-500/30">
@@ -1023,30 +1018,21 @@ export default function App() {
           </main>
         )}
 
-        {/* Qaydalar və Məxfilik Siyasəti */}
-        {(page === "rules" || page === "privacy") && (
-          <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-20 relative z-10 w-full">
-            <div className="glass-card p-8 sm:p-16 rounded-[2rem] border border-indigo-500/30 reveal">
-               <h1 className="text-3xl sm:text-4xl font-black text-white mb-8 border-b border-indigo-900/50 pb-6">{page === "rules" ? "İstifadə Şərtləri" : "Məxfilik Siyasəti"}</h1>
-               
+        {/* Qaydalar səhifəsi */}
+        {page === "rules" && (
+          <main className="reveal max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-20 relative z-10 w-full">
+            <div className="glass-card p-8 sm:p-16 rounded-[2rem] border border-indigo-500/30">
+               <h1 className="text-3xl sm:text-4xl font-black text-white mb-8 border-b border-indigo-900/50 pb-6">İstifadə Qaydaları</h1>
                <div className="space-y-6 text-gray-400 text-sm sm:text-base leading-relaxed">
-                  <p>Bu sənəd Premium Shop platformasının müştərilərinə göstərdiyi rəqəmsal xidmətlərin qaydalarını və məlumat məxfiliyini tənzimləyir.</p>
-                  
+                  <p>Bu sənəd Premium Shop platformasının müştərilərinə göstərdiyi rəqəmsal xidmətlərin qaydalarını tənzimləyir.</p>
                   <h3 className="text-xl font-bold text-white mt-8 mb-4">1. Ümumi Müddəalar</h3>
-                  <p>1.1. Platformamızda satılan bütün abunəliklər və rəqəmsal məhsullar müvafiq platformaların (Netflix, Spotify, Canva və s.) qaydalarına tabedir.</p>
+                  <p>1.1. Platformamızda satılan bütün abunəliklər və rəqəmsal məhsullar müvafiq platformaların qaydalarına tabedir.</p>
                   <p>1.2. Müştəri, hesab məlumatlarını təhvil aldıqdan sonra onun təhlükəsizliyinə tam cavabdehdir.</p>
-                  <p>1.3. Paylaşılan (Ortaq) hesablarda şifrənin, e-poçtun və ya hər hansı daxili məlumatın dəyişdirilməsi qəti qadağandır və hesabın geri alınması ilə nəticələnə bilər.</p>
-
                   <h3 className="text-xl font-bold text-white mt-8 mb-4">2. Ödəniş və Çatdırılma</h3>
-                  <p>2.1. Ödənişlər tamamilə təhlükəsiz şəkildə həyata keçirilir və yalnız istifadəçi çeki yüklədikdən sonra admin tərəfindən təsdiqlənir.</p>
+                  <p>2.1. Ödənişlər tamamilə təhlükəsiz şəkildə həyata keçirilir və yalnız istifadəçi çeki yüklədikdən sonra təsdiqlənir.</p>
                   <p>2.2. Çatdırılma avtomatik olaraq elektron poçt ünvanınıza və şəxsi kabinetinizə həyata keçirilir.</p>
-
-                  <h3 className="text-xl font-bold text-white mt-8 mb-4">3. Məxfilik və Təhlükəsizlik</h3>
-                  <p>3.1. Sizin şəxsi məlumatlarınız (ad, e-poçt, əlaqə nömrəsi) yüksək səviyyəli şifrələmə protokolları ilə qorunur və heç bir üçüncü tərəfə ötürülmür.</p>
-                  <p>3.2. Saytımız heç bir halda kredit kartı və ya digər həssas bank məlumatlarınızı öz sistemində saxlamır.</p>
-
                   <div className="mt-12 pt-8 border-t border-indigo-900/50 flex justify-center">
-                     <button onClick={() => setPage("home")} className="glow-btn px-8 py-3 bg-purple-600 text-white font-bold rounded-xl text-sm uppercase tracking-widest">Ana Səhifəyə Qayıt</button>
+                     <button onClick={() => {setPage("home"); window.scrollTo(0,0);}} className="glow-btn px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl text-sm uppercase tracking-widest">Ana Səhifəyə Qayıt</button>
                   </div>
                </div>
             </div>
@@ -1055,19 +1041,19 @@ export default function App() {
 
         {/* ADMINISTRATIVE DASHBOARD SCREEN */}
         {page === "admin_dashboard" && isAdminLoggedIn && (
-          <main className="max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12 reveal">
+          <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12">
               <div><h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">İdarəetmə Paneli</h1><p className="text-xs sm:text-sm font-bold text-purple-400 mt-1 sm:mt-2 uppercase tracking-widest">Səlahiyyətli İdarəçi</p></div>
               <button onClick={handleAdminLogout} className="px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-red-900/40 border border-red-500/30 text-red-400 font-black text-xs sm:text-sm uppercase tracking-wider hover:bg-red-800/50 transition shadow-lg w-full sm:w-auto">Sistemdən Çıxış</button>
             </div>
 
-            <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-4 sm:pb-6 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full reveal">
+            <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-4 sm:pb-6 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
               <button onClick={() => setActiveAdminTab("orders")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({(orders || []).length})</button>
               <button onClick={() => setActiveAdminTab("products")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({(products || []).length})</button>
             </div>
 
             {activeAdminTab === "orders" && (
-              <div className="space-y-4 sm:space-y-6 reveal w-full">
+              <div className="space-y-4 sm:space-y-6 animate-modal w-full">
                 {(orders || []).length === 0 && <div className="text-center py-12 sm:py-20 text-gray-500 font-bold text-base sm:text-lg">Sistemdə heç bir sifariş yoxdur.</div>}
                 <div className="grid gap-4 w-full">
                   {(orders || []).slice().reverse().map((order) => (
@@ -1104,7 +1090,7 @@ export default function App() {
             )}
 
             {activeAdminTab === "products" && (
-              <div className="space-y-4 sm:space-y-6 reveal w-full">
+              <div className="space-y-4 sm:space-y-6 animate-modal w-full">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
                   <h2 className="text-2xl sm:text-3xl font-black text-white">Məhsul Kataloqu</h2>
                   <button onClick={() => setEditingProduct({ name: "Yeni Məhsul", cat: "entertainment", color: "#6366f1", emoji: "📦", desc: "Açıqlama", accountType: "Rəsmi Hesab", rating: "5.0", sales: "0", features: ["Yeni xüsusiyyət"], customLogo: "", packages: [{ id: "temp1", duration: "1 Ay", price: 10 }] })} className="glow-btn w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-purple-600 text-white rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg">+ Yeni Əlavə Et</button>
@@ -1141,64 +1127,9 @@ export default function App() {
         </svg>
       </a>
 
-      {/* YENİ APPBAZAR TƏRZİ ALT MENYU (FOOTER) */}
-      <footer className="footer-bg mt-16 pt-16 sm:pt-24 pb-8 relative z-10" id="footer">
-        <div className="footer-wave"></div>
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 md:px-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 sm:gap-16 relative z-10">
-           
-           {/* 1. Brend və Sosial */}
-           <div>
-              <h2 className="text-3xl sm:text-4xl font-black text-white mb-4 tracking-tighter uppercase">PREMIUM.</h2>
-              <p className="text-gray-400 text-sm mb-6 font-medium">Bizi sosial şəbəkələrdə izləyin!</p>
-              <div className="flex gap-3">
-                 <a href="https://facebook.com/premiumshop.az" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition font-bold">f</a>
-                 <a href="https://instagram.com/substore.az" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition font-bold">ig</a>
-              </div>
-           </div>
-
-           {/* 2. Faydalı Linklər */}
-           <div>
-              <h3 className="text-lg font-bold text-white mb-4">Faydalı Link</h3>
-              <ul className="space-y-3 text-sm text-gray-400 font-medium">
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("categories"); setSelectedCat("all"); goToTop();}}>Bütün məhsullar</span></li>
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("rules"); goToTop();}}>İstifadə Şərtləri</span></li>
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => { if(user) {setPage("dashboard"); setDashTab("profile");} else {setAuthMode("login"); window.scrollTo(0,0);} }}>Hesab</span></li>
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setIsCartOpen(true)}>Səbətim</span></li>
-              </ul>
-           </div>
-
-           {/* 3. Qısa Keçidlər */}
-           <div>
-              <h3 className="text-lg font-bold text-white mb-4">Qısa Keçidlər</h3>
-              <ul className="space-y-3 text-sm text-gray-400 font-medium">
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("login"); window.scrollTo(0,0);}}>Giriş</span></li>
-                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}}>Qeydiyyat</span></li>
-              </ul>
-           </div>
-
-           {/* 4. Abunə Ol */}
-           <div>
-              <h3 className="text-lg font-bold text-white mb-4">Abunə Ol</h3>
-              <p className="text-gray-400 text-xs leading-relaxed mb-4 font-medium">Ən yeni güncəlləmələrdən xəbərdar olmaq üçün abunə ol!</p>
-              <div className="space-y-3">
-                 <button onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}} className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-full py-3.5 text-sm tracking-widest transition shadow-[0_0_15px_rgba(99,102,241,0.4)]">ABUNƏ OL</button>
-              </div>
-           </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 md:px-16 mt-16 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center text-xs font-medium text-gray-500 relative z-10">
-           <span>Copyright © 2026 Premium Shop, Bütün hüquqlar qorunur.</span>
-           <div className="flex gap-4 mt-4 sm:mt-0">
-             <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("rules"); goToTop();}}>Qaydalar</span>
-             <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("privacy"); goToTop();}}>Məxfilik Siyasəti</span>
-             <span className="cursor-pointer hover:text-white transition" onClick={() => {setIsAdminModalOpen(true); window.scrollTo(0,0);}}>Admin</span>
-           </div>
-        </div>
-      </footer>
-
       {/* OVERLAY MODALS (ALWAYS ON TOP) */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-[9999] bg-[#030308]/80 backdrop-blur-sm flex justify-end">
+        <div className="fixed inset-0 z-[99999] bg-[#030308]/80 backdrop-blur-sm flex justify-end">
           <div className="glass-card w-full sm:w-80 md:max-w-md h-full flex flex-col justify-between drawer-open rounded-none border-y-0 border-r-0 border-l border-indigo-500/30 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
             <div className="p-6 sm:p-8 pb-4 h-full flex flex-col">
               <div className="flex justify-between items-center pb-5 sm:pb-6 border-b border-indigo-900/50 mb-5 sm:mb-6">
@@ -1216,7 +1147,7 @@ export default function App() {
               ) : (
                 <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 pr-1 sm:pr-2 no-scrollbar">
                   {(cart || []).map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0c0c1d] border border-indigo-500/30 hover:border-purple-400 transition-colors group">
+                    <div key={index} className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0c0c1d] border border-indigo-500/30 hover:border-purple-400 transition-colors group animate-modal">
                       <div className="flex items-center gap-3 sm:gap-4">
                         <div className="p-2 sm:p-2.5 bg-black/40 rounded-lg sm:rounded-xl border border-white/10 shadow-lg">{getOfficialLogo(item?.product?.name, item?.product?.emoji, item?.product?.color, item?.product?.customLogo)}</div>
                         <div>
@@ -1251,7 +1182,7 @@ export default function App() {
 
       {/* USER AUTH MODAL WITH PASSWORD & FORGOT PROTECTIONS */}
       {authMode && (
-        <div className="fixed inset-0 z-[9999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 w-full h-full overflow-y-auto">
+        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 w-full h-full overflow-y-auto">
           <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)] my-auto">
             <button onClick={() => setAuthMode(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white hover:bg-indigo-900 flex items-center justify-center text-lg sm:text-xl font-bold transition">&times;</button>
 
@@ -1338,7 +1269,7 @@ export default function App() {
 
       {/* ADMIN LOGIN MODAL */}
       {isAdminModalOpen && (
-        <div className="fixed inset-0 z-[9999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
           <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-red-500/30">
             <button onClick={() => setIsAdminModalOpen(false)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-900/40 border border-red-500/30 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 mx-auto shadow-lg">🛡️</div>
@@ -1355,7 +1286,7 @@ export default function App() {
 
       {/* APPROVING ORDER DETAILS MODAL (ADMIN ONLY) */}
       {approvingOrder && (
-        <div className="fixed inset-0 z-[9999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4">
           <div className="glass-card w-full max-w-lg rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-emerald-500/30 w-full">
             <button onClick={() => setApprovingOrder(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
             <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">Sifarişi Təsdiqlə</h3>
@@ -1374,7 +1305,7 @@ export default function App() {
 
       {/* ADVANCED EDITING PRODUCT MODAL (ADMIN ONLY) */}
       {editingProduct && (
-        <div className="fixed inset-0 z-[9999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-[99999] bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="glass-card w-full max-w-4xl rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-indigo-500/30 my-4 sm:my-8 w-full">
             <button onClick={() => setEditingProduct(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
             <h3 className="text-2xl sm:text-3xl font-black text-white mb-6 sm:mb-8 tracking-tight">{editingProduct.id ? "Məhsul Redaktoru" : "Yeni Məhsul Yaradıcı"}</h3>
@@ -1430,6 +1361,60 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* YENİ APPBAZAR TƏRZİ ALT MENYU (FOOTER) */}
+      <footer className="footer-bg mt-16 pt-16 sm:pt-24 pb-8 relative z-10 border-t border-indigo-900/30" id="footer">
+        <div className="footer-wave"></div>
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 md:px-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 sm:gap-16 relative z-10">
+           
+           {/* 1. Brend və Sosial */}
+           <div>
+              <h2 className="text-3xl sm:text-4xl font-black text-white mb-4 tracking-tighter uppercase">PREMIUM.</h2>
+              <p className="text-gray-400 text-sm mb-6 font-medium">Bizi sosial şəbəkələrdə izləyin!</p>
+              <div className="flex gap-3">
+                 <a href="https://www.facebook.com/premiumshopazerbaycan" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition font-bold">f</a>
+                 <a href="https://www.instagram.com/premiumshop.az/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition font-bold">ig</a>
+              </div>
+           </div>
+
+           {/* 2. Faydalı Linklər */}
+           <div>
+              <h3 className="text-lg font-bold text-white mb-4">Faydalı Link</h3>
+              <ul className="space-y-3 text-sm text-gray-400 font-medium">
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("categories"); setSelectedCat("all"); goToTop();}}>Bütün məhsullar</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("rules"); goToTop();}}>Qaydalar</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => { if(user) {setPage("dashboard"); setDashTab("profile");} else {setAuthMode("login"); window.scrollTo(0,0);} }}>Hesab</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => setIsCartOpen(true)}>Səbətim</span></li>
+              </ul>
+           </div>
+
+           {/* 3. Qısa Keçidlər */}
+           <div>
+              <h3 className="text-lg font-bold text-white mb-4">Qısa Keçidlər</h3>
+              <ul className="space-y-3 text-sm text-gray-400 font-medium">
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("login"); window.scrollTo(0,0);}}>Giriş</span></li>
+                 <li><span className="text-purple-500 mr-2 font-bold">›</span> <span className="cursor-pointer hover:text-white transition" onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}}>Qeydiyyat</span></li>
+              </ul>
+           </div>
+
+           {/* 4. Abunə Ol */}
+           <div>
+              <h3 className="text-lg font-bold text-white mb-4">Abunə Ol</h3>
+              <p className="text-gray-400 text-xs leading-relaxed mb-4 font-medium">Ən yeni güncəlləmələrdən xəbərdar olmaq üçün abunə ol!</p>
+              <div className="space-y-3">
+                 <button onClick={() => {setAuthMode("register"); window.scrollTo(0,0);}} className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-full py-3.5 text-sm tracking-widest transition shadow-[0_0_15px_rgba(99,102,241,0.4)]">ABUNƏ OL</button>
+              </div>
+           </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 md:px-16 mt-16 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center text-xs font-medium text-gray-500 relative z-10">
+           <span>Copyright © 2026 Premium Shop, Bütün hüquqlar qorunur.</span>
+           <div className="flex gap-4 mt-4 sm:mt-0">
+             <span className="cursor-pointer hover:text-white transition" onClick={() => {setPage("rules"); goToTop();}}>Qaydalar</span>
+             <span className="cursor-pointer hover:text-white transition" onClick={() => {setIsAdminModalOpen(true); window.scrollTo(0,0);}}>Admin</span>
+           </div>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -1439,7 +1424,7 @@ function Notif({ n }) {
   if (!n) return null;
   const colors = n.type === "error" ? "bg-red-600 text-white" : n.type === "info" ? "bg-blue-600 text-white" : "bg-emerald-600 text-white";
   return (
-    <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] font-black text-[10px] sm:text-xs uppercase tracking-wider text-center animate-toast ${colors}`} style={{ zIndex: 9999 }}>
+    <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] font-black text-[10px] sm:text-xs uppercase tracking-wider text-center animate-toast ${colors}`} style={{ zIndex: 999999 }}>
       {n.msg}
     </div>
   );
