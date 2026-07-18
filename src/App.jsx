@@ -152,11 +152,6 @@ export default function App() {
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [orders, setOrders] = useState([]);
 
-  useEffect(() => {
-    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
-    return () => document.head.removeChild(link);
-  }, []);
-
   const [page, setPage] = useState("home"); 
   const [selectedCat, setSelectedCat] = useState("all");
   const [cart, setCart] = useState(() => {
@@ -166,21 +161,60 @@ export default function App() {
     try { const local = localStorage.getItem("premium_shop_current_user"); return local ? JSON.parse(local) : null; } catch(e) { return null; }
   });
 
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [viewedProduct, setViewedProduct] = useState(null); 
+  const [selectedDuration, setSelectedDuration] = useState(null);
+  
+  const [authMode, setAuthMode] = useState(null); 
+  const [authForm, setAuthForm] = useState({ name: "", surname: "", phone: "", email: "", pass: "", otpInput: "", profileImg: "" });
+  const [otpCode, setOtpCode] = useState(null);
+  const [forgotUserKey, setForgotUserKey] = useState(null);
+
+  const [selectedBank, setSelectedBank] = useState(CARD_ACCOUNTS[0]);
+  const [uploadedReceipt, setUploadedReceipt] = useState(null);
+  const [notification, setNotification] = useState(null);
+  const [isEmailSending, setIsEmailSending] = useState(false);
+  const [showOtpSuccess, setShowOtpSuccess] = useState(false);
+  
+  const [dashTab, setDashTab] = useState("profile"); 
+  const [profileEdit, setProfileEdit] = useState({ name: "", surname: "", email: "", phone: "", profileImg: "", gender: "Kişi" });
+  const profileInputRef = useRef(null);
+
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => { try { return localStorage.getItem("premium_shop_admin_active") === "true"; } catch(e) { return false; } });
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [adminUsername, setAdminUsername] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [activeAdminTab, setActiveAdminTab] = useState("orders"); 
+
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [approvingOrder, setApprovingOrder] = useState(null);
+  const [accountEmail, setAccountEmail] = useState("");
+  const [accountPass, setAccountPass] = useState("");
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
+    return () => document.head.removeChild(link);
+  }, []);
+
   useEffect(() => { localStorage.setItem("premium_shop_cart", JSON.stringify(cart)); }, [cart]);
+  
   useEffect(() => { 
     if (user) {
       localStorage.setItem("premium_shop_current_user", JSON.stringify(user));
-      setProfileEdit({ name: user.name, surname: user.surname, email: user.email, phone: user.phone || "", profileImg: user.profileImg || "", gender: user.gender || "Kişi" });
+      setProfileEdit({ name: user.name || "", surname: user.surname || "", email: user.email || "", phone: user.phone || "", profileImg: user.profileImg || "", gender: user.gender || "Kişi" });
     } else localStorage.removeItem("premium_shop_current_user");
   }, [user]);
 
-  // 🔥 FIREBASE REALTIME SYNC HOOKS 🔥
   useEffect(() => {
     const productsRef = ref(db, 'products');
     onValue(productsRef, (snapshot) => {
       const data = snapshot.val();
       if(data) setProducts(Object.keys(data).map(key => ({...data[key], firebaseKey: key})));
-      else DEFAULT_PRODUCTS.forEach(p => push(ref(db, 'products'), p));
+      else {
+        DEFAULT_PRODUCTS.forEach(p => push(ref(db, 'products'), p));
+        setProducts(DEFAULT_PRODUCTS);
+      }
     });
 
     const ordersRef = ref(db, 'orders');
@@ -214,37 +248,6 @@ export default function App() {
 
     return () => { clearTimeout(timeout); observer.disconnect(); }
   }, [page, dashTab, selectedCat, activeAdminTab, products]); 
-
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [viewedProduct, setViewedProduct] = useState(null); 
-  const [selectedDuration, setSelectedDuration] = useState(null);
-  
-  const [authMode, setAuthMode] = useState(null); 
-  const [authForm, setAuthForm] = useState({ name: "", surname: "", phone: "", email: "", pass: "", otpInput: "", profileImg: "" });
-  const [otpCode, setOtpCode] = useState(null);
-  const [forgotUserKey, setForgotUserKey] = useState(null);
-
-  const [selectedBank, setSelectedBank] = useState(CARD_ACCOUNTS[0]);
-  const [uploadedReceipt, setUploadedReceipt] = useState(null);
-  const [notification, setNotification] = useState(null);
-  const [isEmailSending, setIsEmailSending] = useState(false);
-  const [showOtpSuccess, setShowOtpSuccess] = useState(false);
-  
-  const [dashTab, setDashTab] = useState("profile"); 
-  const [profileEdit, setProfileEdit] = useState({ name: "", surname: "", email: "", phone: "", profileImg: "", gender: "Kişi" });
-  const profileInputRef = useRef(null);
-
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => { try { return localStorage.getItem("premium_shop_admin_active") === "true"; } catch(e) { return false; } });
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
-  const [adminUsername, setAdminUsername] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [activeAdminTab, setActiveAdminTab] = useState("orders"); 
-
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [approvingOrder, setApprovingOrder] = useState(null);
-  const [accountEmail, setAccountEmail] = useState("");
-  const [accountPass, setAccountPass] = useState("");
-  const fileInputRef = useRef(null);
 
   const showNotif = (msg, type = "success") => { setNotification({ msg, type }); setTimeout(() => setNotification(null), 3500); };
 
@@ -319,7 +322,8 @@ export default function App() {
   };
 
   const addToCart = (product, packageItem) => {
-    if (cart.find(item => item.product.id === product.id && item.package.id === packageItem.id)) return showNotif("Bu paket artıq səbətdədir", "info");
+    if (!product || !packageItem) return;
+    if (cart.find(item => item.product?.id === product.id && item.package?.id === packageItem.id)) return showNotif("Bu paket artıq səbətdədir", "info");
     setCart([...cart, { product, package: packageItem }]); showNotif(`${product.name} səbətə əlavə edildi`, "success"); setIsCartOpen(true);
   };
   const removeFromCart = (index) => { const updated = [...cart]; updated.splice(index, 1); setCart(updated); };
@@ -330,8 +334,8 @@ export default function App() {
     if (!uploadedReceipt) return showNotif("Ödəniş çekini yükləyin!", "error");
 
     const generatedOrders = cart.map(item => ({
-      id: "ORD-" + Math.floor(10000 + Math.random() * 90000), userEmail: user.email, userName: user.name, userSurname: user.surname, userPhone: user.phone || "Qeyd edilməyib",
-      productName: item.product.name, duration: item.package.duration, price: item.package.price, bank: selectedBank.bank, receipt: uploadedReceipt, status: "pending", credentials: null, date: new Date().toLocaleDateString("az-AZ")
+      id: "ORD-" + Math.floor(10000 + Math.random() * 90000), userEmail: user?.email, userName: user?.name, userSurname: user?.surname, userPhone: user?.phone || "Qeyd edilməyib",
+      productName: item.product?.name, duration: item.package?.duration, price: item.package?.price, bank: selectedBank?.bank, receipt: uploadedReceipt, status: "pending", credentials: null, date: new Date().toLocaleDateString("az-AZ")
     }));
     for (const o of generatedOrders) push(ref(db, 'orders'), o);
     setCart([]); setPage("dashboard"); setDashTab("orders"); showNotif("Sifariş qəbul edildi! Çek yoxlanılır.", "success");
@@ -350,8 +354,8 @@ export default function App() {
   const handleAdminLogout = () => { setIsAdminLoggedIn(false); localStorage.removeItem("premium_shop_admin_active"); setPage("home"); };
 
   const handleAddPackage = () => setEditingProduct({...editingProduct, packages: [...(editingProduct.packages || []), { id: "p" + Date.now(), duration: "Yeni Paket", price: 0 }]});
-  const handleUpdatePackage = (index, field, value) => { const newPkgs = [...editingProduct.packages]; newPkgs[index][field] = value; setEditingProduct({...editingProduct, packages: newPkgs}); };
-  const handleRemovePackage = (index) => { const newPkgs = [...editingProduct.packages]; newPkgs.splice(index, 1); setEditingProduct({...editingProduct, packages: newPkgs}); };
+  const handleUpdatePackage = (index, field, value) => { const newPkgs = [...(editingProduct.packages || [])]; newPkgs[index][field] = value; setEditingProduct({...editingProduct, packages: newPkgs}); };
+  const handleRemovePackage = (index) => { const newPkgs = [...(editingProduct.packages || [])]; newPkgs.splice(index, 1); setEditingProduct({...editingProduct, packages: newPkgs}); };
 
   const handleSaveProduct = (e) => {
     e.preventDefault();
@@ -374,14 +378,19 @@ export default function App() {
     await sendEmailNotification({ to_email: order.userEmail, to_name: order.userName, order_id: order.id, product_name: order.productName, duration: order.duration, subject: `Sifariş Təsdiqlənmədi ❌ #${order.id}` }, EMAILJS_CONFIG.templateOrder);
   };
 
-  const openProductDetail = (product) => { setViewedProduct(product); setSelectedDuration(product.packages[0]); setPage("product_detail"); };
+  const openProductDetail = (product) => { 
+    if(!product) return;
+    setViewedProduct(product); 
+    setSelectedDuration(product.packages?.[0] || null); 
+    setPage("product_detail"); 
+  };
 
   return (
     <div className="max-w-[100vw] overflow-hidden flex flex-col min-h-screen">
       <style>{CSS}</style>
       <Notif n={notification} />
 
-      {/* YUXARI MENYU (HEADER) */}
+      {/* YUXARI MENYU (HEADER) MÜASİR VƏ TƏMİZ DİZAYN */}
       <nav className="sticky top-0 z-[9990] bg-[#030308]/90 backdrop-blur-xl border-b border-indigo-950/60 px-4 sm:px-8 py-3 sm:py-4 w-full">
         <div className="max-w-[90rem] mx-auto flex items-center justify-between">
            
@@ -418,7 +427,7 @@ export default function App() {
               {user ? (
                 <button onClick={() => {setPage("dashboard"); setDashTab("profile");}} className="glass-card flex items-center gap-2 pl-1.5 pr-4 py-1.5 rounded-full border border-indigo-500/30 hover:bg-indigo-900/40 transition">
                   <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white overflow-hidden shadow-inner">
-                    {user.profileImg ? <img src={user.profileImg} alt="User" className="w-full h-full object-cover" /> : user.name[0].toUpperCase()}
+                    {user.profileImg ? <img src={user.profileImg} alt="User" className="w-full h-full object-cover" /> : user.name?.[0]?.toUpperCase() || "U"}
                   </div>
                   <span className="font-bold text-[10px] sm:text-xs text-white hidden sm:inline">{user.name}</span>
                 </button>
@@ -439,7 +448,7 @@ export default function App() {
         </div>
       </nav>
 
-      {/* DYNAMIC PAGES */}
+      {}
       <div className="page-transition flex-1 relative w-full">
         
         {page === "home" && (
@@ -533,6 +542,7 @@ export default function App() {
           </main>
         )}
 
+        {}
         {page === "categories" && (
           <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
             <div className="mb-6 sm:mb-12 space-y-3 sm:space-y-6">
@@ -563,6 +573,7 @@ export default function App() {
           </main>
         )}
 
+        {}
         {page === "product_detail" && viewedProduct && (
           <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
             <button onClick={() => setPage("categories")} className="text-gray-400 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-widest mb-6 sm:mb-8 flex items-center gap-2 transition">
@@ -604,7 +615,7 @@ export default function App() {
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-widest mb-4 sm:mb-6 text-center">Müddəti Seçin</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-                        {viewedProduct.packages.map((pkg) => (
+                        {(viewedProduct.packages || []).map((pkg) => (
                           <div key={pkg.id} onClick={() => setSelectedDuration(pkg)} className={`cursor-pointer p-4 sm:p-5 rounded-xl sm:rounded-2xl border-2 flex items-center justify-between transition-all duration-300 ${selectedDuration?.id === pkg.id ? "bg-indigo-600/20 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.3)] transform scale-[1.02]" : "bg-black border-transparent hover:border-indigo-900/50"}`}>
                             <span className={`text-xs sm:text-sm font-black uppercase tracking-wider ${selectedDuration?.id === pkg.id ? "text-indigo-300" : "text-gray-400"}`}>{pkg.duration}</span>
                             <span className="text-xl sm:text-2xl font-black text-white tracking-tight">{pkg.price} <span className="text-[10px] sm:text-sm text-gray-500">AZN</span></span>
@@ -625,6 +636,7 @@ export default function App() {
           </main>
         )}
 
+        {}
         {page === "checkout" && (
           <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
             <button type="button" onClick={() => { setPage("categories"); setIsCartOpen(true); }} className="text-gray-400 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-widest mb-6 sm:mb-8 flex items-center gap-2 transition cursor-pointer relative z-50">
@@ -639,7 +651,7 @@ export default function App() {
 
               <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-4 sm:pb-6 snap-x no-scrollbar w-full">
                 {CARD_ACCOUNTS.map(acc => (
-                  <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-56 h-36 sm:w-64 sm:h-44 snap-center p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col justify-between border-2 border-white/10 ${selectedBank.id === acc.id ? "ring-offset-4 ring-indigo-500 scale-[1.02] shadow-[0_15px_40px_rgba(0,0,0,0.4)]" : "opacity-90 hover:opacity-100 scale-95"}`} style={{ backgroundColor: acc.colorCode }}>
+                  <div key={acc.id} onClick={() => setSelectedBank(acc)} className={`flex-shrink-0 w-56 h-36 sm:w-64 sm:h-44 snap-center p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col justify-between border-2 border-white/10 ${selectedBank?.id === acc.id ? "ring-offset-4 ring-indigo-500 scale-[1.02] shadow-[0_15px_40px_rgba(0,0,0,0.4)]" : "opacity-90 hover:opacity-100 scale-95"}`} style={{ backgroundColor: acc.colorCode }}>
                     <div className="relative z-10 font-black text-[10px] sm:text-xs tracking-widest text-center uppercase text-white opacity-80">{acc.bank}</div>
                     
                     <div className="relative z-10 w-full flex items-center justify-center flex-1 py-1">
@@ -681,7 +693,7 @@ export default function App() {
                 <div className="border-t border-indigo-900/50 pt-4 sm:pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
                   <div className="text-center sm:text-left">
                     <span className="text-[9px] sm:text-[11px] font-black text-gray-500 uppercase tracking-widest block mb-0.5 sm:mb-1">Ümumi Məbləğ</span>
-                    <span className="text-2xl sm:text-3xl font-black text-white tracking-tighter">{cart.reduce((sum, item) => sum + item.package.price, 0)} <span className="text-sm sm:text-lg text-indigo-400">AZN</span></span>
+                    <span className="text-2xl sm:text-3xl font-black text-white tracking-tighter">{cart.reduce((sum, item) => sum + (item.package?.price || 0), 0)} <span className="text-sm sm:text-lg text-indigo-400">AZN</span></span>
                   </div>
                   <button type="submit" disabled={isEmailSending} className="glow-btn w-full sm:w-auto px-6 sm:px-10 py-4 sm:py-5 bg-indigo-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)] flex items-center justify-center gap-2 sm:gap-3">
                     {isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Sifarişi Təsdiqlə"}
@@ -692,6 +704,7 @@ export default function App() {
           </main>
         )}
 
+        {}
         {page === "dashboard" && (
           <main className="reveal max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
             <h1 className="text-2xl sm:text-4xl font-black text-white mb-4 sm:mb-8 tracking-tight">Şəxsi Kabinet</h1>
@@ -699,7 +712,7 @@ export default function App() {
             <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-3 sm:pb-4 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
               <button onClick={() => setDashTab("profile")} className={`px-3 sm:px-6 py-1.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "profile" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>Hesab Məlumatları</button>
               <button onClick={() => setDashTab("orders")} className={`px-3 sm:px-6 py-1.5 sm:py-3 rounded-lg sm:rounded-xl font-black text-[9px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${dashTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50 hover:text-white"}`}>
-                Sifarişlərim {orders.filter(o => o.userEmail === user?.email).length > 0 && <span className="ml-1 sm:ml-2 bg-white/20 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs">{orders.filter(o => o.userEmail === user?.email).length}</span>}
+                Sifarişlərim {(orders || []).filter(o => o.userEmail === user?.email).length > 0 && <span className="ml-1 sm:ml-2 bg-white/20 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs">{(orders || []).filter(o => o.userEmail === user?.email).length}</span>}
               </button>
             </div>
 
@@ -710,7 +723,7 @@ export default function App() {
                     <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mb-8 sm:mb-10">
                       <div className="relative group">
                         <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-black text-4xl sm:text-5xl text-white overflow-hidden shadow-[0_0_30px_rgba(99,102,241,0.4)] border-2 sm:border-4 border-[#030308]">
-                          {profileEdit.profileImg ? <img src={profileEdit.profileImg} alt="User" className="w-full h-full object-cover" /> : profileEdit.name?.[0]?.toUpperCase()}
+                          {profileEdit.profileImg ? <img src={profileEdit.profileImg} alt="User" className="w-full h-full object-cover" /> : profileEdit.name?.[0]?.toUpperCase() || "U"}
                         </div>
                         <div onClick={() => profileInputRef.current?.click()} className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer backdrop-blur-sm">
                           <span className="text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center">Şəkli<br/>Dəyiş</span>
@@ -746,7 +759,7 @@ export default function App() {
 
               {dashTab === "orders" && (
                 <div className="w-full reveal">
-                  {orders.filter(o => o.userEmail === user?.email).length === 0 ? (
+                  {(orders || []).filter(o => o.userEmail === user?.email).length === 0 ? (
                     <div className="glass-card rounded-[2rem] p-10 sm:p-16 text-center space-y-4 sm:space-y-6 border border-indigo-500/20">
                       <div className="w-16 h-16 sm:w-24 sm:h-24 bg-[#0c0c1d] rounded-full flex items-center justify-center mx-auto border border-indigo-500/30">
                         <span className="text-2xl sm:text-4xl animate-bounce text-indigo-400"><Icons.Cart /></span>
@@ -756,7 +769,7 @@ export default function App() {
                     </div>
                   ) : (
                     <div className="grid gap-4 sm:gap-6">
-                      {orders.filter(o => o.userEmail === user?.email).reverse().map((order) => (
+                      {(orders || []).filter(o => o.userEmail === user?.email).reverse().map((order) => (
                         <div key={order.id} className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-8 border border-indigo-500/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
                           <div className="space-y-2 sm:space-y-3 w-full md:w-auto">
                             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -775,8 +788,8 @@ export default function App() {
                                 {order.credentials && (
                                   <div className="p-3 sm:p-4 bg-[#0c0c1d] border border-indigo-500/30 rounded-xl text-[9px] sm:text-xs space-y-1.5 sm:space-y-2 text-left w-full sm:min-w-[200px]">
                                     <div className="text-gray-500 font-bold uppercase tracking-widest text-[7px] sm:text-[9px] mb-1 sm:mb-2">Giriş Məlumatları</div>
-                                    <div className="flex justify-between gap-4"><span className="text-gray-400">E-mail:</span> <span className="text-white font-black select-all">{order.credentials.email}</span></div>
-                                    <div className="flex justify-between gap-4"><span className="text-gray-400">Şifrə:</span> <span className="text-white font-black select-all">{order.credentials.pass}</span></div>
+                                    <div className="flex justify-between gap-4"><span className="text-gray-400">E-mail:</span> <span className="text-white font-black select-all">{order.credentials?.email}</span></div>
+                                    <div className="flex justify-between gap-4"><span className="text-gray-400">Şifrə:</span> <span className="text-white font-black select-all">{order.credentials?.pass}</span></div>
                                   </div>
                                 )}
                               </div>
@@ -792,6 +805,7 @@ export default function App() {
           </main>
         )}
 
+        {}
         {page === "contact" && (
           <main className="reveal max-w-4xl mx-auto px-4 sm:px-6 py-12 relative z-10 w-full text-center">
              <h1 className="text-3xl sm:text-5xl font-black text-white mb-6 tracking-tight">Bizimlə Əlaqə</h1>
@@ -811,7 +825,6 @@ export default function App() {
           </main>
         )}
 
-        {/* 📜 QAYDALAR SƏHİFƏSİ */}
         {page === "rules" && (
           <main className="reveal max-w-4xl mx-auto px-4 sm:px-6 py-12 relative z-10 w-full">
              <div className="text-center mb-10 sm:mb-16">
@@ -841,6 +854,7 @@ export default function App() {
           </main>
         )}
 
+        {}
         {page === "admin_dashboard" && isAdminLoggedIn && (
           <main className="reveal max-w-[90rem] mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10 w-full">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12">
@@ -849,15 +863,15 @@ export default function App() {
             </div>
 
             <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-4 sm:pb-6 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
-              <button onClick={() => setActiveAdminTab("orders")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({orders.length})</button>
-              <button onClick={() => setActiveAdminTab("products")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({products.length})</button>
+              <button onClick={() => setActiveAdminTab("orders")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({(orders || []).length})</button>
+              <button onClick={() => setActiveAdminTab("products")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({(products || []).length})</button>
             </div>
 
             {activeAdminTab === "orders" && (
               <div className="space-y-4 sm:space-y-6 reveal w-full">
-                {orders.length === 0 && <div className="text-center py-12 sm:py-20 text-gray-500 font-bold text-base sm:text-lg">Sistemdə heç bir sifariş yoxdur.</div>}
+                {(orders || []).length === 0 && <div className="text-center py-12 sm:py-20 text-gray-500 font-bold text-base sm:text-lg">Sistemdə heç bir sifariş yoxdur.</div>}
                 <div className="grid gap-4 w-full">
-                  {orders.slice().reverse().map((order) => (
+                  {(orders || []).slice().reverse().map((order) => (
                     <div key={order.id} className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 flex flex-col lg:flex-row justify-between gap-5 sm:gap-6 border-l-4 w-full" style={{borderLeftColor: order.status === 'pending' ? '#eab308' : order.status === 'approved' ? '#10b981' : '#ef4444'}}>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
                         <div><div className="text-[8px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">ID / Tarix</div><div className="font-bold text-indigo-400 mt-1 text-[11px] sm:text-base">{order.id}</div><div className="text-[10px] sm:text-xs font-bold text-gray-400">{order.date}</div></div>
@@ -897,14 +911,14 @@ export default function App() {
                   <button onClick={() => setEditingProduct({ name: "Yeni Məhsul", cat: "entertainment", color: "#6366f1", emoji: "📦", desc: "Açıqlama", accountType: "Rəsmi Hesab", rating: "5.0", sales: "0", features: ["Yeni xüsusiyyət"], customLogo: "", packages: [{ id: "temp1", duration: "1 Ay", price: 10 }] })} className="glow-btn w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-indigo-600 text-white rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg">+ Yeni Əlavə Et</button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 w-full">
-                  {products.map(p => (
+                  {(products || []).map(p => (
                     <div key={p.id} className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-6 flex flex-col justify-between border border-indigo-500/20 relative overflow-hidden group">
                       <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-6 relative z-10">
                         <div className="p-2.5 sm:p-3 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(p.name, p.emoji, p.color, p.customLogo)}</div>
                         <div><h4 className="font-black text-base sm:text-lg text-white">{p.name}</h4><span className="text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest">{p.cat}</span></div>
                       </div>
                       <div className="flex flex-wrap gap-2 mb-5 sm:mb-6 relative z-10">
-                        {p.packages.map(pkg => (
+                        {(p.packages || []).map(pkg => (
                           <span key={pkg.id} className="text-[9px] sm:text-[10px] px-2 sm:px-2.5 py-1 bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 rounded-md font-black">{pkg.duration}: {pkg.price} AZN</span>
                         ))}
                       </div>
@@ -921,14 +935,13 @@ export default function App() {
         )}
       </div>
 
-      {/* WHATSAPP FLOAT BUTTON */}
+      {}
       <a href="https://wa.me/994103136941" className="wa-float reveal" target="_blank" rel="noopener noreferrer">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
           <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c-.003 1.396.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c.003-3.625 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
         </svg>
       </a>
 
-      {/* CART MODAL (TOP Z-INDEX) */}
       {isCartOpen && (
         <div className="fixed inset-0 bg-[#030308]/80 backdrop-blur-sm flex justify-end z-[99999]">
           <div className="glass-card w-full sm:w-80 md:max-w-md h-full flex flex-col justify-between drawer-open rounded-none border-y-0 border-r-0 border-l border-indigo-500/30 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
@@ -940,24 +953,24 @@ export default function App() {
                 <button onClick={() => setIsCartOpen(false)} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/80 text-gray-400 hover:bg-indigo-900 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
               </div>
               
-              {cart.length === 0 ? (
+              {(cart || []).length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4 sm:space-y-6">
                   <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#0c0c1d] rounded-full flex items-center justify-center border border-indigo-900/50 text-indigo-500"><Icons.Cart /></div>
                   <p className="text-gray-400 font-black uppercase tracking-widest text-[10px] sm:text-xs">Səbətiniz boşdur</p>
                 </div>
               ) : (
                 <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 pr-1 sm:pr-2 no-scrollbar">
-                  {cart.map((item, index) => (
+                  {(cart || []).map((item, index) => (
                     <div key={index} className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0c0c1d] border border-indigo-500/30 hover:border-indigo-400 transition-colors group">
                       <div className="flex items-center gap-3 sm:gap-4">
-                        <div className="p-2 sm:p-2.5 bg-black/40 rounded-lg sm:rounded-xl border border-white/10 shadow-lg">{getOfficialLogo(item.product.name, item.product.emoji, item.product.color, item.product.customLogo)}</div>
+                        <div className="p-2 sm:p-2.5 bg-black/40 rounded-lg sm:rounded-xl border border-white/10 shadow-lg">{getOfficialLogo(item.product?.name, item.product?.emoji, item.product?.color, item.product?.customLogo)}</div>
                         <div>
-                          <h4 className="text-xs sm:text-sm font-black text-white mb-0.5 sm:mb-1">{item.product.name}</h4>
-                          <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 bg-indigo-950/80 px-1.5 sm:px-2 py-0.5 rounded">{item.package.duration}</span>
+                          <h4 className="text-xs sm:text-sm font-black text-white mb-0.5 sm:mb-1">{item.product?.name}</h4>
+                          <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 bg-indigo-950/80 px-1.5 sm:px-2 py-0.5 rounded">{item.package?.duration}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 sm:gap-4">
-                        <span className="font-black text-sm sm:text-lg text-white tracking-tight">{item.package.price} <span className="text-[9px] sm:text-[10px] text-gray-500">AZN</span></span>
+                        <span className="font-black text-sm sm:text-lg text-white tracking-tight">{item.package?.price} <span className="text-[9px] sm:text-[10px] text-gray-500">AZN</span></span>
                         <button onClick={() => removeFromCart(index)} className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md sm:rounded-lg bg-red-900/40 text-red-400 hover:bg-red-600 hover:text-white transition">&times;</button>
                       </div>
                     </div>
@@ -966,11 +979,11 @@ export default function App() {
               )}
             </div>
 
-            {cart.length > 0 && (
+            {(cart || []).length > 0 && (
               <div className="p-6 sm:p-8 bg-black/40 border-t border-indigo-900/50 backdrop-blur-md">
                 <div className="flex justify-between items-center mb-5 sm:mb-6">
                   <span className="text-[10px] sm:text-xs font-black text-gray-500 uppercase tracking-widest">Ümumi Məbləğ</span>
-                  <span className="text-2xl sm:text-3xl font-black text-white tracking-tighter">{cart.reduce((sum, item) => sum + item.package.price, 0)} <span className="text-sm sm:text-lg text-indigo-400">AZN</span></span>
+                  <span className="text-2xl sm:text-3xl font-black text-white tracking-tighter">{(cart || []).reduce((sum, item) => sum + (item.package?.price || 0), 0)} <span className="text-sm sm:text-lg text-indigo-400">AZN</span></span>
                 </div>
                 <button onClick={() => { setIsCartOpen(false); setPage("checkout"); }} className="glow-btn w-full py-4 sm:py-5 bg-indigo-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)]">
                   Ödənişə Keç
@@ -981,7 +994,6 @@ export default function App() {
         </div>
       )}
 
-      {/* USER AUTH MODAL */}
       {authMode && (
         <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 w-full h-full overflow-y-auto z-[99999]">
           <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)] my-auto">
@@ -1068,7 +1080,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ADMIN LOGIN MODAL */}
       {isAdminModalOpen && (
         <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4 z-[99999]">
           <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-red-500/30">
@@ -1085,7 +1096,6 @@ export default function App() {
         </div>
       )}
 
-      {/* APPROVING ORDER DETAILS MODAL */}
       {approvingOrder && (
         <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4 z-[99999]">
           <div className="glass-card w-full max-w-lg rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-emerald-500/30 w-full">
@@ -1104,7 +1114,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ADMIN PRODUCT EDIT MODAL (MOBILE OPTIMIZED) */}
       {editingProduct && (
         <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto z-[99999]">
           <div className="glass-card w-full max-w-4xl min-h-screen sm:min-h-0 sm:rounded-[2.5rem] rounded-none p-5 sm:p-10 animate-modal relative border-0 sm:border border-indigo-500/30 sm:my-8 flex flex-col">
@@ -1144,7 +1153,7 @@ export default function App() {
                     <button type="button" onClick={handleAddPackage} className="px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-900/50 text-indigo-300 rounded-lg text-[9px] sm:text-xs font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition">+ Əlavə Et</button>
                  </div>
                  <div className="space-y-2 sm:space-y-3">
-                   {editingProduct.packages.map((pkg, i) => (
+                   {(editingProduct.packages || []).map((pkg, i) => (
                      <div key={i} className="flex items-center gap-2 sm:gap-4">
                        <input type="text" value={pkg.duration} onChange={(e) => handleUpdatePackage(i, 'duration', e.target.value)} className="w-1/2 p-2.5 sm:p-3 rounded-lg text-xs sm:text-sm font-bold" placeholder="1 Ay" required />
                        <input type="number" value={pkg.price} onChange={(e) => handleUpdatePackage(i, 'price', Number(e.target.value))} className="w-1/3 p-2.5 sm:p-3 rounded-lg text-xs sm:text-sm font-bold" placeholder="Qiymət (AZN)" required />
@@ -1163,7 +1172,7 @@ export default function App() {
         </div>
       )}
 
-      {/* APPBAZAR ALT MENYU (FOOTER) */}
+      {}
       <footer className="bg-[#030308] border-t border-white/5 pt-16 sm:pt-20 pb-6 sm:pb-8 mt-12 sm:mt-24 w-full">
         <div className="max-w-[90rem] mx-auto px-6 sm:px-8">
            
