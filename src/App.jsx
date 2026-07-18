@@ -403,19 +403,6 @@ export default function App() {
            <div className="hidden md:flex flex-1 justify-center gap-6 lg:gap-10">
               <button onClick={() => setPage("home")} className={`font-black text-[11px] lg:text-sm uppercase tracking-wider transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
               <button onClick={() => { setSelectedCat("all"); setPage("categories"); }} className={`font-black text-[11px] lg:text-sm uppercase tracking-wider transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Məhsullar</button>
-              
-              <div className="relative group py-1">
-                 <button className="text-gray-400 hover:text-white font-black text-[11px] lg:text-sm uppercase tracking-wider flex items-center gap-1 transition">
-                   Kateqoriyalar <span className="text-[9px]">▼</span>
-                 </button>
-                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 w-56 bg-[#0c0c1d] border border-indigo-500/20 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col overflow-hidden">
-                    {CATEGORIES.filter(c => c.id !== 'all').map(cat => (
-                       <button key={cat.id} onClick={() => { setSelectedCat(cat.id); setPage("categories"); }} className="text-left px-5 py-3 text-xs font-bold text-gray-300 hover:bg-indigo-600 hover:text-white transition flex items-center gap-3">
-                          <span className="text-lg">{cat.icon}</span> {cat.label}
-                       </button>
-                    ))}
-                 </div>
-              </div>
               <button onClick={() => setPage("contact")} className={`font-black text-[11px] lg:text-sm uppercase tracking-wider transition-colors ${page === "contact" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Əlaqə</button>
            </div>
 
