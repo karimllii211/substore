@@ -1600,7 +1600,7 @@ export default function App() {
       )}
 
       {authMode && (
-        <div className="fixed inset-0 bg-[#030308] flex items-center justify-center p-3 sm:p-4 w-full h-full overflow-y-auto z-[99999]">
+        <div className="fixed inset-0 flex items-center justify-center p-3 sm:p-4 w-full h-full overflow-y-auto z-[99999]" style={{ backgroundColor: '#030308', zIndex: 99999 }}>
           <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-modal relative border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.15)] my-auto">
             <button onClick={() => setAuthMode(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white hover:bg-indigo-900 flex items-center justify-center text-lg sm:text-xl font-bold transition">&times;</button>
 
@@ -1686,7 +1686,7 @@ export default function App() {
       )}
 
       {isAdminModalOpen && (
-        <div className="fixed inset-0 bg-[#030308] flex items-center justify-center p-4 z-[99999]">
+        <div className="fixed inset-0 flex items-center justify-center p-4 z-[99999]" style={{ backgroundColor: '#030308', zIndex: 99999 }}>
           <div className="glass-card w-full max-w-md rounded-[1.5rem] sm:rounded-[2.5rem] p-8 md:p-10 animate-modal relative border border-red-500/30">
             <button onClick={() => setIsAdminModalOpen(false)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white transition flex items-center justify-center text-lg sm:text-xl font-bold">&times;</button>
             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-900/40 border border-red-500/30 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-4 sm:mb-6 mx-auto shadow-lg">🛡️</div>
