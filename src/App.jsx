@@ -343,13 +343,13 @@ const CSS = `
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   
-  .glow-btn { position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
-  .glow-btn:hover { box-shadow: 0 0 35px rgba(99, 102, 241, 0.5); transform: translateY(-2px) scale(1.02); }
+  .glow-btn { position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+  .glow-btn:hover { box-shadow: 0 0 35px rgba(99, 102, 241, 0.5); transform: translateY(-3px) scale(1.02); }
   
-  .glass-card { background: rgba(10, 10, 22, 0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(99, 102, 241, 0.15); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-  .glass-card:hover { border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2); }
-  .hero-card { background: linear-gradient(145deg, rgba(20,20,35,0.8) 0%, rgba(10,10,18,0.9) 100%); border: 1px solid rgba(255,255,255,0.05); transition: all 0.4s ease; }
-  .hero-card:hover { transform: scale(1.02); border: 1px solid rgba(99,102,241,0.5); box-shadow: 0 20px 40px rgba(99,102,241,0.25); }
+  .glass-card { background: rgba(10, 10, 22, 0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(99, 102, 241, 0.15); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+  .glass-card:hover { border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 20px 45px rgba(99, 102, 241, 0.25); transform: translateY(-3px); }
+  .hero-card { background: linear-gradient(145deg, rgba(20,20,35,0.8) 0%, rgba(10,10,18,0.9) 100%); border: 1px solid rgba(255,255,255,0.05); transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+  .hero-card:hover { transform: scale(1.02) translateY(-3px); border: 1px solid rgba(99,102,241,0.5); box-shadow: 0 20px 45px rgba(99,102,241,0.25); }
   
   .neon-text { text-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
 
@@ -359,32 +359,32 @@ const CSS = `
   .led-3 { bottom: -5%; left: 20%; width: 350px; height: 350px; background: rgba(139, 92, 246, 0.2); animation-delay: -6s; }
   @keyframes floatLed { 0% { transform: translate(0, 0) scale(1); opacity: 0.5; } 100% { transform: translate(20px, 30px) scale(1.1); opacity: 0.8; } }
 
-  .page-transition { animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .page-transition { animation: slideUpFade 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
   @keyframes slideUpFade { 
-    from { opacity: 0; transform: translateY(10px) scale(0.99); } 
-    to { opacity: 1; transform: translateY(0) scale(1); } 
+    from { opacity: 0; transform: translateY(15px) scale(0.98); filter: blur(4px); } 
+    to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } 
   }
   
-  .reveal { opacity: 0; transform: translateY(40px); transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-  .show-reveal { opacity: 1; transform: translateY(0); }
+  .reveal { opacity: 0; transform: translateY(25px) scale(0.98); filter: blur(4px); transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+  .show-reveal { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
   
-  .drawer-open { animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  .drawer-open { animation: slideInRight 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   
-  .animate-modal { animation: modalZoom 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-modal { animation: modalZoom 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
   @keyframes modalZoom { 
-    from { opacity: 0; transform: scale(0.95); } 
-    to { opacity: 1; transform: scale(1); } 
+    from { opacity: 0; transform: scale(0.95) translateY(10px); filter: blur(5px); } 
+    to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); } 
   }
   
-  @keyframes toastSlide { from { transform: translateY(100px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-  .animate-toast { animation: toastSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  @keyframes toastSlide { from { transform: translateY(100px) scale(0.9); opacity: 0; filter: blur(4px); } to { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); } }
+  .animate-toast { animation: toastSlide 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 
   .spinner { width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   
-  .success-check { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #10b981; color: white; font-size: 30px; margin: 0 auto; animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; box-shadow: 0 0 25px rgba(16, 185, 129, 0.4); }
-  @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 70% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+  .success-check { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #10b981; color: white; font-size: 30px; margin: 0 auto; animation: popIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; box-shadow: 0 0 25px rgba(16, 185, 129, 0.4); }
+  @keyframes popIn { 0% { transform: scale(0) rotate(-15deg); opacity: 0; } 70% { transform: scale(1.1) rotate(5deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
   
   input, select, textarea { background-color: #0c0c1d !important; color: #ffffff !important; border: 1px solid rgba(99, 102, 241, 0.2) !important; transition: all 0.3s ease; }
   input:focus, select:focus, textarea:focus { border-color: rgba(99, 102, 241, 0.8) !important; outline: none !important; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
@@ -1408,8 +1408,6 @@ export default function App() {
               <button onClick={() => setActiveAdminTab("orders")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({(orders || []).length})</button>
               <button onClick={() => setActiveAdminTab("products")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({(products || []).length})</button>
               <button onClick={() => setActiveAdminTab("content")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "content" ? "bg-emerald-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>📝 Məzmun</button>
-              <button onClick={() => setActiveAdminTab("nav")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "nav" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>🔗 Menyu</button>
-              <button onClick={() => setActiveAdminTab("cms_cats")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "cms_cats" ? "bg-pink-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>🏷️ Kateqoriyalar</button>
             </div>
 
             {activeAdminTab === "orders" && (
@@ -1529,111 +1527,7 @@ export default function App() {
               </div>
             )}
 
-            {/* ── CMS: MENYU PANELI ───────────────────────────────────────────────────── */}
-            {activeAdminTab === "nav" && (
-              <div className="space-y-8 reveal w-full">
-                <h2 className="text-2xl sm:text-3xl font-black text-white">Naviqasiya İdarəetməsi</h2>
-                <div className="glass-card p-6 sm:p-8 rounded-[2rem] border border-indigo-500/20 space-y-5">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div><h3 className="text-xs sm:text-sm font-black text-purple-400 uppercase tracking-widest">🔝 Header Linklər</h3><p className="text-[10px] text-gray-500 mt-1">Mövcud statik linklər qorunur. Buradan əlavə linklər yaradılır.</p></div>
-                    <button onClick={() => setCmsNavEdit({ label: "", page: "", url: "", type: "header" })} className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition hover:bg-indigo-500">+ Əlavə Et</button>
-                  </div>
-                  {(cmsNav.header || []).length === 0 ? (
-                    <p className="text-gray-500 text-sm text-center py-6">Hələ əlavə edilmiş header linki yoxdur.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {(cmsNav.header || []).map(link => (
-                        <div key={link.firebaseKey} className="flex items-center justify-between p-4 bg-[#0c0c1d] rounded-xl border border-indigo-900/30">
-                          <div><span className="font-black text-white text-xs sm:text-sm">{link.label}</span><span className="ml-3 text-[10px] sm:text-xs text-indigo-400">{link.page || link.url}</span></div>
-                          <div className="flex gap-2">
-                            <button onClick={() => setCmsNavEdit({ ...link, type: "header" })} className="px-3 py-1.5 bg-blue-900/40 text-blue-400 rounded-lg font-black text-[9px] sm:text-xs hover:bg-blue-700/50 transition">Redaktə</button>
-                            <button onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } remove(ref(db, `cms_nav/header/${link.firebaseKey}`)); showNotif("Link silindi", "success"); }} className="px-3 py-1.5 bg-red-900/40 text-red-400 rounded-lg font-black text-[9px] sm:text-xs hover:bg-red-800/50 transition">Sil</button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="glass-card p-6 sm:p-8 rounded-[2rem] border border-indigo-500/20 space-y-5">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div><h3 className="text-xs sm:text-sm font-black text-pink-400 uppercase tracking-widest">📄 Footer Linklər</h3><p className="text-[10px] text-gray-500 mt-1">Mövcud footer linkləri qorunur. Buradan əlavə linklər yaradılır.</p></div>
-                    <button onClick={() => setCmsNavEdit({ label: "", page: "", url: "", type: "footer" })} className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition hover:bg-indigo-500">+ Əlavə Et</button>
-                  </div>
-                  {(cmsNav.footer || []).length === 0 ? (
-                    <p className="text-gray-500 text-sm text-center py-6">Hələ əlavə edilmiş footer linki yoxdur.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {(cmsNav.footer || []).map(link => (
-                        <div key={link.firebaseKey} className="flex items-center justify-between p-4 bg-[#0c0c1d] rounded-xl border border-indigo-900/30">
-                          <div><span className="font-black text-white text-xs sm:text-sm">{link.label}</span><span className="ml-3 text-[10px] sm:text-xs text-indigo-400">{link.page || link.url}</span></div>
-                          <div className="flex gap-2">
-                            <button onClick={() => setCmsNavEdit({ ...link, type: "footer" })} className="px-3 py-1.5 bg-blue-900/40 text-blue-400 rounded-lg font-black text-[9px] sm:text-xs hover:bg-blue-700/50 transition">Redaktə</button>
-                            <button onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } remove(ref(db, `cms_nav/footer/${link.firebaseKey}`)); showNotif("Link silindi", "success"); }} className="px-3 py-1.5 bg-red-900/40 text-red-400 rounded-lg font-black text-[9px] sm:text-xs hover:bg-red-800/50 transition">Sil</button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {cmsNavEdit && (
-                  <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4 z-[99999]">
-                    <div className="glass-card w-full max-w-md rounded-[2rem] p-8 animate-modal relative border border-indigo-500/30">
-                      <button onClick={() => setCmsNavEdit(null)} className="absolute top-5 right-5 w-9 h-9 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white flex items-center justify-center text-lg font-bold">&times;</button>
-                      <h3 className="text-xl sm:text-2xl font-black text-white mb-6">{cmsNavEdit.firebaseKey ? "Linki Redaktə Et" : "Yeni Link Əlavə Et"}</h3>
-                      <div className="space-y-4">
-                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Link Mətni (Label)</label><input value={cmsNavEdit.label} onChange={e => setCmsNavEdit({...cmsNavEdit, label: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: Haqqımızda" /></div>
-                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Daxili Səhifə (page dəyəri)</label><input value={cmsNavEdit.page || ""} onChange={e => setCmsNavEdit({...cmsNavEdit, page: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: about, contact, home" /></div>
-                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Xərici URL (optional)</label><input value={cmsNavEdit.url || ""} onChange={e => setCmsNavEdit({...cmsNavEdit, url: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="https://..." /></div>
-                      </div>
-                      <div className="flex gap-3 mt-6">
-                        <button type="button" onClick={() => setCmsNavEdit(null)} className="flex-1 py-3 sm:py-4 bg-indigo-950/40 text-gray-400 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-indigo-900/60 transition">Ləğv</button>
-                        <button type="button" onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } if (!cmsNavEdit.label.trim()) return showNotif("Label daxil edin", "error"); const navType = cmsNavEdit.type || "header"; const { firebaseKey, type, ...navData } = cmsNavEdit; if (firebaseKey) { update(ref(db, `cms_nav/${navType}/${firebaseKey}`), navData); } else { push(ref(db, `cms_nav/${navType}`), navData); } setCmsNavEdit(null); showNotif("Link yadda saxlandı ✓", "success"); }} className="glow-btn flex-1 py-3 sm:py-4 bg-indigo-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition">Saxla</button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
 
-            {/* ── CMS: KATEQORİYALAR PANELI ───────────────────────────────────── */}
-            {activeAdminTab === "cms_cats" && (
-              <div className="space-y-6 reveal w-full">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div><h2 className="text-2xl sm:text-3xl font-black text-white">Kateqoriyalar</h2><p className="text-[10px] text-gray-500 mt-1">Backend kateqoriya idarəetməsi. Frontend aktivasiya edilmədikdə yalnız admin-də görünür.</p></div>
-                  <button onClick={() => setCmsCatEdit({ label: "", icon: "🏷️", id: "" })} className="glow-btn px-6 sm:px-8 py-3 sm:py-4 bg-indigo-600 text-white rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-wider shadow-lg">+ Yeni Kateqoriya</button>
-                </div>
-                <div className="p-4 rounded-xl bg-indigo-950/30 border border-indigo-500/20 text-[10px] sm:text-xs text-indigo-300 font-bold">ℹ️ Sistem kateqoriyaları: <span className="text-white">all · entertainment · ai · design</span> — bunlar standart, silinmir</div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
-                  {(cmsCategories || []).map(cat => (
-                    <div key={cat.firebaseKey} className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-6 border border-indigo-500/20 flex items-center justify-between">
-                      <div className="flex items-center gap-3"><span className="text-2xl sm:text-3xl">{cat.icon}</span><div><div className="font-black text-white text-xs sm:text-sm">{cat.label}</div><div className="text-[9px] sm:text-[10px] text-indigo-400 font-bold mt-0.5">id: {cat.id}</div></div></div>
-                      <div className="flex gap-2">
-                        <button onClick={() => setCmsCatEdit({ ...cat })} className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-blue-900/40 text-blue-400 rounded-lg hover:bg-blue-700/50 hover:text-white transition">✏️</button>
-                        <button onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } remove(ref(db, `cms_categories/${cat.firebaseKey}`)); showNotif("Kateqoriya silindi", "success"); }} className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-red-900/40 text-red-400 rounded-lg hover:bg-red-600 hover:text-white transition">🗑️</button>
-                      </div>
-                    </div>
-                  ))}
-                  {(cmsCategories || []).length === 0 && (<div className="sm:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-12 sm:py-16 text-gray-500 font-bold text-sm sm:text-base">Hələ əlavə edilmiş xüsusi kateqoriya yoxdur.</div>)}
-                </div>
-                {cmsCatEdit && (
-                  <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4 z-[99999]">
-                    <div className="glass-card w-full max-w-md rounded-[2rem] p-8 animate-modal relative border border-indigo-500/30">
-                      <button onClick={() => setCmsCatEdit(null)} className="absolute top-5 right-5 w-9 h-9 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white flex items-center justify-center text-lg font-bold">&times;</button>
-                      <h3 className="text-xl sm:text-2xl font-black text-white mb-6">{cmsCatEdit.firebaseKey ? "Kateqoriyanı Redaktə Et" : "Yeni Kateqoriya"}</h3>
-                      <div className="space-y-4">
-                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Kateqoriya Adı</label><input value={cmsCatEdit.label} onChange={e => setCmsCatEdit({...cmsCatEdit, label: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: Oyun" /></div>
-                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">İkon (emoji)</label><input value={cmsCatEdit.icon} onChange={e => setCmsCatEdit({...cmsCatEdit, icon: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: 🎮" /></div>
-                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">ID (kiçik hərf, boşluqsuz)</label><input value={cmsCatEdit.id} onChange={e => setCmsCatEdit({...cmsCatEdit, id: e.target.value.toLowerCase().replace(/\s+/g,'_')})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: gaming" /></div>
-                      </div>
-                      <div className="flex gap-3 mt-6">
-                        <button type="button" onClick={() => setCmsCatEdit(null)} className="flex-1 py-3 sm:py-4 bg-indigo-950/40 text-gray-400 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-indigo-900/60 transition">Ləğv</button>
-                        <button type="button" onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } if (!cmsCatEdit.label.trim() || !cmsCatEdit.id.trim()) return showNotif("Ad və ID daxil edin", "error"); const { firebaseKey, ...catData } = cmsCatEdit; if (firebaseKey) { update(ref(db, `cms_categories/${firebaseKey}`), catData); showNotif("Kateqoriya yenilendi ✓", "success"); } else { push(ref(db, 'cms_categories'), catData); showNotif("Kateqoriya əlavə edildi ✓", "success"); } setCmsCatEdit(null); }} className="glow-btn flex-1 py-3 sm:py-4 bg-indigo-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition">Saxla</button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
 
           </main>
         )}
