@@ -495,6 +495,16 @@ export default function App() {
   const [accountPass, setAccountPass] = useState("");
   const fileInputRef = useRef(null);
 
+  // ── CMS STATE ─────────────────────────────────────────────────────────────
+  const [cmsContent, setCmsContent] = useState({});
+  const [cmsCategories, setCmsCategories] = useState([]);
+  const [cmsNav, setCmsNav] = useState({ header: [], footer: [] });
+  const [cmsEditSection, setCmsEditSection] = useState("hero");
+  const [cmsEditData, setCmsEditData] = useState({});
+  const [cmsNavEdit, setCmsNavEdit] = useState(null);
+  const [cmsCatEdit, setCmsCatEdit] = useState(null);
+  // ──────────────────────────────────────────────────────────────────────────
+
   useEffect(() => {
     const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
     return () => document.head.removeChild(link);
@@ -547,6 +557,35 @@ export default function App() {
       if(data) setRegisteredUsers(Object.keys(data).map(key => ({...data[key], firebaseKey: key})));
       else setRegisteredUsers([]);
     });
+
+    // ── CMS LISTENERS ────────────────────────────────────────────────────────
+    const cmsRef = ref(db, 'cms');
+    onValue(cmsRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      setCmsContent(data);
+      setCmsEditData(prev => Object.keys(prev).length === 0 ? data : prev);
+    });
+
+    const cmsCatsRef = ref(db, 'cms_categories');
+    onValue(cmsCatsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) setCmsCategories(Object.keys(data).map(k => ({ ...data[k], firebaseKey: k })));
+      else setCmsCategories([]);
+    });
+
+    const cmsNavRef = ref(db, 'cms_nav');
+    onValue(cmsNavRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setCmsNav({
+          header: data.header ? Object.keys(data.header).map(k => ({ ...data.header[k], firebaseKey: k })) : [],
+          footer: data.footer ? Object.keys(data.footer).map(k => ({ ...data.footer[k], firebaseKey: k })) : [],
+        });
+      } else {
+        setCmsNav({ header: [], footer: [] });
+      }
+    });
+    // ────────────────────────────────────────────────────────────────────────
   }, []);
 
   useEffect(() => {
@@ -912,6 +951,9 @@ export default function App() {
               <button onClick={() => setPage("home")} className={`font-black text-[11px] lg:text-sm uppercase tracking-wider transition-colors ${page === "home" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Ana Səhifə</button>
               <button onClick={() => { setSelectedCat("all"); setPage("categories"); }} className={`font-black text-[11px] lg:text-sm uppercase tracking-wider transition-colors ${page === "categories" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Məhsullar</button>
               <button onClick={() => setPage("contact")} className={`font-black text-[11px] lg:text-sm uppercase tracking-wider transition-colors ${page === "contact" ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>Əlaqə</button>
+              {(cmsNav.header || []).map(link => (
+                <button key={link.firebaseKey} onClick={() => link.url ? window.open(link.url, '_blank') : setPage(link.page)} className={`font-black text-[11px] lg:text-sm uppercase tracking-wider transition-colors ${page === link.page ? "text-indigo-400" : "text-gray-400 hover:text-white"}`}>{link.label}</button>
+              ))}
            </div>
 
            <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
@@ -940,6 +982,9 @@ export default function App() {
             <button onClick={() => setPage("home")} className={`flex-1 min-w-fit px-4 py-2.5 rounded-xl text-[10px] font-black uppercase whitespace-nowrap transition-all flex justify-center items-center ${page === "home" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30" : "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"}`}>Ana Səhifə</button>
             <button onClick={() => { setSelectedCat("all"); setPage("categories"); }} className={`flex-1 min-w-fit px-4 py-2.5 rounded-xl text-[10px] font-black uppercase whitespace-nowrap transition-all flex justify-center items-center ${page === "categories" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30" : "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"}`}>Məhsullar</button>
             <button onClick={() => setPage("contact")} className={`flex-1 min-w-fit px-4 py-2.5 rounded-xl text-[10px] font-black uppercase whitespace-nowrap transition-all flex justify-center items-center ${page === "contact" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30" : "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"}`}>Əlaqə</button>
+            {(cmsNav.header || []).map(link => (
+              <button key={link.firebaseKey} onClick={() => link.url ? window.open(link.url, '_blank') : setPage(link.page)} className={`flex-1 min-w-fit px-4 py-2.5 rounded-xl text-[10px] font-black uppercase whitespace-nowrap transition-all flex justify-center items-center ${page === link.page ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30" : "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"}`}>{link.label}</button>
+            ))}
         </div>
       </nav>
 
@@ -957,12 +1002,12 @@ export default function App() {
                 <div className="space-y-6 sm:space-y-8">
                   <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-inner backdrop-blur-md">
                     <span className="relative flex h-2 w-2 sm:h-3 sm:w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 sm:h-3 sm:w-3 bg-indigo-500"></span></span>
-                    100% Güvənli Çatdırılma
+                    {cmsContent?.hero?.badge || "100% Güvənli Çatdırılma"}
                   </div>
-                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter text-white leading-[1.1] neon-text">Rəqəmsal Dünyanızı <br /><span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 text-transparent bg-clip-text">Premium Edin!</span></h1>
-                  <p className="text-gray-400 text-sm sm:text-lg lg:text-xl max-w-xl leading-relaxed font-medium">Azərbaycanın ən etibarlı platformasında kartla rahatlıqla ödəyin, rəsmi abunəlik hesabınız e-mail ünvanınıza dərhal çatdırılsın.</p>
+                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter text-white leading-[1.1] neon-text">{cmsContent?.hero?.title || "Rəqəmsal Dünyanızı"} <br /><span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 text-transparent bg-clip-text">{cmsContent?.hero?.titleHighlight || "Premium Edin!"}</span></h1>
+                  <p className="text-gray-400 text-sm sm:text-lg lg:text-xl max-w-xl leading-relaxed font-medium">{cmsContent?.hero?.subtitle || "Azərbaycanın ən etibarlı platformasında kartla rahatlıqla ödəyin, rəsmi abunəlik hesabınız e-mail ünvanınıza dərhal çatdırılsın."}</p>
                   <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                    <button onClick={() => { setSelectedCat("all"); setPage("categories"); }} className="glow-btn w-full sm:w-auto px-8 py-4 sm:py-5 rounded-2xl bg-indigo-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(99,102,241,0.4)] transition text-center">Bütün Məhsullar</button>
+                    <button onClick={() => { setSelectedCat("all"); setPage("categories"); }} className="glow-btn w-full sm:w-auto px-8 py-4 sm:py-5 rounded-2xl bg-indigo-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_10px_30px_rgba(99,102,241,0.4)] transition text-center">{cmsContent?.hero?.ctaText || "Bütün Məhsullar"}</button>
                   </div>
                 </div>
                 <div className="relative hidden lg:block">
@@ -1306,17 +1351,17 @@ export default function App() {
         {page === "contact" && (
           <main className="reveal max-w-4xl mx-auto px-4 sm:px-6 py-12 relative z-10 w-full text-center">
              <h1 className="text-3xl sm:text-5xl font-black text-white mb-6 tracking-tight">Bizimlə Əlaqə</h1>
-             <p className="text-gray-400 font-medium mb-12 max-w-lg mx-auto">Sualınız var və ya dəstəyə ehtiyacınız var? Bizə yazın, ən qısa zamanda cavablandıraq.</p>
+             <p className="text-gray-400 font-medium mb-12 max-w-lg mx-auto">{cmsContent?.contact?.subtitle || "Sualınız var və ya dəstəyə ehtiyacınız var? Bizə yazın, ən qısa zamanda cavablandıraq."}</p>
              <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
-                <a href="https://wa.me/994103136941" target="_blank" rel="noreferrer" className="glass-card p-10 sm:p-12 rounded-[2rem] border border-[#25D366]/30 hover:border-[#25D366]/60 transition group flex flex-col items-center justify-center">
+                <a href={cmsContent?.contact?.whatsappUrl || "https://wa.me/994103136941"} target="_blank" rel="noreferrer" className="glass-card p-10 sm:p-12 rounded-[2rem] border border-[#25D366]/30 hover:border-[#25D366]/60 transition group flex flex-col items-center justify-center">
                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#25D366]/20 rounded-full flex items-center justify-center text-4xl sm:text-5xl mb-6 group-hover:scale-110 transition shadow-[0_0_30px_rgba(37,211,102,0.3)]">📱</div>
                    <h3 className="text-2xl font-black text-white mb-2">WhatsApp</h3>
-                   <p className="text-gray-400 font-bold">+994 10 313 69 41</p>
+                   <p className="text-gray-400 font-bold">{cmsContent?.contact?.whatsappDisplay || "+994 10 313 69 41"}</p>
                 </a>
-                <a href="mailto:premiumshopazerbaycan@gmail.com" className="glass-card p-10 sm:p-12 rounded-[2rem] border border-indigo-500/30 hover:border-indigo-500/60 transition group flex flex-col items-center justify-center">
+                <a href={`mailto:${cmsContent?.contact?.email || "premiumshopazerbaycan@gmail.com"}`} className="glass-card p-10 sm:p-12 rounded-[2rem] border border-indigo-500/30 hover:border-indigo-500/60 transition group flex flex-col items-center justify-center">
                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-indigo-500/20 rounded-full flex items-center justify-center text-4xl sm:text-5xl mb-6 group-hover:scale-110 transition shadow-[0_0_30px_rgba(99,102,241,0.3)]">✉️</div>
                    <h3 className="text-2xl font-black text-white mb-2">E-poçt</h3>
-                   <p className="text-gray-400 font-bold">premiumshopazerbaycan@gmail.com</p>
+                   <p className="text-gray-400 font-bold">{cmsContent?.contact?.email || "premiumshopazerbaycan@gmail.com"}</p>
                 </a>
              </div>
           </main>
@@ -1362,6 +1407,9 @@ export default function App() {
             <div className="flex gap-2 sm:gap-4 border-b border-indigo-950/60 pb-4 sm:pb-6 mb-6 sm:mb-8 overflow-x-auto no-scrollbar w-full">
               <button onClick={() => setActiveAdminTab("orders")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({(orders || []).length})</button>
               <button onClick={() => setActiveAdminTab("products")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({(products || []).length})</button>
+              <button onClick={() => setActiveAdminTab("content")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "content" ? "bg-emerald-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>📝 Məzmun</button>
+              <button onClick={() => setActiveAdminTab("nav")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "nav" ? "bg-purple-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>🔗 Menyu</button>
+              <button onClick={() => setActiveAdminTab("cms_cats")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "cms_cats" ? "bg-pink-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>🏷️ Kateqoriyalar</button>
             </div>
 
             {activeAdminTab === "orders" && (
@@ -1428,12 +1476,171 @@ export default function App() {
                 </div>
               </div>
             )}
+
+            {/* ── CMS: MƏZMUN PANELI ───────────────────────────────────────────────── */}
+            {activeAdminTab === "content" && (
+              <div className="space-y-6 reveal w-full">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <h2 className="text-2xl sm:text-3xl font-black text-white">Sayt Məzmunu</h2>
+                  <div className="flex gap-2 flex-wrap">
+                    {[["hero","🏠 Ana Səhifə"],["contact","📞 Əlaqə"],["footer","📄 Footer"]].map(([sec,label]) => (
+                      <button key={sec} onClick={() => setCmsEditSection(sec)} className={`px-4 py-2 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-wider transition-all ${cmsEditSection === sec ? "bg-indigo-600 text-white shadow-lg" : "bg-indigo-950/40 text-gray-400 hover:bg-indigo-900/50 hover:text-white"}`}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+                {cmsEditSection === "hero" && (
+                  <div className="glass-card p-6 sm:p-8 rounded-[2rem] border border-indigo-500/20 space-y-5">
+                    <h3 className="text-xs sm:text-sm font-black text-emerald-400 uppercase tracking-widest">🏠 Ana Səhifə — Hero Bölməsi</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Badge Mətni</label><input value={cmsEditData?.hero?.badge ?? "100% Güvənli Çatdırılma"} onChange={e => setCmsEditData(d => ({...d, hero: {...d?.hero, badge: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                      <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Başlıq (birinci sətir)</label><input value={cmsEditData?.hero?.title ?? "Rəqəmsal Dünyanızı"} onChange={e => setCmsEditData(d => ({...d, hero: {...d?.hero, title: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                      <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Başlıq (rəngli hissə)</label><input value={cmsEditData?.hero?.titleHighlight ?? "Premium Edin!"} onChange={e => setCmsEditData(d => ({...d, hero: {...d?.hero, titleHighlight: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                      <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Düymə Mətni</label><input value={cmsEditData?.hero?.ctaText ?? "Bütün Məhsullar"} onChange={e => setCmsEditData(d => ({...d, hero: {...d?.hero, ctaText: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                      <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Alt Mətn (Açıqlama)</label><textarea rows={3} value={cmsEditData?.hero?.subtitle ?? "Azərbaycanın ən etibarlı platformasında kartla rahatlıqla ödəyin, rəsmi abunəlik hesabınız e-mail ünvanınıza dərhal çatdırılsın."} onChange={e => setCmsEditData(d => ({...d, hero: {...d?.hero, subtitle: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold leading-relaxed" /></div>
+                    </div>
+                    <button onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } update(ref(db, 'cms/hero'), cmsEditData?.hero || {}); showNotif("Hero bölməsi yadda saxlandı ✓", "success"); }} className="glow-btn px-8 py-3 sm:py-4 bg-emerald-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition">Yadda Saxla</button>
+                  </div>
+                )}
+                {cmsEditSection === "contact" && (
+                  <div className="glass-card p-6 sm:p-8 rounded-[2rem] border border-indigo-500/20 space-y-5">
+                    <h3 className="text-xs sm:text-sm font-black text-purple-400 uppercase tracking-widest">📞 Əlaqə Səhifəsi</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">WhatsApp URL (wa.me/...)</label><input value={cmsEditData?.contact?.whatsappUrl ?? "https://wa.me/994103136941"} onChange={e => setCmsEditData(d => ({...d, contact: {...d?.contact, whatsappUrl: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                      <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">WhatsApp Nömrəsi (görünən mətn)</label><input value={cmsEditData?.contact?.whatsappDisplay ?? "+994 10 313 69 41"} onChange={e => setCmsEditData(d => ({...d, contact: {...d?.contact, whatsappDisplay: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                      <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">E-poçt Ünvanı</label><input value={cmsEditData?.contact?.email ?? "premiumshopazerbaycan@gmail.com"} onChange={e => setCmsEditData(d => ({...d, contact: {...d?.contact, email: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                      <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Alt Mətn</label><textarea rows={2} value={cmsEditData?.contact?.subtitle ?? "Sualınız var və ya dəstəyə ehtiyacınız var? Bizə yazın, ən qısa zamanda cavablandıraq."} onChange={e => setCmsEditData(d => ({...d, contact: {...d?.contact, subtitle: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold leading-relaxed" /></div>
+                    </div>
+                    <button onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } update(ref(db, 'cms/contact'), cmsEditData?.contact || {}); showNotif("Əlaqə məlumatları yadda saxlandı ✓", "success"); }} className="glow-btn px-8 py-3 sm:py-4 bg-purple-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition">Yadda Saxla</button>
+                  </div>
+                )}
+                {cmsEditSection === "footer" && (
+                  <div className="glass-card p-6 sm:p-8 rounded-[2rem] border border-indigo-500/20 space-y-5">
+                    <h3 className="text-xs sm:text-sm font-black text-pink-400 uppercase tracking-widest">📄 Footer Məzmunu</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Facebook Linki</label><input value={cmsEditData?.footer?.socialFacebook ?? "https://www.facebook.com/premiumshopazerbaycan"} onChange={e => setCmsEditData(d => ({...d, footer: {...d?.footer, socialFacebook: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                      <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Instagram Linki</label><input value={cmsEditData?.footer?.socialInstagram ?? "https://www.instagram.com/premiumshop.az/"} onChange={e => setCmsEditData(d => ({...d, footer: {...d?.footer, socialInstagram: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                      <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Abunə Bölməsi Başlığı</label><input value={cmsEditData?.footer?.subscribeTitle ?? "Abunə Ol"} onChange={e => setCmsEditData(d => ({...d, footer: {...d?.footer, subscribeTitle: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                      <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Abunə Alt Mətni</label><input value={cmsEditData?.footer?.subscribeText ?? "Ən yeni güncəlləmələrdən xəbərdar olmaq üçün abunə ol!"} onChange={e => setCmsEditData(d => ({...d, footer: {...d?.footer, subscribeText: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                      <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Copyright Mətni</label><input value={cmsEditData?.footer?.copyright ?? "Copyright © 2026 Premium Shop, Bütün hüquqlar qorunur."} onChange={e => setCmsEditData(d => ({...d, footer: {...d?.footer, copyright: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                    </div>
+                    <button onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } update(ref(db, 'cms/footer'), cmsEditData?.footer || {}); showNotif("Footer məzmunu yadda saxlandı ✓", "success"); }} className="glow-btn px-8 py-3 sm:py-4 bg-pink-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition">Yadda Saxla</button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── CMS: MENYU PANELI ───────────────────────────────────────────────────── */}
+            {activeAdminTab === "nav" && (
+              <div className="space-y-8 reveal w-full">
+                <h2 className="text-2xl sm:text-3xl font-black text-white">Naviqasiya İdarəetməsi</h2>
+                <div className="glass-card p-6 sm:p-8 rounded-[2rem] border border-indigo-500/20 space-y-5">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div><h3 className="text-xs sm:text-sm font-black text-purple-400 uppercase tracking-widest">🔝 Header Linklər</h3><p className="text-[10px] text-gray-500 mt-1">Mövcud statik linklər qorunur. Buradan əlavə linklər yaradılır.</p></div>
+                    <button onClick={() => setCmsNavEdit({ label: "", page: "", url: "", type: "header" })} className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition hover:bg-indigo-500">+ Əlavə Et</button>
+                  </div>
+                  {(cmsNav.header || []).length === 0 ? (
+                    <p className="text-gray-500 text-sm text-center py-6">Hələ əlavə edilmiş header linki yoxdur.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {(cmsNav.header || []).map(link => (
+                        <div key={link.firebaseKey} className="flex items-center justify-between p-4 bg-[#0c0c1d] rounded-xl border border-indigo-900/30">
+                          <div><span className="font-black text-white text-xs sm:text-sm">{link.label}</span><span className="ml-3 text-[10px] sm:text-xs text-indigo-400">{link.page || link.url}</span></div>
+                          <div className="flex gap-2">
+                            <button onClick={() => setCmsNavEdit({ ...link, type: "header" })} className="px-3 py-1.5 bg-blue-900/40 text-blue-400 rounded-lg font-black text-[9px] sm:text-xs hover:bg-blue-700/50 transition">Redaktə</button>
+                            <button onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } remove(ref(db, `cms_nav/header/${link.firebaseKey}`)); showNotif("Link silindi", "success"); }} className="px-3 py-1.5 bg-red-900/40 text-red-400 rounded-lg font-black text-[9px] sm:text-xs hover:bg-red-800/50 transition">Sil</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="glass-card p-6 sm:p-8 rounded-[2rem] border border-indigo-500/20 space-y-5">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div><h3 className="text-xs sm:text-sm font-black text-pink-400 uppercase tracking-widest">📄 Footer Linklər</h3><p className="text-[10px] text-gray-500 mt-1">Mövcud footer linkləri qorunur. Buradan əlavə linklər yaradılır.</p></div>
+                    <button onClick={() => setCmsNavEdit({ label: "", page: "", url: "", type: "footer" })} className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition hover:bg-indigo-500">+ Əlavə Et</button>
+                  </div>
+                  {(cmsNav.footer || []).length === 0 ? (
+                    <p className="text-gray-500 text-sm text-center py-6">Hələ əlavə edilmiş footer linki yoxdur.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {(cmsNav.footer || []).map(link => (
+                        <div key={link.firebaseKey} className="flex items-center justify-between p-4 bg-[#0c0c1d] rounded-xl border border-indigo-900/30">
+                          <div><span className="font-black text-white text-xs sm:text-sm">{link.label}</span><span className="ml-3 text-[10px] sm:text-xs text-indigo-400">{link.page || link.url}</span></div>
+                          <div className="flex gap-2">
+                            <button onClick={() => setCmsNavEdit({ ...link, type: "footer" })} className="px-3 py-1.5 bg-blue-900/40 text-blue-400 rounded-lg font-black text-[9px] sm:text-xs hover:bg-blue-700/50 transition">Redaktə</button>
+                            <button onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } remove(ref(db, `cms_nav/footer/${link.firebaseKey}`)); showNotif("Link silindi", "success"); }} className="px-3 py-1.5 bg-red-900/40 text-red-400 rounded-lg font-black text-[9px] sm:text-xs hover:bg-red-800/50 transition">Sil</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {cmsNavEdit && (
+                  <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4 z-[99999]">
+                    <div className="glass-card w-full max-w-md rounded-[2rem] p-8 animate-modal relative border border-indigo-500/30">
+                      <button onClick={() => setCmsNavEdit(null)} className="absolute top-5 right-5 w-9 h-9 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white flex items-center justify-center text-lg font-bold">&times;</button>
+                      <h3 className="text-xl sm:text-2xl font-black text-white mb-6">{cmsNavEdit.firebaseKey ? "Linki Redaktə Et" : "Yeni Link Əlavə Et"}</h3>
+                      <div className="space-y-4">
+                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Link Mətni (Label)</label><input value={cmsNavEdit.label} onChange={e => setCmsNavEdit({...cmsNavEdit, label: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: Haqqımızda" /></div>
+                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Daxili Səhifə (page dəyəri)</label><input value={cmsNavEdit.page || ""} onChange={e => setCmsNavEdit({...cmsNavEdit, page: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: about, contact, home" /></div>
+                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Xərici URL (optional)</label><input value={cmsNavEdit.url || ""} onChange={e => setCmsNavEdit({...cmsNavEdit, url: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="https://..." /></div>
+                      </div>
+                      <div className="flex gap-3 mt-6">
+                        <button type="button" onClick={() => setCmsNavEdit(null)} className="flex-1 py-3 sm:py-4 bg-indigo-950/40 text-gray-400 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-indigo-900/60 transition">Ləğv</button>
+                        <button type="button" onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } if (!cmsNavEdit.label.trim()) return showNotif("Label daxil edin", "error"); const navType = cmsNavEdit.type || "header"; const { firebaseKey, type, ...navData } = cmsNavEdit; if (firebaseKey) { update(ref(db, `cms_nav/${navType}/${firebaseKey}`), navData); } else { push(ref(db, `cms_nav/${navType}`), navData); } setCmsNavEdit(null); showNotif("Link yadda saxlandı ✓", "success"); }} className="glow-btn flex-1 py-3 sm:py-4 bg-indigo-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition">Saxla</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── CMS: KATEQORİYALAR PANELI ───────────────────────────────────── */}
+            {activeAdminTab === "cms_cats" && (
+              <div className="space-y-6 reveal w-full">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div><h2 className="text-2xl sm:text-3xl font-black text-white">Kateqoriyalar</h2><p className="text-[10px] text-gray-500 mt-1">Backend kateqoriya idarəetməsi. Frontend aktivasiya edilmədikdə yalnız admin-də görünür.</p></div>
+                  <button onClick={() => setCmsCatEdit({ label: "", icon: "🏷️", id: "" })} className="glow-btn px-6 sm:px-8 py-3 sm:py-4 bg-indigo-600 text-white rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-wider shadow-lg">+ Yeni Kateqoriya</button>
+                </div>
+                <div className="p-4 rounded-xl bg-indigo-950/30 border border-indigo-500/20 text-[10px] sm:text-xs text-indigo-300 font-bold">ℹ️ Sistem kateqoriyaları: <span className="text-white">all · entertainment · ai · design</span> — bunlar standart, silinmir</div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
+                  {(cmsCategories || []).map(cat => (
+                    <div key={cat.firebaseKey} className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-6 border border-indigo-500/20 flex items-center justify-between">
+                      <div className="flex items-center gap-3"><span className="text-2xl sm:text-3xl">{cat.icon}</span><div><div className="font-black text-white text-xs sm:text-sm">{cat.label}</div><div className="text-[9px] sm:text-[10px] text-indigo-400 font-bold mt-0.5">id: {cat.id}</div></div></div>
+                      <div className="flex gap-2">
+                        <button onClick={() => setCmsCatEdit({ ...cat })} className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-blue-900/40 text-blue-400 rounded-lg hover:bg-blue-700/50 hover:text-white transition">✏️</button>
+                        <button onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } remove(ref(db, `cms_categories/${cat.firebaseKey}`)); showNotif("Kateqoriya silindi", "success"); }} className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-red-900/40 text-red-400 rounded-lg hover:bg-red-600 hover:text-white transition">🗑️</button>
+                      </div>
+                    </div>
+                  ))}
+                  {(cmsCategories || []).length === 0 && (<div className="sm:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-12 sm:py-16 text-gray-500 font-bold text-sm sm:text-base">Hələ əlavə edilmiş xüsusi kateqoriya yoxdur.</div>)}
+                </div>
+                {cmsCatEdit && (
+                  <div className="fixed inset-0 bg-[#030308]/85 backdrop-blur-xl flex items-center justify-center p-4 z-[99999]">
+                    <div className="glass-card w-full max-w-md rounded-[2rem] p-8 animate-modal relative border border-indigo-500/30">
+                      <button onClick={() => setCmsCatEdit(null)} className="absolute top-5 right-5 w-9 h-9 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white flex items-center justify-center text-lg font-bold">&times;</button>
+                      <h3 className="text-xl sm:text-2xl font-black text-white mb-6">{cmsCatEdit.firebaseKey ? "Kateqoriyanı Redaktə Et" : "Yeni Kateqoriya"}</h3>
+                      <div className="space-y-4">
+                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Kateqoriya Adı</label><input value={cmsCatEdit.label} onChange={e => setCmsCatEdit({...cmsCatEdit, label: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: Oyun" /></div>
+                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">İkon (emoji)</label><input value={cmsCatEdit.icon} onChange={e => setCmsCatEdit({...cmsCatEdit, icon: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: 🎮" /></div>
+                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">ID (kiçik hərf, boşluqsuz)</label><input value={cmsCatEdit.id} onChange={e => setCmsCatEdit({...cmsCatEdit, id: e.target.value.toLowerCase().replace(/\s+/g,'_')})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: gaming" /></div>
+                      </div>
+                      <div className="flex gap-3 mt-6">
+                        <button type="button" onClick={() => setCmsCatEdit(null)} className="flex-1 py-3 sm:py-4 bg-indigo-950/40 text-gray-400 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-indigo-900/60 transition">Ləğv</button>
+                        <button type="button" onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } if (!cmsCatEdit.label.trim() || !cmsCatEdit.id.trim()) return showNotif("Ad və ID daxil edin", "error"); const { firebaseKey, ...catData } = cmsCatEdit; if (firebaseKey) { update(ref(db, `cms_categories/${firebaseKey}`), catData); showNotif("Kateqoriya yenilendi ✓", "success"); } else { push(ref(db, 'cms_categories'), catData); showNotif("Kateqoriya əlavə edildi ✓", "success"); } setCmsCatEdit(null); }} className="glow-btn flex-1 py-3 sm:py-4 bg-indigo-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition">Saxla</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
           </main>
         )}
       </div>
 
       {}
-      <a href="https://wa.me/994103136941" className="wa-float reveal" target="_blank" rel="noopener noreferrer">
+      <a href={cmsContent?.contact?.whatsappUrl || "https://wa.me/994103136941"} className="wa-float reveal" target="_blank" rel="noopener noreferrer">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
           <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c-.003 1.396.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c.003-3.625 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
         </svg>
@@ -1678,7 +1885,11 @@ export default function App() {
         </div>
       )}
 
-      {}
+      {/* Admin CMS Panels (Mockup placeholders before main footer) */}
+      <div className="hidden">
+         {/* CMS Admin logic would reside here */}
+      </div>
+
       <footer className="bg-[#030308] border-t border-white/5 pt-16 sm:pt-20 pb-6 sm:pb-8 mt-12 sm:mt-24 w-full">
         <div className="max-w-[90rem] mx-auto px-6 sm:px-8">
            
@@ -1688,10 +1899,10 @@ export default function App() {
                  <h2 className="text-3xl font-black text-white tracking-tighter mb-4 uppercase">Premium Shop</h2>
                  <p className="text-xs text-gray-400 font-medium mb-6">Bizi sosial şəbəkələrdə izləyin!</p>
                  <div className="flex gap-3">
-                    <a href="https://www.facebook.com/premiumshopazerbaycan" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition-all hover:scale-110">
+                    <a href={cmsContent?.footer?.socialFacebook || "https://www.facebook.com/premiumshopazerbaycan"} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition-all hover:scale-110">
                       <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/></svg>
                     </a>
-                    <a href="https://www.instagram.com/premiumshop.az/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition-all hover:scale-110">
+                    <a href={cmsContent?.footer?.socialInstagram || "https://www.instagram.com/premiumshop.az/"} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center text-gray-400 hover:text-white hover:border-white transition-all hover:scale-110">
                       <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                     </a>
                  </div>
@@ -1704,6 +1915,9 @@ export default function App() {
                     <li><span onClick={() => setPage("rules")} className="hover:text-indigo-400 cursor-pointer transition">› Qaydalar</span></li>
                     <li><span onClick={() => user ? setPage("dashboard") : setAuthMode("login")} className="hover:text-indigo-400 cursor-pointer transition">› Hesab</span></li>
                     <li><span onClick={() => setIsCartOpen(true)} className="hover:text-indigo-400 cursor-pointer transition">› Səbətim</span></li>
+                    {(cmsNav?.footer || []).map(link => (
+                       <li key={link.firebaseKey}><span onClick={() => link.url ? window.open(link.url, '_blank') : setPage(link.page)} className="hover:text-indigo-400 cursor-pointer transition">› {link.label}</span></li>
+                    ))}
                  </ul>
               </div>
 
@@ -1716,8 +1930,8 @@ export default function App() {
               </div>
 
               <div>
-                 <h3 className="font-bold text-white mb-6 text-sm">Abunə Ol</h3>
-                 <p className="text-xs text-gray-400 font-medium mb-6 leading-relaxed">Ən yeni güncəlləmələrdən xəbərdar olmaq üçün abunə ol!</p>
+                 <h3 className="font-bold text-white mb-6 text-sm">{cmsContent?.footer?.subscribeTitle || "Abunə Ol"}</h3>
+                 <p className="text-xs text-gray-400 font-medium mb-6 leading-relaxed">{cmsContent?.footer?.subscribeText || "Ən yeni güncəlləmələrdən xəbərdar olmaq üçün abunə ol!"}</p>
                  <div className="space-y-3">
                     <input type="text" placeholder="Email daxil et" className="w-full bg-white/5 border border-white/10 rounded-full px-5 py-3.5 text-xs text-white outline-none focus:border-indigo-500 transition" />
                     <div className="flex justify-center">
@@ -1729,7 +1943,7 @@ export default function App() {
            </div>
 
            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] sm:text-xs font-bold text-gray-500">
-              <p>Copyright © 2026 Premium Shop, Bütün hüquqlar qorunur.</p>
+              <p>{cmsContent?.footer?.copyright || "Copyright © 2026 Premium Shop, Bütün hüquqlar qorunur."}</p>
               <div className="flex gap-6">
                  <span onClick={() => setPage("rules")} className="hover:text-white cursor-pointer transition">Qaydalar</span>
                  <span onClick={() => setIsAdminModalOpen(true)} className="hover:text-indigo-400 cursor-pointer transition">Admin</span>
