@@ -681,8 +681,8 @@ export default function App() {
     if (authMode === "login") {
       const emailKey = "login_" + authForm.email.toLowerCase();
 
-      // 🔒 Rate limiting: max 5 attempts per 15 minutes per email
-      const rl = rateLimiter.check(emailKey, 5, 15 * 60 * 1000);
+      // 🔒 Rate limiting: max 5 attempts per 1 minute per email
+      const rl = rateLimiter.check(emailKey, 5, 60 * 1000);
       if (!rl.allowed) {
         const mins = Math.ceil(rl.resetIn / 60000);
         return showNotif(`Çox sayda uğursuz cəhd. ${mins} dəqiqə sonra yenidən cəhd edin.`, "error");
@@ -720,10 +720,10 @@ export default function App() {
       // 🔒 Check duplicate email
       if (registeredUsers.find(u => u.email === authForm.email)) return showNotif("Bu e-poçt artıq mövcuddur!", "error");
 
-      // 🔒 Rate limit OTP sends: 3 per hour per email
+      // 🔒 Rate limit OTP sends: 3 per 1 minute per email
       const otpKey = "otp_" + authForm.email.toLowerCase();
-      const rl = rateLimiter.check(otpKey, 3, 60 * 60 * 1000);
-      if (!rl.allowed) return showNotif("OTP göndərmə limiti aşıldı. 1 saat sonra yenidən cəhd edin.", "error");
+      const rl = rateLimiter.check(otpKey, 3, 60 * 1000);
+      if (!rl.allowed) return showNotif("OTP göndərmə limiti aşıldı. 1 dəqiqə sonra yenidən cəhd edin.", "error");
 
       // 🔒 Crypto-secure OTP via otpManager
       const generatedCode = otpManager.generate("register_" + authForm.email);
@@ -756,8 +756,8 @@ export default function App() {
 
       // 🔒 Rate limit: same limit as register OTP
       const otpKey = "otp_forgot_" + authForm.email.toLowerCase();
-      const rl = rateLimiter.check(otpKey, 3, 60 * 60 * 1000);
-      if (!rl.allowed) return showNotif("OTP göndərmə limiti aşıldı. 1 saat sonra yenidən cəhd edin.", "error");
+      const rl = rateLimiter.check(otpKey, 3, 60 * 1000);
+      if (!rl.allowed) return showNotif("OTP göndərmə limiti aşıldı. 1 dəqiqə sonra yenidən cəhd edin.", "error");
 
       const existingUser = registeredUsers.find(u => u.email === authForm.email);
       // 🔒 Always send "success" response to prevent email enumeration
@@ -853,10 +853,10 @@ export default function App() {
   const handleAdminLogin = async (e) => {
     e.preventDefault();
 
-    // 🔒 Rate limit: 5 attempts per 30 minutes
-    const rl = rateLimiter.check("admin_login", 5, 30 * 60 * 1000);
+    // 🔒 Rate limit: 5 attempts per 1 minute
+    const rl = rateLimiter.check("admin_login", 5, 60 * 1000);
     if (!rl.allowed) {
-      const mins = Math.ceil(rl.remaining / 60000);
+      const mins = Math.ceil(rl.resetIn / 60000);
       return showNotif(`Admin paneli müvəqqəti bloklandı. ${mins} dəqiqə sonra yenidən cəhd edin.`, "error");
     }
 
