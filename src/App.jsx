@@ -502,6 +502,29 @@ export default function App() {
   const [cmsNavEdit, setCmsNavEdit] = useState(null);
   const [cmsCatEdit, setCmsCatEdit] = useState(null);
   // ──────────────────────────────────────────────────────────────────────────
+  const [lockoutTimers, setLockoutTimers] = useState({});
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      try {
+        const store = JSON.parse(localStorage.getItem("ps_rl")) || {};
+        const now = Date.now();
+        const newTimers = {};
+        let hasTimers = false;
+        Object.keys(store).forEach(key => {
+          const rec = store[key];
+          if (rec.blockedUntil && rec.blockedUntil > now) {
+            newTimers[key] = Math.ceil((rec.blockedUntil - now) / 1000);
+            hasTimers = true;
+          }
+        });
+        setLockoutTimers(hasTimers ? newTimers : {});
+      } catch (e) {
+        setLockoutTimers({});
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"; document.head.appendChild(link);
@@ -1620,7 +1643,14 @@ export default function App() {
                   <div className="text-right">
                      <span onClick={() => setAuthMode("forgot")} className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 cursor-pointer hover:text-indigo-300">Şifrəni unutmusunuz?</span>
                   </div>
-                  <button type="submit" className="glow-btn w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-indigo-600 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest">Giriş Et</button>
+                  {lockoutTimers["login_" + (authForm.email || "").toLowerCase()] > 0 && (
+                    <div className="p-3 sm:p-4 rounded-xl bg-red-950/40 border border-red-500/30 text-red-400 text-xs font-black text-center uppercase tracking-wider animate-pulse mb-3">
+                      🚨 Giriş məhdudlaşdırılıb! {lockoutTimers["login_" + (authForm.email || "").toLowerCase()]} saniyə qaldı
+                    </div>
+                  )}
+                  <button type="submit" disabled={lockoutTimers["login_" + (authForm.email || "").toLowerCase()] > 0} className={`glow-btn w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-indigo-600 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest ${lockoutTimers["login_" + (authForm.email || "").toLowerCase()] > 0 ? "opacity-50 cursor-not-allowed" : ""}`}>
+                    {lockoutTimers["login_" + (authForm.email || "").toLowerCase()] > 0 ? `Gözləyin (${lockoutTimers["login_" + (authForm.email || "").toLowerCase()]}s)` : "Giriş Et"}
+                  </button>
                 </form>
                 <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-indigo-950/50 text-center">
                   <p className="text-[10px] sm:text-xs font-black text-gray-500">Hesabınız yoxdur? <span onClick={() => setAuthMode("register")} className="text-indigo-400 cursor-pointer hover:text-indigo-300">İndi Yarat</span></p>
@@ -1638,8 +1668,13 @@ export default function App() {
                   <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">E-poçt</label><input type="email" value={authForm.email} onChange={(e) => setAuthForm({...authForm, email: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
                   <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">Şifrə təyin edin</label><input type="password" value={authForm.pass} onChange={(e) => setAuthForm({...authForm, pass: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
                   
-                  <button type="submit" disabled={isEmailSending} className="glow-btn w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-indigo-600 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest flex justify-center items-center gap-2 sm:gap-3 transition">
-                    {isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Kodu Göndər 📩"}
+                  {lockoutTimers["otp_" + (authForm.email || "").toLowerCase()] > 0 && (
+                    <div className="p-3 sm:p-4 rounded-xl bg-red-950/40 border border-red-500/30 text-red-400 text-xs font-black text-center uppercase tracking-wider animate-pulse mb-3">
+                      🚨 Qeydiyyat məhdudlaşdırılıb! {lockoutTimers["otp_" + (authForm.email || "").toLowerCase()]} saniyə qaldı
+                    </div>
+                  )}
+                  <button type="submit" disabled={isEmailSending || lockoutTimers["otp_" + (authForm.email || "").toLowerCase()] > 0} className={`glow-btn w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-indigo-600 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest flex justify-center items-center gap-2 sm:gap-3 transition ${lockoutTimers["otp_" + (authForm.email || "").toLowerCase()] > 0 ? "opacity-50 cursor-not-allowed" : ""}`}>
+                    {lockoutTimers["otp_" + (authForm.email || "").toLowerCase()] > 0 ? `Gözləyin (${lockoutTimers["otp_" + (authForm.email || "").toLowerCase()]}s)` : (isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Kodu Göndər 📩")}
                   </button>
                 </form>
                 <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-indigo-950/50 text-center">
@@ -1652,8 +1687,13 @@ export default function App() {
                 <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 sm:mb-8">Hesabınızın e-poçtunu yazın.</p>
                 <form onSubmit={handleUserAuth} className="space-y-4 sm:space-y-5">
                   <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">E-poçt Ünvanı</label><input type="email" value={authForm.email} onChange={(e) => setAuthForm({...authForm, email: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
-                  <button type="submit" disabled={isEmailSending} className="glow-btn w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-indigo-600 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest flex justify-center items-center gap-2 sm:gap-3 transition">
-                    {isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Kodu Göndər 📩"}
+                  {lockoutTimers["otp_forgot_" + (authForm.email || "").toLowerCase()] > 0 && (
+                    <div className="p-3 sm:p-4 rounded-xl bg-red-950/40 border border-red-500/30 text-red-400 text-xs font-black text-center uppercase tracking-wider animate-pulse mb-3">
+                      🚨 Limit aşıldı! {lockoutTimers["otp_forgot_" + (authForm.email || "").toLowerCase()]} saniyə qaldı
+                    </div>
+                  )}
+                  <button type="submit" disabled={isEmailSending || lockoutTimers["otp_forgot_" + (authForm.email || "").toLowerCase()] > 0} className={`glow-btn w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-indigo-600 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest flex justify-center items-center gap-2 sm:gap-3 transition ${lockoutTimers["otp_forgot_" + (authForm.email || "").toLowerCase()] > 0 ? "opacity-50 cursor-not-allowed" : ""}`}>
+                    {lockoutTimers["otp_forgot_" + (authForm.email || "").toLowerCase()] > 0 ? `Gözləyin (${lockoutTimers["otp_forgot_" + (authForm.email || "").toLowerCase()]}s)` : (isEmailSending ? <><div className="spinner"></div> İşlənir...</> : "Kodu Göndər 📩")}
                   </button>
                 </form>
                 <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-indigo-950/50 text-center">
@@ -1695,7 +1735,14 @@ export default function App() {
             <form onSubmit={handleAdminLogin} className="space-y-4 sm:space-y-5">
               <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">İstifadəçi Adı</label><input type="text" value={adminUsername} onChange={(e) => setAdminUsername(e.target.value)} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
               <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 sm:mb-2">Şifrə</label><input type="password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" required /></div>
-              <button type="submit" className="w-full py-3.5 sm:py-4 mt-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.4)] transition">Sistemə Giriş</button>
+              {lockoutTimers["admin_login"] > 0 && (
+                <div className="p-3 sm:p-4 rounded-xl bg-red-950/40 border border-red-500/30 text-red-400 text-xs font-black text-center uppercase tracking-wider animate-pulse mb-3">
+                  🚨 Admin girişi məhdudlaşdırılıb! {lockoutTimers["admin_login"]} saniyə qaldı
+                </div>
+              )}
+              <button type="submit" disabled={lockoutTimers["admin_login"] > 0} className={`w-full py-3.5 sm:py-4 mt-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest shadow-[0_0_20px_rgba(220,38,38,0.4)] transition ${lockoutTimers["admin_login"] > 0 ? "opacity-50 cursor-not-allowed" : ""}`}>
+                {lockoutTimers["admin_login"] > 0 ? `Gözləyin (${lockoutTimers["admin_login"]}s)` : "Sistemə Giriş"}
+              </button>
             </form>
           </div>
         </div>
