@@ -1440,8 +1440,12 @@ export default function App() {
       </a>
 
       {isCartOpen && (
-        <div className="fixed inset-0 bg-[#030308]/80 backdrop-blur-sm flex justify-end z-[99999]">
-          <div className="glass-card w-full sm:w-80 md:max-w-md h-full flex flex-col justify-between drawer-open rounded-none border-y-0 border-r-0 border-l border-indigo-500/30 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
+        <div
+          className="fixed inset-0 flex justify-end"
+          style={{ zIndex: 99990, background: 'rgba(3,3,8,0.82)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) setIsCartOpen(false); }}
+        >
+          <div className="glass-card w-full sm:w-80 md:max-w-md h-full flex flex-col justify-between drawer-open rounded-none border-y-0 border-r-0 border-l border-indigo-500/30 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]" style={{ zIndex: 99991, position: 'relative' }}>
             <div className="p-6 sm:p-8 pb-4 h-full flex flex-col">
               <div className="flex justify-between items-center pb-5 sm:pb-6 border-b border-indigo-900/50 mb-5 sm:mb-6">
                 <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2 sm:gap-3">
@@ -1451,9 +1455,14 @@ export default function App() {
               </div>
               
               {(cart || []).length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4 sm:space-y-6">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#0c0c1d] rounded-full flex items-center justify-center border border-indigo-900/50 text-indigo-500"><Icons.Cart /></div>
-                  <p className="text-gray-400 font-black uppercase tracking-widest text-[10px] sm:text-xs">Səbətiniz boşdur</p>
+                <div className="flex-1 flex flex-col items-center justify-center text-center space-y-5 sm:space-y-7">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 bg-[#0c0c1d] rounded-full flex items-center justify-center border border-indigo-900/50 mx-auto" style={{ color: '#6366f1' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                  </div>
+                  <div>
+                    <p className="text-white font-black uppercase tracking-widest text-xs sm:text-sm mb-1">Səbətiniz boşdur</p>
+                    <p className="text-gray-500 font-medium text-[10px] sm:text-xs">Məhsul əlavə etmək üçün kataloqa keçin</p>
+                  </div>
                 </div>
               ) : (
                 <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 pr-1 sm:pr-2 no-scrollbar">
@@ -1711,7 +1720,9 @@ export default function App() {
                  <p className="text-xs text-gray-400 font-medium mb-6 leading-relaxed">Ən yeni güncəlləmələrdən xəbərdar olmaq üçün abunə ol!</p>
                  <div className="space-y-3">
                     <input type="text" placeholder="Email daxil et" className="w-full bg-white/5 border border-white/10 rounded-full px-5 py-3.5 text-xs text-white outline-none focus:border-indigo-500 transition" />
-                    <button onClick={() => setAuthMode("register")} className="glow-btn w-full py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-widest shadow-lg transition transform hover:-translate-y-1">ABUNƏ OL</button>
+                    <div className="flex justify-center">
+                      <button onClick={() => setAuthMode("register")} className="glow-btn w-full py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-widest shadow-lg transition transform hover:-translate-y-1">ABUNƏ OL</button>
+                    </div>
                  </div>
               </div>
 
