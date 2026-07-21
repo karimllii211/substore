@@ -77,8 +77,8 @@ const rateLimiter = (() => {
       rec.attempts = rec.attempts.filter((t) => now - t < windowMs);
 
       if (rec.attempts.length >= maxAttempts) {
-        // Fixed 1 minute block, no IP ban.
-        const lockMs = 60 * 1000;
+        // Fixed 120 second block (2 minutes), no IP ban.
+        const lockMs = 120 * 1000;
         rec.blockedUntil = now + lockMs;
         store[key] = rec;
         save(store);
@@ -421,8 +421,6 @@ const CARD_ACCOUNTS = [
 ];
 
 const CATEGORIES = [
-  { id: "all", label: "Bütün Abunəliklər", icon: "🌐" },
-  { id: "entertainment", label: "Əyləncə", icon: "🎬" },
   { id: "ai", label: "Süni İntellekt", icon: "🤖" },
   { id: "design", label: "Dizayn", icon: "🎨" }
 ];
@@ -896,9 +894,9 @@ export default function App() {
       rateLimiter.record("admin_login");
       const remaining = rl.remaining - 1;
       if (remaining > 0) {
-        showNotif(`Səhv Məlumat! (${remaining} cəhd qalır)`, "error");
+        showNotif(`ܠśəhv Məlumat! Uğursuz cəhd — ${remaining} cəhd qalır`, "error");
       } else {
-        showNotif("Admin paneli bloklandı.", "error");
+        showNotif("ܠśəhv Məlumat! Uğursuz cəhd — 5 cəhd bitdi. 120 saniyəlik bloklama başladı.", "error");
       }
     }
   };
@@ -1109,7 +1107,7 @@ export default function App() {
             <div className="mb-6 sm:mb-12 space-y-3 sm:space-y-6">
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Kataloq</h1>
               <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-4 no-scrollbar w-full">
-                {CATEGORIES.map(cat => (
+                {[...CATEGORIES, ...(cmsCategories || []).map(c => ({ id: c.id, label: c.label, icon: c.icon }))].map(cat => (
                   <button key={cat.id} onClick={() => setSelectedCat(cat.id)} className={`px-4 sm:px-6 py-2 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all duration-300 flex items-center gap-2 sm:gap-3 ${selectedCat === cat.id ? "bg-indigo-600 text-white shadow-[0_10px_25px_rgba(99,102,241,0.5)] transform scale-105" : "bg-indigo-950/30 border border-indigo-900/50 text-gray-400 hover:bg-indigo-900/40 hover:text-white"}`}>
                     <span className="text-sm sm:text-lg">{cat.icon}</span> {cat.label}
                   </button>
@@ -1429,6 +1427,7 @@ export default function App() {
               <button onClick={() => setActiveAdminTab("orders")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "orders" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Sifarişlər ({(orders || []).length})</button>
               <button onClick={() => setActiveAdminTab("products")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "products" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>Məhsullar ({(products || []).length})</button>
               <button onClick={() => setActiveAdminTab("content")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "content" ? "bg-emerald-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>📝 Məzmun</button>
+              <button onClick={() => setActiveAdminTab("cats")} className={`px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${activeAdminTab === "cats" ? "bg-pink-600 text-white shadow-lg" : "text-gray-400 hover:bg-indigo-950/50"}`}>🏷️ Kateqoriyalar</button>
             </div>
 
             {activeAdminTab === "orders" && (
@@ -1543,6 +1542,70 @@ export default function App() {
                       <div className="md:col-span-2"><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Copyright Mətni</label><input value={cmsEditData?.footer?.copyright ?? "Copyright © 2026 Premium Shop, Bütün hüquqlar qorunur."} onChange={e => setCmsEditData(d => ({...d, footer: {...d?.footer, copyright: e.target.value}}))} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" /></div>
                     </div>
                     <button onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } update(ref(db, 'cms/footer'), cmsEditData?.footer || {}); showNotif("Footer məzmunu yadda saxlandı ✓", "success"); }} className="glow-btn px-8 py-3 sm:py-4 bg-pink-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition">Yadda Saxla</button>
+                  </div>
+                )}
+              </div>
+            )}
+            {activeAdminTab === "cats" && (
+              <div className="space-y-6 reveal w-full">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white">Kateqoriyalar</h2>
+                    <p className="text-[10px] text-gray-500 mt-1">Kataloqda görünən kateqoriyaları idarə edin.</p>
+                  </div>
+                  <button onClick={() => setCmsCatEdit({ label: "", icon: "🏷️", id: "" })} className="glow-btn px-6 sm:px-8 py-3 sm:py-4 bg-pink-600 text-white rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-wider shadow-lg">+ Yeni Kateqoriya</button>
+                </div>
+                <div className="p-4 rounded-xl bg-indigo-950/30 border border-indigo-500/20 text-[10px] sm:text-xs text-indigo-300 font-bold">ℹ️ Standart kateqoriyalar: <span className="text-white">all · entertainment · ai · design</span> — bunlar silinmir, yalnız əlavə kateqoriyalar silinə bilər.</div>
+                {/* Default categories display */}
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {CATEGORIES.filter(c => c.id !== "all").map(cat => (
+                    <div key={cat.id} className="glass-card rounded-[1.5rem] p-4 sm:p-5 border border-indigo-500/20 flex items-center justify-between opacity-60">
+                      <div className="flex items-center gap-3"><span className="text-2xl">{cat.icon}</span><div><div className="font-black text-white text-xs sm:text-sm">{cat.label}</div><div className="text-[9px] text-indigo-400 font-bold mt-0.5">id: {cat.id} · Standart</div></div></div>
+                      <span className="text-[9px] px-2 py-1 bg-indigo-950/50 text-indigo-400 rounded-lg font-black uppercase">Qorunur</span>
+                    </div>
+                  ))}
+                  {/* CMS-added categories */}
+                  {(cmsCategories || []).map(cat => (
+                    <div key={cat.firebaseKey} className="glass-card rounded-[1.5rem] p-4 sm:p-5 border border-pink-500/20 flex items-center justify-between">
+                      <div className="flex items-center gap-3"><span className="text-2xl">{cat.icon}</span><div><div className="font-black text-white text-xs sm:text-sm">{cat.label}</div><div className="text-[9px] text-pink-400 font-bold mt-0.5">id: {cat.id}</div></div></div>
+                      <div className="flex gap-2">
+                        <button onClick={() => setCmsCatEdit({ ...cat })} className="w-8 h-8 flex items-center justify-center bg-blue-900/40 text-blue-400 rounded-lg hover:bg-blue-700/50 hover:text-white transition">✏️</button>
+                        <button onClick={() => { if (!adminSession.load()) { handleAdminLogout(); return; } remove(ref(db, `cms_categories/${cat.firebaseKey}`)); showNotif("Kateqoriya silindi", "success"); }} className="w-8 h-8 flex items-center justify-center bg-red-900/40 text-red-400 rounded-lg hover:bg-red-600 hover:text-white transition">🗑️</button>
+                      </div>
+                    </div>
+                  ))}
+                  {(cmsCategories || []).length === 0 && (
+                    <div className="sm:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-8 text-gray-500 font-bold text-sm">Hələ əlavə edilmiş xüsusi kateqoriya yoxdur.</div>
+                  )}
+                </div>
+                {cmsCatEdit && (
+                  <div className="fixed inset-0 flex items-center justify-center p-4 z-[99999]" style={{ backgroundColor: '#030308', zIndex: 99999 }}>
+                    <div className="glass-card w-full max-w-md rounded-[2rem] p-8 animate-modal relative border border-pink-500/30">
+                      <button onClick={() => setCmsCatEdit(null)} className="absolute top-5 right-5 w-9 h-9 rounded-full bg-indigo-950/50 text-gray-400 hover:text-white flex items-center justify-center text-lg font-bold">&times;</button>
+                      <h3 className="text-xl sm:text-2xl font-black text-white mb-6">{cmsCatEdit.firebaseKey ? "Kateqoriyanı Redaktə Et" : "Yeni Kateqoriya"}</h3>
+                      <div className="space-y-4">
+                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Kateqoriya Adı (label)</label><input value={cmsCatEdit.label} onChange={e => setCmsCatEdit({...cmsCatEdit, label: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: Oyun" /></div>
+                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">İkon (emoji)</label><input value={cmsCatEdit.icon} onChange={e => setCmsCatEdit({...cmsCatEdit, icon: e.target.value})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: 🎮" /></div>
+                        <div><label className="block text-[9px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">ID (kiçik hərf, boşluqsuz)</label><input value={cmsCatEdit.id} onChange={e => setCmsCatEdit({...cmsCatEdit, id: e.target.value.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'')})} className="w-full p-3 rounded-xl text-xs sm:text-sm font-bold" placeholder="Məs: gaming" /></div>
+                      </div>
+                      <div className="flex gap-3 mt-6">
+                        <button type="button" onClick={() => setCmsCatEdit(null)} className="flex-1 py-3 bg-indigo-950/40 text-gray-400 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-indigo-900/60 transition">Ləğv</button>
+                        <button type="button" onClick={() => {
+                          if (!adminSession.load()) { handleAdminLogout(); return; }
+                          if (!cmsCatEdit.label.trim() || !cmsCatEdit.id.trim()) return showNotif("Ad və ID daxil edin", "error");
+                          if (CATEGORIES.find(c => c.id === cmsCatEdit.id)) return showNotif("Bu ID artıq standart kateqoriyada var", "error");
+                          const { firebaseKey, ...catData } = cmsCatEdit;
+                          if (firebaseKey) {
+                            update(ref(db, `cms_categories/${firebaseKey}`), catData);
+                            showNotif("Kateqoriya yenilendi ✓", "success");
+                          } else {
+                            push(ref(db, 'cms_categories'), catData);
+                            showNotif("Kateqoriya əlavə edildi ✓", "success");
+                          }
+                          setCmsCatEdit(null);
+                        }} className="glow-btn flex-1 py-3 bg-pink-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg transition">Saxla</button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1793,8 +1856,19 @@ export default function App() {
                 <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1 sm:mb-2">Hesab Növü</label><input type="text" placeholder="Məs: Ortaq Hesab" value={editingProduct.accountType || ''} onChange={(e) => setEditingProduct({...editingProduct, accountType: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" /></div>
                 <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-yellow-400 mb-1 sm:mb-2">Reytinq (Ulduz)</label><input type="text" placeholder="Məs: 4.9" value={editingProduct.rating || ''} onChange={(e) => setEditingProduct({...editingProduct, rating: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" /></div>
                 <div><label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-pink-400 mb-1 sm:mb-2">Satış Sayı</label><input type="text" placeholder="Məs: 12.5k" value={editingProduct.sales || ''} onChange={(e) => setEditingProduct({...editingProduct, sales: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold" /></div>
+                <div>
+                  <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Kateqoriya</label>
+                  <select value={editingProduct.cat || 'entertainment'} onChange={(e) => setEditingProduct({...editingProduct, cat: e.target.value})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold">
+                    {CATEGORIES.filter(c => c.id !== 'all').map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.icon} {cat.label}</option>
+                    ))}
+                    {(cmsCategories || []).map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.icon} {cat.label}</option>
+                    ))}
+                  </select>
+                </div>
                 <div className="md:col-span-3">
-                  <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Geniş Xüsusiyyətləri (Hər sətirə 1 ədəd yazın)</label>
+                  <label className="block text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1 sm:mb-2">Məhsulun Geniş Xüsüsiyyətləri (Hər sətirə 1 ədəd yazın)</label>
                   <textarea rows="3" value={(editingProduct.features || []).join('\n')} onChange={(e) => setEditingProduct({...editingProduct, features: e.target.value.split('\n')})} className="w-full p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-bold leading-relaxed" placeholder="4K Ultra HD&#10;7/24 Dəstək"></textarea>
                 </div>
               </div>
