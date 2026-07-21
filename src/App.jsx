@@ -390,6 +390,285 @@ const CSS = `
 
   .wa-float { position: fixed; width: 60px; height: 60px; bottom: 30px; left: 30px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; box-shadow: 0px 4px 15px rgba(37, 211, 102, 0.4); z-index: 1000; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
   .wa-float:hover { transform: scale(1.1); }
+
+  /* ── AppBazar-inspired Premium Product Card System ─────────────────────── */
+  .prod-card {
+    position: relative;
+    background: linear-gradient(145deg, rgba(13,13,26,0.97) 0%, rgba(8,8,18,0.99) 100%);
+    border: 1px solid rgba(99,102,241,0.13);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.04);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+  .prod-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.38s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .prod-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(99,102,241,0.38);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.55), 0 0 0 1px rgba(99,102,241,0.18), inset 0 1px 0 rgba(255,255,255,0.07);
+  }
+  .prod-card:hover::before { opacity: 1; }
+
+  /* Thumbnail area — AppBazar style: subtle bg, logo centered */
+  .prod-thumb {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(12,12,28,0.95);
+    border-bottom: 1px solid rgba(99,102,241,0.1);
+    overflow: hidden;
+    z-index: 1;
+    transition: background 0.3s ease;
+    flex-shrink: 0;
+  }
+  @media (min-width: 640px) { .prod-thumb { height: 160px; } }
+  .prod-thumb::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(99,102,241,0.07) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .prod-card:hover .prod-thumb::after { opacity: 1; }
+
+  .prod-logo-wrap {
+    width: 72px; height: 72px;
+    border-radius: 18px;
+    background: rgba(6,6,16,0.9);
+    border: 1px solid rgba(255,255,255,0.09);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    transition: all 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative; z-index: 1;
+    flex-shrink: 0;
+  }
+  @media (min-width: 640px) { .prod-logo-wrap { width: 84px; height: 84px; border-radius: 22px; } }
+  .prod-card:hover .prod-logo-wrap {
+    transform: scale(1.08);
+    border-color: rgba(255,255,255,0.18);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.65);
+  }
+
+  /* Content area */
+  .prod-content {
+    padding: 16px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+  @media (min-width: 640px) { .prod-content { padding: 18px 18px 16px; } }
+
+  .prod-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: #f1f5f9;
+    line-height: 1.25;
+    margin-bottom: 5px;
+    letter-spacing: -0.01em;
+    transition: color 0.2s ease;
+  }
+  @media (min-width: 640px) { .prod-name { font-size: 17px; margin-bottom: 6px; } }
+  .prod-card:hover .prod-name { color: #ffffff; }
+
+  .prod-desc {
+    font-size: 10px;
+    color: #64748b;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  @media (min-width: 640px) { .prod-desc { font-size: 11px; margin-bottom: 14px; } }
+
+  .prod-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .prod-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 6px;
+    letter-spacing: 0.03em;
+  }
+  .prod-badge--rating {
+    background: rgba(234,179,8,0.12);
+    border: 1px solid rgba(234,179,8,0.22);
+    color: #fbbf24;
+  }
+  .prod-badge--sales {
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.2);
+    color: #34d399;
+  }
+  @media (min-width: 640px) { .prod-badge { font-size: 10px; padding: 3px 8px; } }
+
+  .prod-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .prod-price {
+    font-size: 13px;
+    font-weight: 800;
+    color: #a5b4fc;
+    letter-spacing: -0.01em;
+  }
+  .prod-price span { color: #6366f1; }
+  @media (min-width: 640px) { .prod-price { font-size: 14px; } }
+
+  .prod-btn {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    margin-top: auto;
+  }
+  @media (min-width: 640px) { .prod-btn { padding: 11px 18px; font-size: 11px; border-radius: 14px; } }
+  .prod-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.28s ease;
+  }
+  .prod-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(0,0,0,0.4); }
+  .prod-btn:hover::after { background: rgba(255,255,255,0.1); }
+  .prod-btn:active { transform: translateY(0); }
+
+  /* Popular badge ribbon */
+  .prod-popular-badge {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 3;
+    box-shadow: 0 2px 8px rgba(239,68,68,0.4);
+  }
+  @media (min-width: 640px) { .prod-popular-badge { font-size: 9px; padding: 3px 9px; top: 14px; right: 14px; } }
+
+  /* Color accent line at top of card */
+  .prod-accent-line {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.38s ease;
+    z-index: 2;
+  }
+  .prod-card:hover .prod-accent-line { opacity: 1; }
+
+  /* Category filter buttons — AppBazar pill style */
+  .cat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @media (min-width: 640px) { .cat-pill { font-size: 11px; padding: 10px 20px; gap: 7px; } }
+  .cat-pill--inactive {
+    background: rgba(15,15,35,0.8);
+    border-color: rgba(99,102,241,0.18);
+    color: #94a3b8;
+  }
+  .cat-pill--inactive:hover {
+    background: rgba(30,27,75,0.8);
+    border-color: rgba(99,102,241,0.4);
+    color: #e2e8f0;
+    transform: translateY(-1px);
+  }
+  .cat-pill--active {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    border-color: rgba(99,102,241,0.5);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+    transform: scale(1.04);
+  }
+
+  /* Stat trust-badge chips (hero + how-it-works sections) */
+  .trust-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(13,13,28,0.9);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 12px; font-weight: 700; color: #e2e8f0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+  }
+  .trust-chip:hover { border-color: rgba(99,102,241,0.45); transform: translateY(-2px); }
+
+  /* Section headings */
+  .section-label {
+    font-size: 10px; font-weight: 900; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #6366f1;
+    margin-bottom: 8px;
+  }
+  @media (min-width: 640px) { .section-label { font-size: 11px; } }
+
+  /* Shimmer loading skeleton */
+  @keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+  .skeleton {
+    background: linear-gradient(90deg, rgba(30,27,75,0.4) 25%, rgba(50,47,100,0.5) 50%, rgba(30,27,75,0.4) 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.6s infinite;
+    border-radius: 12px;
+  }
 `;
 
 const DEFAULT_PRODUCTS = [
@@ -1108,29 +1387,50 @@ export default function App() {
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Kataloq</h1>
               <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-4 no-scrollbar w-full">
                 {[...CATEGORIES, ...(cmsCategories || []).map(c => ({ id: c.id, label: c.label, icon: c.icon }))].map(cat => (
-                  <button key={cat.id} onClick={() => setSelectedCat(cat.id)} className={`px-4 sm:px-6 py-2 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all duration-300 flex items-center gap-2 sm:gap-3 ${selectedCat === cat.id ? "bg-indigo-600 text-white shadow-[0_10px_25px_rgba(99,102,241,0.5)] transform scale-105" : "bg-indigo-950/30 border border-indigo-900/50 text-gray-400 hover:bg-indigo-900/40 hover:text-white"}`}>
-                    <span className="text-sm sm:text-lg">{cat.icon}</span> {cat.label}
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCat(cat.id)}
+                    className={`cat-pill ${selectedCat === cat.id ? 'cat-pill--active' : 'cat-pill--inactive'}`}
+                  >
+                    <span style={{ fontSize: '14px' }}>{cat.icon}</span> {cat.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-              {products.filter(p => selectedCat === "all" || p.cat === selectedCat).map((product, index) => (
-                <div key={product.id} onClick={() => openProductDetail(product)} className="reveal cursor-pointer glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between relative overflow-hidden group">
-                  <div>
-                    <div className="flex items-center justify-between mb-4 sm:mb-6">
-                      <div className="p-2 sm:p-3 bg-[#0c0c1d] rounded-xl sm:rounded-2xl border border-white/10 shadow-lg">{getOfficialLogo(product.name, product.emoji, product.color, product.customLogo)}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+              {products.filter(p => selectedCat === "all" || p.cat === selectedCat).map((product) => (
+                <div key={product.id} className="prod-card reveal" onClick={() => openProductDetail(product)}>
+                  <div className="prod-accent-line" style={{ background: `linear-gradient(90deg, ${product.color}, ${product.color}55)` }} />
+                  {product.popular && <span className="prod-popular-badge">🔥 Populyar</span>}
+                  <div className="prod-thumb">
+                    <div className="prod-logo-wrap">
+                      {getOfficialLogo(product.name, product.emoji, product.color, product.customLogo)}
                     </div>
-                    <h3 className="text-base sm:text-2xl font-black text-white mb-1 sm:mb-2">{product.name}</h3>
-                    <p className="text-[9px] sm:text-xs text-gray-400 font-medium leading-relaxed mb-4 sm:mb-6">{product.desc}</p>
                   </div>
-                  <button className="w-full py-2.5 sm:py-3.5 rounded-xl font-black text-[8px] sm:text-xs uppercase tracking-widest text-white transition-all duration-300 shadow-md hover:shadow-xl hover:scale-[1.02]" style={{ backgroundColor: product.color }}>Ətraflı Bax</button>
+                  <div className="prod-content">
+                    <div className="prod-name">{product.name}</div>
+                    <div className="prod-desc">{product.desc}</div>
+                    <div className="prod-meta">
+                      <span className="prod-badge prod-badge--rating">⭐ {product.rating || "5.0"}</span>
+                      <span className="prod-badge prod-badge--sales">🔥 {product.sales || "1k+"} satış</span>
+                    </div>
+                    <div className="prod-price-row">
+                      <div className="prod-price">
+                        <span>{product.packages?.[0]?.price ?? "—"} AZN</span>
+                        <span style={{ color: '#64748b', fontWeight: 500, fontSize: '10px', marginLeft: '4px' }}>-dən</span>
+                      </div>
+                    </div>
+                    <button className="prod-btn" style={{ backgroundColor: product.color }}>
+                      Ətraflı Bax →
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           </main>
         )}
+
 
         {}
         {page === "product_detail" && viewedProduct && (
