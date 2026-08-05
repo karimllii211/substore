@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="az">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Premium Shop — Rəqəmsal Abunəliklər</title>
+    <meta name="description" content="Azərbaycanda ən etibarlı rəqəmsal abunəlik platforması. Netflix, Spotify, ChatGPT Plus və daha çox." />
+    <meta name="theme-color" content="#030308" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/Premium.png" />
+
+    <!-- ⚡ Preconnect: eliminates DNS + TCP handshake latency for critical origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://premiumshop-5c568-default-rtdb.firebaseio.com" />
+
+    <!-- 🎨 Font: loaded here (not in useEffect) so it arrives before first paint -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" />
+
+    <!-- 🧵 Tailwind: moved from runtime useEffect to <head> to prevent layout shift -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
+
+    <!--
+      ❌ FOUC PREVENTION BLOCK
+      This inline <style> runs synchronously before any JS executes.
+      It locks the background to #030308 (dark) and hides body content
+      until React has fully mounted, preventing white flash on first paint.
+    -->
+    <style>
+      /* 1. Lock dark background BEFORE React mounts */
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { background: #030308; color-scheme: dark; }
+      body {
+        background: #030308;
+        color: #f8fafc;
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        overflow-x: hidden;
+        /* Prevent layout shift from scrollbar appearing/disappearing */
+        scrollbar-gutter: stable;
+      }
+
+      /* 2. Root div: invisible until React hydrates (opacity trick — no layout shift) */
+      #root {
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        min-height: 100dvh;
+        background: #030308;
+      }
+      #root.mounted { opacity: 1; }
+
+      /* 3. Full-page skeleton loader shown while JS/Firebase loads */
+      #ps-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: #030308;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        transition: opacity 0.35s ease, visibility 0.35s ease;
+      }
+      #ps-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      /* Logo pulse */
+      .ps-logo-pulse {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 22px;
+        color: #fff;
+        animation: psPulse 1.8s ease-in-out infinite;
+        box-shadow: 0 0 0 0 rgba(99,102,241,0.5);
+      }
+      @keyframes psPulse {
+        0%   { box-shadow: 0 0 0 0 rgba(99,102,241,0.5); }
+        60%  { box-shadow: 0 0 0 18px rgba(99,102,241,0); }
+        100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+      }
+
+      /* Skeleton progress bar */
+      .ps-progress {
+        width: 160px;
+        height: 3px;
+        background: rgba(99,102,241,0.15);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .ps-progress-bar {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #4f46e5, #a855f7, #4f46e5);
+        background-size: 200% 100%;
+        animation: psSlide 1.4s ease-in-out infinite;
+      }
+      @keyframes psSlide {
+        0%   { background-position: 100% 0; }
+        100% { background-position: -100% 0; }
+      }
+
+      .ps-loader-text {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #475569;
+      }
+
+      /* 4. Prevent any Tailwind base reset from flashing white before its own load */
+      .tailwind-pending body { background: #030308 !important; }
+    </style>
+
+    <!-- Meta Pixel Code (Asynchronous loading for optimal performance) -->
+    <link rel="preconnect" href="https://connect.facebook.net" />
+    <link rel="dns-prefetch" href="https://connect.facebook.net" />
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '897014713467251');
+    fbq('track', 'PageView');
+    </script>
+    <!-- End Meta Pixel Code -->
+  </head>
+  <body>
+    <!-- Meta Pixel No-Script Backup -->
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=897014713467251&ev=PageView&noscript=1" /></noscript>
+    <!-- Skeleton loader: visible immediately, dismissed by React after mount -->
+    <div id="ps-loader" role="status" aria-label="Yüklənir...">
+      <div class="ps-logo-pulse">PS</div>
+      <div class="ps-progress"><div class="ps-progress-bar"></div></div>
+      <span class="ps-loader-text">Yüklənir...</span>
+    </div>
+
+    <div id="root"></div>
+
+    <!--
+      Inline boot script: runs synchronously before React.
+      - Forces dark background immediately
+      - Adds 'mounted' class to #root after React hydrates (via MutationObserver)
+      - Dismisses the skeleton loader
+    -->
+    <script>
+      (function() {
+        // Ensure dark background even if CSS hasn't parsed yet
+        document.documentElement.style.background = '#030308';
+        document.documentElement.style.colorScheme = 'dark';
+
+        // Watch for React to inject content into #root, then reveal it
+        var root = document.getElementById('root');
+        var loader = document.getElementById('ps-loader');
+        var revealed = false;
+
+        function reveal() {
+          if (revealed) return;
+          revealed = true;
+          root.classList.add('mounted');
+          // Give React one frame to paint before hiding loader
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              if (loader) loader.classList.add('hidden');
+            });
+          });
+        }
+
+        // MutationObserver: fires as soon as React injects its first DOM node
+        var observer = new MutationObserver(function(mutations) {
+          for (var i = 0; i < mutations.length; i++) {
+            if (mutations[i].addedNodes.length > 0) {
+              observer.disconnect();
+              // Small delay to let React finish its synchronous paint
+              setTimeout(reveal, 80);
+              return;
+            }
+          }
+        });
+        observer.observe(root, { childList: true });
+
+        // Fallback: if React takes > 6s (e.g. very slow network), reveal anyway
+        setTimeout(function() { reveal(); }, 6000);
+      })();
+    </script>
+
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
